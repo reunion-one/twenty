@@ -63,6 +63,11 @@ import { UsageResourceType } from 'src/engine/core-modules/usage/enums/usage-res
 import { UsageUnit } from 'src/engine/core-modules/usage/enums/usage-unit.enum';
 import { UsageRecorderService } from 'src/engine/core-modules/usage/services/usage-recorder.service';
 import { getApiType } from 'src/engine/core-modules/usage/storage/api-request-context.storage';
+import { getWorkspaceTransactionScopeOrUndefined } from 'src/engine/core-modules/workspace-transaction-session/storage/workspace-transaction-context.storage';
+import {
+  WorkspaceTransactionSessionException,
+  WorkspaceTransactionSessionExceptionCode,
+} from 'src/engine/core-modules/workspace-transaction-session/exceptions/workspace-transaction-session.exception';
 import { buildUsageSpendersFromAuthContext } from 'src/engine/core-modules/usage/utils/build-usage-spenders-from-auth-context.util';
 import { FlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/types/flat-entity-maps.type';
 import { findFlatEntityByIdInFlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/utils/find-flat-entity-by-id-in-flat-entity-maps.util';
@@ -133,25 +138,41 @@ export abstract class CommonBaseQueryRunnerService<
     args: CommonInput<Args>,
     queryRunnerContext: CommonBaseQueryRunnerContext,
   ): Promise<CommonQueryExecutionResult<Output, Args>> {
+    const effectiveQueryRunnerContext: CommonBaseQueryRunnerContext = {
+      ...queryRunnerContext,
+      transactionScope:
+        queryRunnerContext.transactionScope ??
+        getWorkspaceTransactionScopeOrUndefined(),
+    };
     const {
       authContext,
       flatObjectMetadata,
       flatObjectMetadataMaps,
       flatFieldMetadataMaps,
-    } = queryRunnerContext;
+    } = effectiveQueryRunnerContext;
 
-    if ((queryRunnerContext.nestedOperationDepth ?? 0) === 0) {
+    if (
+      isDefined(effectiveQueryRunnerContext.transactionScope) &&
+      this.operationName === CommonQueryNames.MERGE_MANY
+    ) {
+      throw new WorkspaceTransactionSessionException(
+        'The merge operation does not support transaction sessions',
+        WorkspaceTransactionSessionExceptionCode.TRANSACTION_OPERATION_NOT_SUPPORTED,
+      );
+    }
+
+    if ((effectiveQueryRunnerContext.nestedOperationDepth ?? 0) === 0) {
       await this.throttleQueryExecution(authContext);
     }
 
     this.recordApiUsage(authContext);
 
-    await this.validate(args, queryRunnerContext);
+    await this.validate(args, effectiveQueryRunnerContext);
 
     if (flatObjectMetadata.isSystem === true) {
       await this.validateSettingsPermissionsOnObjectOrThrow(
         authContext,
-        queryRunnerContext,
+        effectiveQueryRunnerContext,
       );
     }
 
@@ -166,21 +187,25 @@ export abstract class CommonBaseQueryRunnerService<
     );
 
     const processedArgs = {
-      ...(await this.processArgs(args, queryRunnerContext, this.operationName)),
+      ...(await this.processArgs(
+        args,
+        effectiveQueryRunnerContext,
+        this.operationName,
+      )),
       selectedFieldsResult,
     } as CommonExtendedInput<Args>;
 
     this.validateQueryComplexity(
       selectedFieldsResult,
       processedArgs,
-      queryRunnerContext,
+      effectiveQueryRunnerContext,
     );
 
     const results = await this.workspaceOrmManager.executeInWorkspaceContext(
       async () =>
         this.executeQueryAndEnrichResults(
           processedArgs,
-          queryRunnerContext,
+          effectiveQueryRunnerContext,
           commonQueryParser,
         ),
       authContext,

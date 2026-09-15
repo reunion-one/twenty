@@ -15,6 +15,7 @@ import {
 } from 'src/engine/twenty-orm/storage/orm-workspace-context.storage';
 import type { RolePermissionConfig } from 'src/engine/twenty-orm/types/role-permission-config';
 import { WorkspaceDataSourceService } from 'src/engine/twenty-orm/datasource/workspace-data-source.service';
+import { WorkspaceTransactionSession } from 'src/engine/twenty-orm/datasource/workspace-transaction-session';
 import { type WorkspaceRepository } from 'src/engine/twenty-orm/repository/workspace-repository';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 import { convertClassNameToObjectMetadataName } from 'src/engine/workspace-manager/utils/convert-class-to-object-metadata-name.util';
@@ -82,6 +83,12 @@ export class WorkspaceOrmManager {
     return this.workspaceDataSourceService
       .getDataSource({ useReplica: false })
       .transaction(work);
+  }
+
+  async beginWorkspaceTransactionSession(): Promise<WorkspaceTransactionSession> {
+    return this.workspaceDataSourceService
+      .getDataSource({ useReplica: false })
+      .beginTransactionSession();
   }
 
   async executeInWorkspaceContext<T>(

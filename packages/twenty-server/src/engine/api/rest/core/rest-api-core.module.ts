@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 
 import { CoreCommonApiModule } from 'src/engine/api/common/core-common-api.module';
 import { RestApiCoreController } from 'src/engine/api/rest/core/controllers/rest-api-core.controller';
+import { WorkspaceTransactionSessionController } from 'src/engine/core-modules/workspace-transaction-session/controllers/workspace-transaction-session.controller';
 import { RestApiCreateManyHandler } from 'src/engine/api/rest/core/handlers/rest-api-create-many.handler';
 import { RestApiCreateOneHandler } from 'src/engine/api/rest/core/handlers/rest-api-create-one.handler';
 import { RestApiDeleteManyHandler } from 'src/engine/api/rest/core/handlers/rest-api-delete-many.handler';
@@ -29,6 +30,7 @@ import { WorkspaceManyOrAllFlatEntityMapsCacheModule } from 'src/engine/metadata
 import { UserRoleModule } from 'src/engine/metadata-modules/user-role/user-role.module';
 import { WorkspaceCacheStorageModule } from 'src/engine/workspace-cache-storage/workspace-cache-storage.module';
 import { WorkspaceCacheModule } from 'src/engine/workspace-cache/workspace-cache.module';
+import { WorkspaceTransactionSessionModule } from 'src/engine/core-modules/workspace-transaction-session/workspace-transaction-session.module';
 
 const restApiCoreResolvers = [
   RestApiCreateOneHandler,
@@ -62,8 +64,13 @@ const restApiCoreResolvers = [
     CoreCommonApiModule,
     WorkspaceDomainsModule,
     WorkspaceCacheModule,
+    WorkspaceTransactionSessionModule,
   ],
-  controllers: [RestApiCoreController],
+  controllers: [
+    // The core controller has wildcard routes, so transaction routes must be registered first.
+    WorkspaceTransactionSessionController,
+    RestApiCoreController,
+  ],
   providers: [
     RestApiCoreService,
     ...restApiCoreResolvers,

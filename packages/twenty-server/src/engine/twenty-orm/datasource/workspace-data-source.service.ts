@@ -44,6 +44,7 @@ export class WorkspaceDataSourceService
   private readonly logger = new Logger(WorkspaceDataSourceService.name);
   private primaryPool: Pool | null = null;
   private replicaPool: Pool | null = null;
+  private transactionSessionShutdown?: () => Promise<void>;
 
   constructor(
     private readonly twentyConfigService: TwentyConfigService,
@@ -105,6 +106,10 @@ export class WorkspaceDataSourceService
     });
   }
 
+  registerTransactionSessionShutdown(shutdown: () => Promise<void>): void {
+    this.transactionSessionShutdown = shutdown;
+  }
+
   private buildInternalContext(
     workspaceContext: ReturnType<typeof getWorkspaceContext>,
   ): WorkspaceInternalContext {
@@ -157,6 +162,8 @@ export class WorkspaceDataSourceService
   }
 
   async onApplicationShutdown(): Promise<void> {
+    await this.transactionSessionShutdown?.();
+
     this.databasePoolMetricsService.unregisterPool(
       DatabasePoolName.WorkspaceV2Primary,
     );

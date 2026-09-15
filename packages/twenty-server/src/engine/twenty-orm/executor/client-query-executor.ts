@@ -6,9 +6,17 @@ import { type QueryExecutor } from 'src/engine/twenty-orm/executor/types/query-e
 
 export class ClientQueryExecutor implements QueryExecutor {
   private readonly client: PoolClient;
+  private readonly onQueryError?: () => void;
 
-  constructor({ client }: { client: PoolClient }) {
+  constructor({
+    client,
+    onQueryError,
+  }: {
+    client: PoolClient;
+    onQueryError?: () => void;
+  }) {
     this.client = client;
+    this.onQueryError = onQueryError;
   }
 
   async execute(
@@ -22,6 +30,7 @@ export class ClientQueryExecutor implements QueryExecutor {
 
       return result.rows as Record<string, unknown>[];
     } catch (error) {
+      this.onQueryError?.();
       throw computeTwentyOrmException(error);
     }
   }

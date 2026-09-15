@@ -1375,6 +1375,28 @@ export class ConfigVariables {
   PG_POOL_ALLOW_EXIT_ON_IDLE = true;
 
   @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.ADVANCED_SETTINGS,
+    description:
+      'Maximum total lifetime in milliseconds for a workspace transaction session',
+    isEnvOnly: true,
+    type: ConfigVariableType.NUMBER,
+  })
+  @CastToPositiveNumber()
+  @IsOptional()
+  WORKSPACE_TRANSACTION_SESSION_MAX_LIFETIME_MS = 300000;
+
+  @ConfigVariablesMetadata({
+    group: ConfigVariablesGroup.ADVANCED_SETTINGS,
+    description:
+      'Maximum idle lifetime in milliseconds for a workspace transaction session',
+    isEnvOnly: true,
+    type: ConfigVariableType.NUMBER,
+  })
+  @CastToPositiveNumber()
+  @IsOptional()
+  WORKSPACE_TRANSACTION_SESSION_IDLE_TIMEOUT_MS = 60000;
+
+  @ConfigVariablesMetadata({
     group: ConfigVariablesGroup.SERVER_CONFIG,
     description: 'Enable configuration variables to be stored in the database',
     isEnvOnly: true,

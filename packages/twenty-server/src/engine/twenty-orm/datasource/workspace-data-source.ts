@@ -1,5 +1,3 @@
-import { Logger } from '@nestjs/common';
-
 import { type Pool } from 'pg';
 import { isDefined } from 'twenty-shared/utils';
 
@@ -15,6 +13,7 @@ import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object
 import { type WorkspaceInternalContext } from 'src/engine/twenty-orm/interfaces/workspace-internal-context.interface';
 import { type RolePermissionConfig } from 'src/engine/twenty-orm/types/role-permission-config';
 import { type WorkspaceTransactionScope } from 'src/engine/twenty-orm/types/workspace-transaction-scope.type';
+import { WorkspaceTransactionSession } from 'src/engine/twenty-orm/datasource/workspace-transaction-session';
 import { ClientQueryExecutor } from 'src/engine/twenty-orm/executor/client-query-executor';
 import { PoolQueryExecutor } from 'src/engine/twenty-orm/executor/pool-query-executor';
 import { type QueryExecutor } from 'src/engine/twenty-orm/executor/types/query-executor.type';
@@ -22,7 +21,6 @@ import {
   TwentyOrmException,
   TwentyOrmExceptionCode,
 } from 'src/engine/twenty-orm/exceptions/twenty-orm.exception';
-import { runInRollbackSafeTransaction } from 'src/engine/twenty-orm/datasource/utils/run-in-rollback-safe-transaction.util';
 import { WorkspaceRepository } from 'src/engine/twenty-orm/repository/workspace-repository';
 import { type WorkspaceTableShape } from 'src/engine/twenty-orm/table-shape/types/workspace-table-shape.type';
 import { buildWorkspaceTableShape } from 'src/engine/twenty-orm/table-shape/utils/build-workspace-table-shape.util';
@@ -34,7 +32,6 @@ const tableShapeCacheByFlatObjectMetadataMaps = new WeakMap<
 >();
 
 export class WorkspaceDataSource {
-  private readonly logger = new Logger(WorkspaceDataSource.name);
   private readonly pool: Pool;
   private readonly internalContext: WorkspaceInternalContext;
   private readonly authContext: WorkspaceAuthContext;
@@ -74,7 +71,40 @@ export class WorkspaceDataSource {
   async transaction<T>(
     work: (transactionScope: WorkspaceTransactionScope) => Promise<T>,
   ): Promise<T> {
+    const session = await this.beginTransactionSession();
+
+    try {
+      const result = await work(session.scope);
+
+      await session.commit();
+
+      return result;
+    } catch (error) {
+      await session.rollback().catch(() => undefined);
+
+      throw error;
+    }
+  }
+
+  async beginTransactionSession(): Promise<WorkspaceTransactionSession> {
+    const client = await this.pool.connect().catch((error: unknown) => {
+      throw computeTwentyOrmException(error);
+    });
+
+    try {
+      await client.query('BEGIN');
+    } catch (error) {
+      client.release(true);
+
+      throw computeTwentyOrmException(error);
+    }
+
     const afterCommitCallbacks: Array<() => void | Promise<void>> = [];
+    let session: WorkspaceTransactionSession | undefined;
+    const executor = new ClientQueryExecutor({
+      client,
+      onQueryError: () => session?.markAborted(),
+    });
     const afterCommit: WorkspaceTransactionScope['afterCommit'] = (callback) =>
       afterCommitCallbacks.push(callback);
     const transactionalInternalContext: WorkspaceInternalContext = {
@@ -88,50 +118,34 @@ export class WorkspaceDataSource {
           ),
       },
     };
-    const result = await this.runInClientTransaction((executor) =>
-      work({
-        workspaceId: this.internalContext.workspaceId,
-        getRepository: <T extends ObjectLiteral = ObjectRecord>(
-          nameSingular: string,
-          rolePermissionConfig?: RolePermissionConfig,
-          repositoryOptions?: { shouldSkipEventEmission?: boolean },
-        ) =>
-          this.buildRepository<T>({
-            nameSingular,
-            rolePermissionConfig,
-            executor,
-            isTransactional: true,
-            shouldSkipEventEmission:
-              repositoryOptions?.shouldSkipEventEmission ?? false,
-            internalContext: transactionalInternalContext,
-          }),
-        executeRawQuery: (sql, parameters = []) =>
-          executor.execute({ text: sql, values: parameters }),
-        afterCommit,
-      }),
-    );
+    const scope: WorkspaceTransactionScope = {
+      workspaceId: this.internalContext.workspaceId,
+      getRepository: <T extends ObjectLiteral = ObjectRecord>(
+        nameSingular: string,
+        rolePermissionConfig?: RolePermissionConfig,
+        repositoryOptions?: { shouldSkipEventEmission?: boolean },
+      ) =>
+        this.buildRepository<T>({
+          nameSingular,
+          rolePermissionConfig,
+          executor,
+          isTransactional: true,
+          shouldSkipEventEmission:
+            repositoryOptions?.shouldSkipEventEmission ?? false,
+          internalContext: transactionalInternalContext,
+        }),
+      executeRawQuery: (sql, parameters = []) =>
+        executor.execute({ text: sql, values: parameters }),
+      afterCommit,
+    };
 
-    for (const callback of afterCommitCallbacks) {
-      try {
-        await callback();
-      } catch (error) {
-        this.logger.error(
-          `After-commit callback failed for workspace ${this.internalContext.workspaceId}`,
-          error,
-        );
-      }
-    }
-
-    return result;
-  }
-
-  private async runInClientTransaction<T>(
-    work: (executor: QueryExecutor) => Promise<T>,
-  ): Promise<T> {
-    return runInRollbackSafeTransaction({
-      pool: this.pool,
-      work: (client) => work(new ClientQueryExecutor({ client })),
+    session = new WorkspaceTransactionSession({
+      client,
+      scope,
+      afterCommitCallbacks,
     });
+
+    return session;
   }
 
   private buildRepository<T extends ObjectLiteral = ObjectRecord>({

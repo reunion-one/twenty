@@ -24,6 +24,9 @@ import { McpMethodGuardMiddleware } from 'src/engine/api/mcp/middlewares/mcp-met
 import { McpModule } from 'src/engine/api/mcp/mcp.module';
 import { RestApiModule } from 'src/engine/api/rest/rest-api.module';
 import { WorkspaceAuthContextMiddleware } from 'src/engine/core-modules/auth/middlewares/workspace-auth-context.middleware';
+import { WorkspaceTransactionContextMiddleware } from 'src/engine/core-modules/workspace-transaction-session/middleware/workspace-transaction-context.middleware';
+import { WorkspaceTransactionSessionModule } from 'src/engine/core-modules/workspace-transaction-session/workspace-transaction-session.module';
+import { RestApiCoreController } from 'src/engine/api/rest/core/controllers/rest-api-core.controller';
 import { MetricsModule } from 'src/engine/core-modules/metrics/metrics.module';
 import { DataloaderModule } from 'src/engine/dataloaders/dataloader.module';
 import { WorkspaceMetadataVersionModule } from 'src/engine/metadata-modules/workspace-metadata-version/workspace-metadata-version.module';
@@ -75,6 +78,7 @@ const MIGRATED_REST_METHODS = [
     JwtModule,
     UserSessionModule,
     WorkspaceMetadataVersionModule,
+    WorkspaceTransactionSessionModule,
     I18nModule,
     ...AppModule.getConditionalModules(),
   ],
@@ -152,5 +156,9 @@ export class AppModule {
         )
         .forRoutes({ path: `${ApiPath.Rest}/*path`, method });
     }
+
+    consumer
+      .apply(WorkspaceTransactionContextMiddleware)
+      .forRoutes(RestApiCoreController);
   }
 }

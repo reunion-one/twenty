@@ -34,6 +34,7 @@ import { type RolePermissionConfig } from 'src/engine/twenty-orm/types/role-perm
 import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
 import { type WorkspaceSelectQueryBuilder } from 'src/engine/twenty-orm/query-builder/workspace-select-query-builder';
 import { type WorkspaceRepository } from 'src/engine/twenty-orm/repository/workspace-repository';
+import { getWorkspaceTransactionScopeOrUndefined } from 'src/engine/core-modules/workspace-transaction-session/storage/workspace-transaction-context.storage';
 import { isFieldMetadataEntityOfType } from 'src/engine/utils/is-field-metadata-of-type.util';
 
 const EMPTY_RELATION_SENTINEL_RECORD_ID =
@@ -197,13 +198,19 @@ export class ProcessNestedRelationsHelper {
         fieldMaps,
       });
 
+    const transactionScope = getWorkspaceTransactionScopeOrUndefined();
     const targetObjectRepository = repository
       ? repository.getRepositoryForObjectMetadataId(targetObjectMetadata.id)
-      : this.workspaceOrmManager.getRepository(
-          targetObjectMetadata.nameSingular,
-          rolePermissionConfig,
-          { useReplica },
-        );
+      : transactionScope
+        ? transactionScope.getRepository(
+            targetObjectMetadata.nameSingular,
+            rolePermissionConfig,
+          )
+        : this.workspaceOrmManager.getRepository(
+            targetObjectMetadata.nameSingular,
+            rolePermissionConfig,
+            { useReplica },
+          );
 
     const targetObjectNameSingular = targetObjectMetadata.nameSingular;
 
