@@ -56,7 +56,9 @@ export const resetFrontComponentStoryMocks = () => {
   hostApiMocks.requestAccessTokenRefresh.mockClear();
   hostApiMocks.openCommandConfirmationModal.mockClear();
   hostApiMocks.copyToClipboard.mockClear();
-  hostApiMocks.uploadFile.mockClear();
+  hostApiMocks.uploadFile
+    .mockReset()
+    .mockResolvedValue({ status: 'failed', reason: 'upload-failed' });
   hostApiMocks.storageSet.mockClear();
   hostApiMocks.storageDelete.mockClear();
   hostApiMocks.storageClear.mockClear();

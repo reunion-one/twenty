@@ -142,7 +142,8 @@ export const serializeEvent = (event: unknown): SerializedEventData => {
   const target = domEvent.target;
   if (isObject(target)) {
     const targetRecord = target as Record<string, unknown>;
-    if (isString(targetRecord.value)) {
+    const isFileInput = targetRecord.type === 'file';
+    if (!isFileInput && isString(targetRecord.value)) {
       serialized.value = targetRecord.value;
     }
     if (isBoolean(targetRecord.checked)) {
@@ -180,9 +181,15 @@ export const serializeEvent = (event: unknown): SerializedEventData => {
       serialized.playbackRate = targetRecord.playbackRate;
     }
 
-    const files = serializeFileList(targetRecord.files);
-    if (isDefined(files)) {
-      serialized.files = files;
+    if (
+      serialized.type === 'change' &&
+      isFileInput &&
+      target === domEvent.currentTarget
+    ) {
+      const files = serializeFileList(targetRecord.files);
+      if (isDefined(files)) {
+        serialized.files = files;
+      }
     }
   }
 
