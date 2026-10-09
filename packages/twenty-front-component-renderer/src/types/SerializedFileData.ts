@@ -1,6 +1,1 @@
-export type SerializedFileData = {
-  name: string;
-  size: number;
-  type: string;
-  lastModified: number;
-};
+export type SerializedFileData = File;
