@@ -16,6 +16,7 @@ type SelectInputProps = {
   onClear?: () => void;
   clearLabel?: string;
   onAddSelectOption?: (optionName: string) => void;
+  closeOnSelect?: boolean;
 };
 
 export const SelectInput = ({
@@ -25,6 +26,7 @@ export const SelectInput = ({
   options,
   value,
   onAddSelectOption,
+  closeOnSelect = false,
 }: SelectInputProps) => {
   const [searchFilter, setSearchFilter] = useState('');
   const isSearching = isNonEmptyString(searchFilter.trim());
@@ -53,7 +55,7 @@ export const SelectInput = ({
     <Dropdown.OptionItem
       onSelect={onClear}
       selected={!isNonEmptyString(value)}
-      closeOnSelect={false}
+      closeOnSelect={closeOnSelect}
     >
       <Tag color="transparent" borderStyle="dashed" variant="outline">
         {emptyLabel}
@@ -77,7 +79,7 @@ export const SelectInput = ({
             key={option.value}
             onSelect={() => onOptionSelected(option)}
             selected={option.value === value}
-            closeOnSelect={false}
+            closeOnSelect={closeOnSelect}
           >
             <Tag
               color={option.color ?? 'transparent'}

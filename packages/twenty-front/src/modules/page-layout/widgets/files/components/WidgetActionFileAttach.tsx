@@ -1,10 +1,20 @@
-import { useAttachFileRelatedRecordAction } from '@/activities/files/hooks/useAttachFileRelatedRecordAction';
-import { WidgetActionRelatedRecord } from '@/page-layout/widgets/components/WidgetActionRelatedRecord';
+import { AttachmentUploader } from '@/activities/files/components/AttachmentUploader';
+import { useCanUploadAttachmentFiles } from '@/activities/files/hooks/useCanUploadAttachmentFiles';
 import { useTargetRecord } from '@/ui/layout/contexts/useTargetRecord';
 
 export const WidgetActionFileAttach = () => {
   const targetRecord = useTargetRecord();
-  const binding = useAttachFileRelatedRecordAction({ targetRecord });
+  const { canUploadFiles } = useCanUploadAttachmentFiles(targetRecord);
 
-  return <WidgetActionRelatedRecord binding={binding} />;
+  if (!canUploadFiles) {
+    return null;
+  }
+
+  return (
+    <AttachmentUploader
+      targetableObject={targetRecord}
+      canUploadFiles={canUploadFiles}
+      appearance="header"
+    />
+  );
 };

@@ -294,24 +294,73 @@ describe('serializeEvent', () => {
     });
   });
 
-  it('should serialize target files', () => {
+  it('should serialize native File objects from the owning input change @custom', () => {
+    const file = new File(['file contents'], 'a.txt', {
+      type: 'text/plain',
+      lastModified: 1,
+    });
+    const target = {
+      type: 'file',
+      value: 'C:\\fakepath\\a.txt',
+      files: [file],
+    };
     const result = serializeEvent({
       type: 'change',
-      target: {
-        files: {
-          length: 1,
-          0: {
-            name: 'a.png',
-            size: 1,
-            type: 'image/png',
-            lastModified: 1,
-          },
-        },
-      },
+      target,
+      currentTarget: target,
     });
 
-    expect(result.files).toEqual([
-      { name: 'a.png', size: 1, type: 'image/png', lastModified: 1 },
-    ]);
+    expect(result.value).toBe(target.value);
+    expect(result.files).toEqual([file]);
+    expect(result.files?.[0]).toBe(file);
+  });
+
+  it('should serialize an empty file selection as an empty array @custom', () => {
+    const target = { type: 'file', value: '', files: [] };
+
+    expect(
+      serializeEvent({ type: 'change', target, currentTarget: target }),
+    ).toEqual({ type: 'change', value: '', files: [] });
+  });
+
+  it.each(['click', 'input', 'focus', 'blur', 'keydown'])(
+    'should not serialize file contents on unrelated %s events @custom',
+    (type) => {
+      const target = {
+        type: 'file',
+        value: 'C:\\fakepath\\a.txt',
+        files: [new File(['secret'], 'a.txt', { type: 'text/plain' })],
+      };
+
+      const result = serializeEvent({ type, target, currentTarget: target });
+
+      expect(result).not.toHaveProperty('files');
+    },
+  );
+
+  it('should not forward child files through a parent change listener @custom', () => {
+    const target = {
+      type: 'file',
+      value: 'C:\\fakepath\\a.txt',
+      files: [new File(['secret'], 'a.txt', { type: 'text/plain' })],
+    };
+
+    const result = serializeEvent({
+      type: 'change',
+      target,
+      currentTarget: { type: 'div' },
+    });
+
+    expect(result).not.toHaveProperty('files');
+  });
+
+  it('should preserve non-file input values and omit absent file data @custom', () => {
+    const result = serializeEvent({
+      type: 'change',
+      target: { type: 'text', value: 'hello' },
+      currentTarget: { type: 'text' },
+    });
+
+    expect(result).toEqual({ type: 'change', value: 'hello' });
   });
 });

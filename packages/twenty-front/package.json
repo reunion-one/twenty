@@ -6,7 +6,8 @@
     "build": "NODE_ENV=production NODE_OPTIONS=--max-old-space-size=8192 npx vite build",
     "build:sourcemaps": "NODE_ENV=production VITE_BUILD_SOURCEMAP=true NODE_OPTIONS=--max-old-space-size=8192 npx vite build",
     "start:prod": "NODE_ENV=production npx serve -s build",
-    "tsup": "npx tsup"
+    "tsup": "npx tsup",
+    "test:custom": "NODE_OPTIONS=--max-old-space-size=4096 npx jest --config=jest.config.mjs --runInBand --testNamePattern=@custom"
   },
   "engines": {
     "node": "^24.5.0",

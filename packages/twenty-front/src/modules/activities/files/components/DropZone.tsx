@@ -2,9 +2,11 @@ import { styled } from '@linaria/react';
 import { useLingui } from '@lingui/react/macro';
 import { useDropzone } from 'react-dropzone';
 
-import { useSpreadsheetImportInternal } from '@/spreadsheet-import/hooks/useSpreadsheetImportInternal';
 import { IconUpload } from 'twenty-ui/icon';
 import { useTheme, themeCssVariables } from 'twenty-ui/theme';
+import { MAX_ATTACHMENT_SIZE } from '@/advanced-text-editor/utils/maxAttachmentSize';
+import { formatFileSize } from '@/file/utils/formatFileSize';
+import { useToast } from 'twenty-ui/components/feedback';
 
 const StyledContainer = styled.div`
   align-items: center;
@@ -50,25 +52,35 @@ export const DropZone = ({
 }: DropZoneProps) => {
   const theme = useTheme();
   const { t } = useLingui();
-  const { maxFileSize } = useSpreadsheetImportInternal();
+  const { enqueueToast } = useToast();
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     noClick: true,
     noKeyboard: true,
     multiple: true,
-    maxSize: maxFileSize,
+    maxSize: MAX_ATTACHMENT_SIZE,
     onDragEnter: () => {
       setIsDraggingFile(true);
     },
     onDragLeave: () => {
       setIsDraggingFile(false);
     },
-    onDrop: () => {
+    onDrop: (acceptedFiles, fileRejections) => {
       setIsDraggingFile(false);
-    },
-    onDropAccepted: async (files) => {
-      onUploadFiles(files);
-      setIsDraggingFile(false);
+      if (fileRejections.length > 0) {
+        enqueueToast({
+          variant: 'error',
+          children: t({
+            id: 'Files must be smaller than {maxFileSize}.',
+            message: `Files must be smaller than ${{ maxFileSize: formatFileSize(MAX_ATTACHMENT_SIZE) }}.`,
+          }),
+        });
+        return;
+      }
+
+      if (acceptedFiles.length > 0) {
+        void onUploadFiles(acceptedFiles);
+      }
     },
   });
 

@@ -4,6 +4,20 @@ import { type ActivityTargetableObject } from '@/activities/types/ActivityTarget
 import { useCanUpdateObjectRecords } from '@/object-record/hooks/useCanUpdateObjectRecords';
 import { useHasPermissionFlag } from '@/settings/roles/hooks/useHasPermissionFlag';
 import { PermissionFlagType } from '~/generated-metadata/graphql';
+import { type EnrichedObjectMetadataItem } from '@/object-metadata/types/EnrichedObjectMetadataItem';
+
+export const canUploadAttachmentFiles = ({
+  targetObjectMetadataItem,
+  canUpdateObjectRecords,
+  hasUploadPermission,
+}: {
+  targetObjectMetadataItem: EnrichedObjectMetadataItem;
+  canUpdateObjectRecords: boolean;
+  hasUploadPermission: boolean;
+}) =>
+  canUpdateObjectRecords &&
+  hasUploadPermission &&
+  !isObjectMetadataReadOnly({ objectMetadataItem: targetObjectMetadataItem });
 
 export const useCanUploadAttachmentFiles = (
   targetableObject: ActivityTargetableObject,
@@ -20,9 +34,10 @@ export const useCanUploadAttachmentFiles = (
   );
 
   return {
-    canUploadFiles:
-      canUpdateObjectRecords &&
-      hasUploadPermission &&
-      !isObjectMetadataReadOnly({ objectMetadataItem }),
+    canUploadFiles: canUploadAttachmentFiles({
+      targetObjectMetadataItem: objectMetadataItem,
+      canUpdateObjectRecords,
+      hasUploadPermission,
+    }),
   };
 };

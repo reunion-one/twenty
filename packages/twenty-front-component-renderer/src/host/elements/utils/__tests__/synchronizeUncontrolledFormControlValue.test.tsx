@@ -263,7 +263,7 @@ describe('uncontrolled form control value synchronization', () => {
     expect(hostCheckbox.checked).toBe(false);
   });
 
-  it('should clear the host file input every time a change listener resets it after reading the file', async () => {
+  it('should clear the host file input every time a change listener resets it after reading the file @custom', async () => {
     const workerFileInput = createWorkerElement(
       'html-input',
     ) as WorkerFileInput;

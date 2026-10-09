@@ -6,6 +6,8 @@ import { type ComponentProps } from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { Button } from 'twenty-ui/primitives/input';
 import { ComponentDecorator } from 'twenty-ui/testing';
+import { ToastProvider } from 'twenty-ui/components/feedback';
+import { ObjectMetadataItemsDecorator } from '~/testing/decorators/ObjectMetadataItemsDecorator';
 
 const ATTACHMENT_PARENT_CLICK_OUTSIDE_ID = 'attachment-parent';
 
@@ -29,7 +31,7 @@ const AttachmentDropdownStory = ({
   });
 
   return (
-    <>
+    <ToastProvider>
       <ParentClickOutsideIdContext.Provider
         value={ATTACHMENT_PARENT_CLICK_OUTSIDE_ID}
       >
@@ -41,14 +43,14 @@ const AttachmentDropdownStory = ({
         </div>
       </ParentClickOutsideIdContext.Provider>
       <Button>Outside attachment</Button>
-    </>
+    </ToastProvider>
   );
 };
 
 const meta: Meta<typeof AttachmentDropdownStory> = {
   title: 'Modules/Activities/Files/AttachmentDropdown',
   component: AttachmentDropdownStory,
-  decorators: [ComponentDecorator],
+  decorators: [ObjectMetadataItemsDecorator, ComponentDecorator],
   args: {
     attachmentId: 'attachment',
     hasDownloadPermission: true,
@@ -66,7 +68,7 @@ type Story = StoryObj<typeof AttachmentDropdownStory>;
 export const DownloadPreservesSelection: Story = {
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement.ownerDocument.body);
-    const trigger = canvas.getByRole('button', { name: 'More options' });
+    const trigger = await canvas.findByRole('button', { name: 'More options' });
 
     await userEvent.click(trigger);
     await expect(
@@ -92,7 +94,7 @@ export const KeyboardDeletionWithoutDownloadPermission: Story = {
   args: { hasDownloadPermission: false },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement.ownerDocument.body);
-    const trigger = canvas.getByRole('button', { name: 'More options' });
+    const trigger = await canvas.findByRole('button', { name: 'More options' });
     trigger.focus();
 
     await userEvent.keyboard('{ArrowDown}');

@@ -1,5 +1,5 @@
 import { isString } from '@sniptt/guards';
-import { isPlainObject } from 'twenty-shared/utils';
+import { isDefined, isPlainObject } from 'twenty-shared/utils';
 
 import { applyEventModifierKeys } from '@/host/events/utils/applyEventModifierKeys';
 import { applyEventTargetProperties } from '@/host/events/utils/applyEventTargetProperties';
@@ -8,6 +8,7 @@ import { applyKeyboardEventProperties } from '@/host/events/utils/applyKeyboardE
 import { applyMouseEventProperties } from '@/host/events/utils/applyMouseEventProperties';
 import { applyPointerEventProperties } from '@/host/events/utils/applyPointerEventProperties';
 import { applyWheelEventProperties } from '@/host/events/utils/applyWheelEventProperties';
+import { serializeFileList } from '@/host/events/utils/serializeFileList';
 import { type SerializedEventData } from '@/types/SerializedEventData';
 
 type SerializeEventOptions = {
@@ -39,6 +40,20 @@ export const serializeEvent = (
     target: domEvent.target,
     includesFormControlState,
   });
+
+  const target = domEvent.target;
+  if (
+    includesFormControlState &&
+    serializedEvent.type === 'change' &&
+    isPlainObject(target) &&
+    target.type === 'file' &&
+    target === domEvent.currentTarget
+  ) {
+    const files = serializeFileList(target.files);
+    if (isDefined(files)) {
+      serializedEvent.files = files;
+    }
+  }
 
   return serializedEvent;
 };
