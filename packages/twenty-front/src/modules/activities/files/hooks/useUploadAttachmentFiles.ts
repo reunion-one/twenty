@@ -7,12 +7,14 @@ export const useUploadAttachmentFiles = () => {
   const uploadAttachmentFiles = async ({
     files,
     targetableObject,
+    docType,
   }: {
     files: File[];
     targetableObject: ActivityTargetableObject;
+    docType?: string | null;
   }) => {
     for (const file of files) {
-      await uploadAttachmentFile(file, targetableObject);
+      await uploadAttachmentFile(file, targetableObject, docType);
     }
   };
 

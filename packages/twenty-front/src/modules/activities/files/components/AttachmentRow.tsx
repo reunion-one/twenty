@@ -1,5 +1,6 @@
 import { ActivityRow } from '@/activities/components/ActivityRow';
 import { AttachmentDropdown } from '@/activities/files/components/AttachmentDropdown';
+import { useAttachmentDocumentType } from '@/activities/files/hooks/useAttachmentDocumentType';
 import { downloadFile } from '@/activities/files/utils/downloadFile';
 import { useDestroyOneRecord } from '@/object-record/hooks/useDestroyOneRecord';
 import { useUpdateOneRecord } from '@/object-record/hooks/useUpdateOneRecord';
@@ -21,25 +22,45 @@ import { CoreObjectNameSingular } from 'twenty-shared/types';
 import { OverflowingTextWithTooltip } from 'twenty-ui/primitives/typography';
 import { IconCalendar } from 'twenty-ui/icon';
 import { useTheme, themeCssVariables } from 'twenty-ui/theme';
+import { Tag } from 'twenty-ui/primitives/data-display';
 import { PermissionFlagType } from '~/generated-metadata/graphql';
 import { formatToHumanReadableDate } from '~/utils/date-utils';
 import { getFileNameAndExtension } from '~/utils/file/getFileNameAndExtension';
 import { openUrlInNewTab } from '~/utils/openUrlInNewTab';
+import { useLingui } from '@lingui/react/macro';
 
 const StyledLeftContent = styled.div`
   align-items: center;
   display: flex;
   flex: 1;
-
   gap: ${themeCssVariables.spacing[3]};
-  overflow: auto;
+  min-width: 0;
+  overflow: hidden;
   width: 100%;
+`;
+
+const StyledNameLine = styled.div`
+  align-items: center;
+  display: flex;
+  flex: 1;
+  gap: ${themeCssVariables.spacing[2]};
+  min-width: 0;
+  overflow: hidden;
 `;
 
 const StyledRightContent = styled.div`
   align-items: center;
   display: flex;
+  flex: 0 0 auto;
+  gap: ${themeCssVariables.spacing[2]};
+  margin-left: auto;
+`;
+
+const StyledDateContent = styled.div`
+  align-items: center;
+  display: flex;
   gap: ${themeCssVariables.spacing['0.5']};
+  white-space: nowrap;
 `;
 
 const StyledCalendarIconContainer = styled.div`
@@ -69,11 +90,26 @@ const StyledLink = styled.a`
 `;
 
 const StyledLinkContainer = styled.div`
-  overflow: auto;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
   width: 100%;
 `;
 
+const StyledDocumentTypeTagContainer = styled.div`
+  flex: 0 1 auto;
+  max-width: 10rem;
+  min-width: 0;
+  overflow: hidden;
+
+  & > span {
+    max-width: 100%;
+  }
+`;
+
 const StyledTextInputContainer = styled.div`
+  flex: 1;
+  min-width: 0;
   width: 100%;
 `;
 
@@ -87,7 +123,9 @@ export const AttachmentRow = ({
   onPreview,
 }: AttachmentRowProps) => {
   const theme = useTheme();
+  const { t } = useLingui();
   const [isEditing, setIsEditing] = useState(false);
+  const documentType = useAttachmentDocumentType();
 
   const hasDownloadPermission = useHasPermissionFlag(
     PermissionFlagType.DOWNLOAD_FILE,
@@ -100,6 +138,14 @@ export const AttachmentRow = ({
     useState(originalFileName);
 
   const fileCategory = getFileCategoryFromExtension(attachment.file.extension);
+
+  const documentTypeOption = documentType.options.find(
+    (option) => option.value === attachment.docType,
+  );
+  const showDocumentTypeTag =
+    documentType.isReadableSelectField &&
+    attachment.docType !== null &&
+    attachment.docType !== undefined;
 
   const fileUrl = attachment.file.url;
   const safeFileUrl = getSafeUrl(fileUrl);
@@ -197,45 +243,63 @@ export const AttachmentRow = ({
       <ActivityRow onClick={handleRowClick} disabled={isEditing}>
         <StyledLeftContent>
           <FileIcon fileCategory={fileCategory} thumbnailUrl={fileUrl} />
-          {isEditing ? (
-            <StyledTextInputContainer
-              onClick={(event) => event.stopPropagation()}
-            >
-              <SettingsTextInput
-                instanceId={`attachment-${attachment.id}-name`}
-                value={attachmentFileName}
-                onChange={handleOnChange}
-                onBlur={handleOnBlur}
-                autoFocus
-                onKeyDown={handleOnKeyDown}
-              />
-            </StyledTextInputContainer>
-          ) : (
-            <StyledLinkContainer>
-              <StyledLink
-                onClick={handleFileLinkClick}
-                href={safeFileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+          <StyledNameLine>
+            {isEditing ? (
+              <StyledTextInputContainer
+                onClick={(event) => event.stopPropagation()}
               >
-                <OverflowingTextWithTooltip
-                  text={`${attachmentFileName}${attachmentFileExtension}`}
+                <SettingsTextInput
+                  instanceId={`attachment-${attachment.id}-name`}
+                  value={attachmentFileName}
+                  onChange={handleOnChange}
+                  onBlur={handleOnBlur}
+                  autoFocus
+                  onKeyDown={handleOnKeyDown}
                 />
-              </StyledLink>
-            </StyledLinkContainer>
-          )}
+              </StyledTextInputContainer>
+            ) : (
+              <StyledLinkContainer>
+                <StyledLink
+                  onClick={handleFileLinkClick}
+                  href={safeFileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <OverflowingTextWithTooltip
+                    text={`${attachmentFileName}${attachmentFileExtension}`}
+                  />
+                </StyledLink>
+              </StyledLinkContainer>
+            )}
+          </StyledNameLine>
         </StyledLeftContent>
         <StyledRightContent>
-          <StyledCalendarIconContainer>
-            <IconCalendar size={theme.icon.size.md} />
-          </StyledCalendarIconContainer>
-          {formatToHumanReadableDate(attachment.createdAt)}
+          {showDocumentTypeTag && (
+            <StyledDocumentTypeTagContainer>
+              <Tag color={documentTypeOption?.color ?? 'gray'}>
+                {documentTypeOption?.label ??
+                  t({
+                    id: 'Unknown {fieldLabel}',
+                    message: `Unknown ${{ fieldLabel: documentType.label ?? 'type' }}`,
+                  })}
+              </Tag>
+            </StyledDocumentTypeTagContainer>
+          )}
+          <StyledDateContent>
+            <StyledCalendarIconContainer>
+              <IconCalendar size={theme.icon.size.md} />
+            </StyledCalendarIconContainer>
+            <time dateTime={attachment.createdAt}>
+              {formatToHumanReadableDate(attachment.createdAt)}
+            </time>
+          </StyledDateContent>
           <AttachmentDropdown
             attachmentId={attachment.id}
             onDelete={handleDelete}
             onDownload={handleDownload}
             onRename={handleRename}
             hasDownloadPermission={hasDownloadPermission}
+            docType={attachment.docType}
           />
         </StyledRightContent>
       </ActivityRow>

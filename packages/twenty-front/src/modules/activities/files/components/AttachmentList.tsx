@@ -5,10 +5,8 @@ import { t } from '@lingui/core/macro';
 import { lazy, Suspense, useState } from 'react';
 
 import { DropZone } from '@/activities/files/components/DropZone';
-import { useUploadAttachmentFile } from '@/activities/files/hooks/useUploadAttachmentFile';
 import { type Attachment } from '@/activities/files/types/Attachment';
 import { downloadFile } from '@/activities/files/utils/downloadFile';
-import { type ActivityTargetableObject } from '@/activities/types/ActivityTargetableEntity';
 import { isAttachmentPreviewEnabledState } from '@/client-config/states/isAttachmentPreviewEnabledState';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
 
@@ -35,8 +33,9 @@ const DocumentViewer = lazy(() =>
 );
 
 type AttachmentListProps = {
-  targetableObject: ActivityTargetableObject;
   attachments: Attachment[];
+  canUploadFiles: boolean;
+  onUploadFiles: (files: File[]) => Promise<void>;
 };
 
 const StyledContainer = styled.div`
@@ -93,10 +92,10 @@ const StyledButtonContainer = styled.div`
 const PREVIEW_MODAL_ID = 'preview-modal';
 
 export const AttachmentList = ({
-  targetableObject,
   attachments,
+  canUploadFiles,
+  onUploadFiles,
 }: AttachmentListProps) => {
-  const { uploadAttachmentFile } = useUploadAttachmentFile();
   const [isDraggingFile, setIsDraggingFile] = useState(false);
   const [previewedAttachment, setPreviewedAttachment] =
     useState<AttachmentWithFile | null>(null);
@@ -109,23 +108,9 @@ export const AttachmentList = ({
     PermissionFlagType.DOWNLOAD_FILE,
   );
 
-  const hasUploadPermission = useHasPermissionFlag(
-    PermissionFlagType.UPLOAD_FILE,
-  );
-
   const { openDialog, closeDialog } = useDialog();
 
   const attachmentsWithFile = filterAttachmentsWithFile(attachments);
-
-  const onUploadFile = async (file: File) => {
-    await uploadAttachmentFile(file, targetableObject);
-  };
-
-  const onUploadFiles = async (files: File[]) => {
-    for (const file of files) {
-      await onUploadFile(file);
-    }
-  };
 
   const handlePreview = (attachment: AttachmentWithFile) => {
     if (!isAttachmentPreviewEnabled) return;
@@ -149,9 +134,9 @@ export const AttachmentList = ({
       {attachmentsWithFile.length > 0 && (
         <StyledContainer>
           <StyledDropZoneContainer
-            onDragEnter={() => hasUploadPermission && setIsDraggingFile(true)}
+            onDragEnter={() => canUploadFiles && setIsDraggingFile(true)}
           >
-            {isDraggingFile && hasUploadPermission ? (
+            {isDraggingFile && canUploadFiles ? (
               <DropZone
                 setIsDraggingFile={setIsDraggingFile}
                 onUploadFiles={onUploadFiles}
