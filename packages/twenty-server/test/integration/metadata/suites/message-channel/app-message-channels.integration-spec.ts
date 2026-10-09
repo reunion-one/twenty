@@ -1,3 +1,4 @@
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { gql } from 'graphql-tag';
 import { buildBaseManifest } from 'test/integration/metadata/suites/application/utils/build-base-manifest.util';
 import { cleanupApplicationAndAppRegistration } from 'test/integration/metadata/suites/application/utils/cleanup-application-and-app-registration.util';
@@ -10,8 +11,12 @@ import { makeGraphqlApiRequest } from 'test/integration/graphql/utils/make-graph
 import { makeRestApiRequest } from 'test/integration/rest/utils/make-rest-api-request.util';
 import { makeMetadataApiRequest } from 'test/integration/metadata/suites/utils/make-metadata-api-request.util';
 import { type Manifest } from 'twenty-shared/application';
+import { QUERY_MAX_RECORDS } from 'twenty-shared/constants';
+import { type ObjectRecordUpdateEvent } from 'twenty-shared/database-events';
 import { DatabaseEventAction } from 'src/engine/api/graphql/graphql-query-runner/enums/database-event-action';
+import { transformEventBatchToWebhookEvents } from 'src/engine/metadata-modules/webhook/utils/transform-event-batch-to-webhook-events';
 import { type WorkspaceEventEmitter } from 'src/engine/workspace-event-emitter/workspace-event-emitter';
+import { type WorkspaceEventBatch } from 'src/engine/workspace-event-emitter/types/workspace-event-batch.type';
 import { getAppProviderByClassName } from 'test/integration/utils/get-app-provider-by-class-name.util';
 import {
   ConnectedAccountProvider,
@@ -36,6 +41,7 @@ import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system
 import { type MessageChannelMessageAssociationWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message-channel-message-association.workspace-entity';
 import { type MessageWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message.workspace-entity';
 import { MessagingMessageCleanerService } from 'src/modules/messaging/message-cleaner/services/messaging-message-cleaner.service';
+import { formatRawMimeMessage } from 'src/modules/messaging/message-import-manager/utils/format-raw-mime-message.util';
 
 const OWNING_APP_ID = uuidv4();
 const OWNING_APP_ROLE_ID = uuidv4();
@@ -914,6 +920,16 @@ describe('app message channels API (e2e)', () => {
         rawProviderData: replacementRawProviderData,
       });
 
+      const restDefaultRead = await makeRestApiRequest({
+        method: 'get',
+        path: `/messages/${ingestedMessage.messageId}`,
+      });
+
+      expect(restDefaultRead.status).toBe(200);
+      expect(restDefaultRead.body.data.message).toMatchObject({
+        rawProviderData: replacementRawProviderData,
+      });
+
       const restWrite = await makeRestApiRequest({
         method: 'patch',
         path: `/messages/${ingestedMessage.messageId}`,
@@ -932,6 +948,293 @@ describe('app message channels API (e2e)', () => {
 
       expect(messageAfterRejectedRestWrite).toEqual({
         rawProviderData: replacementRawProviderData,
+      });
+    });
+
+    it('measures MIME attachment data through REST and webhook event serialization @custom', async () => {
+      const createRawMimeProviderData = (
+        attachmentBytes: number,
+        fill: number,
+      ) => {
+        const attachmentBase64 =
+          Buffer.alloc(attachmentBytes, fill)
+            .toString('base64')
+            .match(/.{1,76}/g)
+            ?.join('\r\n') ?? '';
+        const rawMimeMessage = Buffer.from(
+          [
+            'MIME-Version: 1.0',
+            'Content-Type: multipart/mixed; boundary="mixed-boundary"',
+            '',
+            '--mixed-boundary',
+            'Content-Type: application/octet-stream; name="attachment.bin"',
+            'Content-Transfer-Encoding: base64',
+            'Content-Disposition: attachment; filename="attachment.bin"',
+            '',
+            attachmentBase64,
+            '--mixed-boundary--',
+            '',
+          ].join('\r\n'),
+          'ascii',
+        );
+
+        return {
+          mimeBytes: rawMimeMessage.byteLength,
+          rawProviderData: formatRawMimeMessage(rawMimeMessage),
+        };
+      };
+      const attachmentBytes = 1024 * 1024;
+      const initialMime = createRawMimeProviderData(attachmentBytes, 0);
+      const replacementMime = createRawMimeProviderData(attachmentBytes, 1);
+      const channel = await createChannelOrThrow();
+      const threadExternalId = `mime-raw-size-${uuidv4()}`;
+      const initial = await ingest({
+        messageChannelId: channel.id,
+        messages: [
+          buildMessage({
+            externalId: 'mime-raw-size-probe',
+            threadExternalId,
+            senderHandle: 'candidate@linkedin.test',
+            rawProviderData: { providerMessageId: 'before-mime-probe' },
+          }),
+        ],
+      });
+
+      expect(initial.body.errors).toBeUndefined();
+
+      const [ingestedMessage] = initial.body.data.ingestAppMessages.messages;
+      const [persistedMessage]: {
+        headerMessageId: string;
+      }[] = await globalThis.testDataSource.query(
+        `SELECT "headerMessageId" FROM "${WORKSPACE_SCHEMA}"."message"
+          WHERE id = $1`,
+        [ingestedMessage.messageId],
+      );
+
+      await globalThis.testDataSource.query(
+        `UPDATE "${WORKSPACE_SCHEMA}"."message"
+            SET "rawProviderData" = $2::jsonb WHERE id = $1`,
+        [
+          ingestedMessage.messageId,
+          JSON.stringify(initialMime.rawProviderData),
+        ],
+      );
+
+      const workspaceEventEmitter =
+        getAppProviderByClassName<WorkspaceEventEmitter>(
+          'WorkspaceEventEmitter',
+        );
+      const eventEmitter = (
+        workspaceEventEmitter as unknown as { eventEmitter: EventEmitter2 }
+      ).eventEmitter;
+      const workspaceOrmManager =
+        getAppProviderByClassName<WorkspaceOrmManager>('WorkspaceOrmManager');
+      const messagingMessageService =
+        getAppProviderByClassName<MessagingMessageService>(
+          'MessagingMessageService',
+        );
+      const replacementMessage = {
+        externalId: 'mime-raw-size-probe',
+        headerMessageId: persistedMessage.headerMessageId,
+        subject: null,
+        text: 'Hi there',
+        receivedAt: new Date('2026-01-01T10:00:00.000Z'),
+        messageThreadExternalId: threadExternalId,
+        direction: MessageDirection.INCOMING,
+        participants: [],
+        attachments: [],
+        isDraft: false,
+        rawProviderData: replacementMime.rawProviderData,
+      } satisfies MessageWithParticipants;
+      let emittedUpdateBatch:
+        | WorkspaceEventBatch<ObjectRecordUpdateEvent<MessageWorkspaceEntity>>
+        | undefined;
+      const captureMessageUpdateBatch = (
+        batchEvent: WorkspaceEventBatch<
+          ObjectRecordUpdateEvent<MessageWorkspaceEntity>
+        >,
+      ) => {
+        if (
+          batchEvent.events.some(
+            (event) => event.recordId === ingestedMessage.messageId,
+          )
+        ) {
+          emittedUpdateBatch = batchEvent;
+        }
+      };
+
+      eventEmitter.on('message.updated', captureMessageUpdateBatch);
+
+      try {
+        await workspaceOrmManager.executeInWorkspaceContext(
+          () =>
+            workspaceOrmManager.runInWorkspaceTransaction((transactionScope) =>
+              messagingMessageService.saveMessagesWithinTransaction(
+                [replacementMessage],
+                channel.id,
+                transactionScope,
+                SEED_APPLE_WORKSPACE_ID,
+              ),
+            ),
+          buildSystemAuthContext(SEED_APPLE_WORKSPACE_ID),
+          { lite: true },
+        );
+      } finally {
+        eventEmitter.removeListener(
+          'message.updated',
+          captureMessageUpdateBatch,
+        );
+      }
+
+      const defaultRestResponse = await makeRestApiRequest({
+        method: 'get',
+        path: `/messages/${ingestedMessage.messageId}`,
+      });
+
+      expect(defaultRestResponse.status).toBe(200);
+      expect(defaultRestResponse.body.data.message.rawProviderData).toEqual(
+        replacementMime.rawProviderData,
+      );
+
+      if (!isDefined(emittedUpdateBatch)) {
+        throw new Error('Message update event was not emitted');
+      }
+
+      const updateEvent = emittedUpdateBatch.events.find(
+        (event) => event.recordId === ingestedMessage.messageId,
+      );
+
+      if (!isDefined(updateEvent)) {
+        throw new Error('Message raw update event was not emitted');
+      }
+
+      const webhookJobs = transformEventBatchToWebhookEvents({
+        workspaceEventBatch: emittedUpdateBatch,
+        webhooks: [
+          {
+            id: uuidv4(),
+            targetUrl: 'https://webhook.example.test',
+            secret: 'test-secret',
+          },
+        ],
+      });
+      const [webhookJob] = webhookJobs;
+
+      if (!isDefined(webhookJob)) {
+        throw new Error('Webhook transform returned no event');
+      }
+
+      const { secret: _secret, ...outboundWebhookPayload } = webhookJob;
+      const oneMiBMeasurements = {
+        attachmentBytes,
+        mimeBytes: replacementMime.mimeBytes,
+        formattedRawJsonBytes: Buffer.byteLength(
+          JSON.stringify(replacementMime.rawProviderData),
+        ),
+        defaultRestResponseBytes: Buffer.byteLength(defaultRestResponse.text),
+        emittedUpdateBatchBytes: Buffer.byteLength(
+          JSON.stringify(emittedUpdateBatch),
+        ),
+        webhookPayloadBytes: Buffer.byteLength(
+          JSON.stringify(outboundWebhookPayload),
+        ),
+      };
+
+      expect(oneMiBMeasurements.mimeBytes).toBeGreaterThan(attachmentBytes);
+      expect(oneMiBMeasurements.formattedRawJsonBytes).toBeGreaterThan(
+        oneMiBMeasurements.mimeBytes,
+      );
+      expect(oneMiBMeasurements.defaultRestResponseBytes).toBeGreaterThan(
+        oneMiBMeasurements.formattedRawJsonBytes,
+      );
+      expect(oneMiBMeasurements.emittedUpdateBatchBytes).toBeGreaterThan(
+        oneMiBMeasurements.formattedRawJsonBytes * 3,
+      );
+      expect(oneMiBMeasurements.webhookPayloadBytes).toBeGreaterThan(
+        oneMiBMeasurements.formattedRawJsonBytes,
+      );
+
+      const largeAttachmentBytes = 10 * 1024 * 1024;
+      const largeInitialMime = createRawMimeProviderData(
+        largeAttachmentBytes,
+        0,
+      );
+      const largeReplacementMime = createRawMimeProviderData(
+        largeAttachmentBytes,
+        1,
+      );
+      const largeUpdateEvent: ObjectRecordUpdateEvent<MessageWorkspaceEntity> =
+        {
+          ...updateEvent,
+          properties: {
+            ...updateEvent.properties,
+            before: {
+              ...updateEvent.properties.before,
+              rawProviderData: largeInitialMime.rawProviderData,
+            },
+            after: {
+              ...updateEvent.properties.after,
+              rawProviderData: largeReplacementMime.rawProviderData,
+            },
+            diff: {
+              ...updateEvent.properties.diff,
+              rawProviderData: {
+                before: largeInitialMime.rawProviderData,
+                after: largeReplacementMime.rawProviderData,
+              },
+            },
+          },
+        };
+      const largeWorkspaceEventBatch = {
+        ...emittedUpdateBatch,
+        events: [largeUpdateEvent],
+      };
+      const largeWebhookJobs = transformEventBatchToWebhookEvents({
+        workspaceEventBatch: largeWorkspaceEventBatch,
+        webhooks: [
+          {
+            id: uuidv4(),
+            targetUrl: 'https://webhook.example.test',
+            secret: 'test-secret',
+          },
+        ],
+      });
+      const [largeWebhookJob] = largeWebhookJobs;
+
+      if (!isDefined(largeWebhookJob)) {
+        throw new Error('Large webhook transform returned no event');
+      }
+
+      const { secret: _largeSecret, ...largeOutboundWebhookPayload } =
+        largeWebhookJob;
+      const tenMiBMeasurements = {
+        attachmentBytes: largeAttachmentBytes,
+        mimeBytes: largeReplacementMime.mimeBytes,
+        formattedRawJsonBytes: Buffer.byteLength(
+          JSON.stringify(largeReplacementMime.rawProviderData),
+        ),
+        emittedUpdateBatchBytes: Buffer.byteLength(
+          JSON.stringify(largeWorkspaceEventBatch),
+        ),
+        webhookPayloadBytes: Buffer.byteLength(
+          JSON.stringify(largeOutboundWebhookPayload),
+        ),
+      };
+
+      expect(tenMiBMeasurements.mimeBytes).toBeGreaterThan(
+        largeAttachmentBytes,
+      );
+      expect(tenMiBMeasurements.formattedRawJsonBytes).toBeGreaterThan(
+        tenMiBMeasurements.mimeBytes,
+      );
+      expect(tenMiBMeasurements.emittedUpdateBatchBytes).toBeGreaterThan(
+        tenMiBMeasurements.formattedRawJsonBytes * 3,
+      );
+      expect(tenMiBMeasurements.webhookPayloadBytes).toBeGreaterThan(
+        tenMiBMeasurements.formattedRawJsonBytes,
+      );
+      expect(largeWebhookJob.record).toMatchObject({
+        rawProviderData: largeReplacementMime.rawProviderData,
       });
     });
 
@@ -1253,6 +1556,298 @@ describe('app message channels API (e2e)', () => {
       );
 
       expect(message.rawProviderData).toEqual(rawProviderData);
+    });
+
+    it('chunks raw replacements at the repository limit and rolls back a failed later chunk @custom', async () => {
+      const sourceChannel = await createChannelOrThrow({
+        handle: `source-${uuidv4()}@linkedin.test`,
+      });
+      const replacementChannel = await createChannelOrThrow({
+        handle: `replacement-${uuidv4()}@linkedin.test`,
+      });
+      const messagePrefix = `bulk-raw-replacement-${uuidv4()}`;
+      const messageCount = QUERY_MAX_RECORDS + 1;
+      const messages = Array.from({ length: messageCount }, (_, index) => ({
+        ...buildMessage({
+          externalId: `${messagePrefix}-${index}`,
+          threadExternalId: `${messagePrefix}-thread-${index}`,
+          senderHandle: 'candidate@linkedin.test',
+          subject: `Original subject ${index}`,
+          text: `Original body ${index}`,
+          rawProviderData: {
+            providerMessageId: `${messagePrefix}-original-${index}`,
+          },
+        }),
+      }));
+      const messageIds: string[] = [];
+
+      for (
+        let batchStart = 0;
+        batchStart < messages.length;
+        batchStart += INGEST_APP_MESSAGES_MAX_BATCH_SIZE
+      ) {
+        const response = await ingest({
+          messageChannelId: sourceChannel.id,
+          messages: messages.slice(
+            batchStart,
+            batchStart + INGEST_APP_MESSAGES_MAX_BATCH_SIZE,
+          ),
+        });
+
+        expect(response.body.errors).toBeUndefined();
+        messageIds.push(
+          ...response.body.data.ingestAppMessages.messages.map(
+            ({ messageId }: { messageId: string }) => messageId,
+          ),
+        );
+      }
+
+      const persistedMessages: {
+        id: string;
+        headerMessageId: string;
+        messageThreadId: string;
+      }[] = await globalThis.testDataSource.query(
+        `SELECT id, "headerMessageId", "messageThreadId"
+           FROM "${WORKSPACE_SCHEMA}"."message" WHERE id = ANY($1)`,
+        [messageIds],
+      );
+      const persistedMessagesById = new Map(
+        persistedMessages.map((message) => [message.id, message]),
+      );
+      const replacementMessages = messageIds.map((messageId, index) => {
+        const persistedMessage = persistedMessagesById.get(messageId);
+
+        if (!isDefined(persistedMessage)) {
+          throw new Error(`Message ${messageId} was not persisted`);
+        }
+
+        return {
+          externalId: `${messagePrefix}-replacement-${index}`,
+          headerMessageId: persistedMessage.headerMessageId,
+          subject: `Changed subject ${index}`,
+          text: `Changed body ${index}`,
+          receivedAt: new Date('2026-01-01T10:00:00.000Z'),
+          messageThreadExternalId: `${messagePrefix}-thread-${index}`,
+          direction: MessageDirection.INCOMING,
+          participants: [],
+          attachments: [],
+          isDraft: false,
+          rawProviderData: {
+            providerMessageId: `${messagePrefix}-replacement-${index}`,
+          },
+        } satisfies MessageWithParticipants;
+      });
+      const workspaceOrmManager =
+        getAppProviderByClassName<WorkspaceOrmManager>('WorkspaceOrmManager');
+      const messagingMessageService =
+        getAppProviderByClassName<MessagingMessageService>(
+          'MessagingMessageService',
+        );
+      const workspaceEventEmitter =
+        getAppProviderByClassName<WorkspaceEventEmitter>(
+          'WorkspaceEventEmitter',
+        );
+      let rawUpdateManyCalls = 0;
+      const saveReplacements = (failOnSecondUpdate = false) =>
+        workspaceOrmManager.executeInWorkspaceContext(
+          () =>
+            workspaceOrmManager.runInWorkspaceTransaction(
+              async (transactionScope) => {
+                if (failOnSecondUpdate) {
+                  const originalGetRepository =
+                    transactionScope.getRepository.bind(
+                      transactionScope,
+                    ) as WorkspaceTransactionScope['getRepository'];
+
+                  transactionScope.getRepository = (<
+                    TData extends ObjectLiteral,
+                  >(
+                    objectMetadataName: string,
+                    rolePermissionConfig?: Parameters<
+                      WorkspaceTransactionScope['getRepository']
+                    >[1],
+                    repositoryOptions?: Parameters<
+                      WorkspaceTransactionScope['getRepository']
+                    >[2],
+                  ): WorkspaceRepository<TData> => {
+                    if (objectMetadataName !== 'message') {
+                      return originalGetRepository<TData>(
+                        objectMetadataName,
+                        rolePermissionConfig,
+                        repositoryOptions,
+                      );
+                    }
+
+                    const repository =
+                      originalGetRepository<MessageWorkspaceEntity>(
+                        objectMetadataName,
+                        rolePermissionConfig,
+                        repositoryOptions,
+                      );
+                    const originalUpdateMany =
+                      repository.updateMany.bind(repository);
+
+                    repository.updateMany = async (updates) => {
+                      rawUpdateManyCalls += 1;
+
+                      if (rawUpdateManyCalls === 2) {
+                        throw new Error('Fail the second raw update chunk');
+                      }
+
+                      return originalUpdateMany(updates);
+                    };
+
+                    return repository as unknown as WorkspaceRepository<TData>;
+                  }) as WorkspaceTransactionScope['getRepository'];
+                }
+
+                return messagingMessageService.saveMessagesWithinTransaction(
+                  replacementMessages,
+                  replacementChannel.id,
+                  transactionScope,
+                  SEED_APPLE_WORKSPACE_ID,
+                );
+              },
+            ),
+          buildSystemAuthContext(SEED_APPLE_WORKSPACE_ID),
+          { lite: true },
+        );
+
+      const emitDatabaseBatchEvent =
+        workspaceEventEmitter.emitDatabaseBatchEvent.bind(
+          workspaceEventEmitter,
+        );
+      const eventSpy = jest
+        .spyOn(workspaceEventEmitter, 'emitDatabaseBatchEvent')
+        .mockImplementation((event) => emitDatabaseBatchEvent(event));
+
+      try {
+        await expect(saveReplacements(true)).rejects.toThrow();
+        expect(eventSpy).not.toHaveBeenCalled();
+      } finally {
+        eventSpy.mockRestore();
+      }
+
+      expect(rawUpdateManyCalls).toBe(2);
+
+      const messagesAfterRollback: {
+        id: string;
+        rawProviderData: Record<string, unknown>;
+      }[] = await globalThis.testDataSource.query(
+        `SELECT id, "rawProviderData"
+           FROM "${WORKSPACE_SCHEMA}"."message" WHERE id = ANY($1)`,
+        [messageIds],
+      );
+
+      expect(messagesAfterRollback).toHaveLength(messageCount);
+
+      for (const [index, messageId] of messageIds.entries()) {
+        const message = messagesAfterRollback.find(
+          ({ id }) => id === messageId,
+        );
+
+        expect(message?.rawProviderData).toEqual({
+          providerMessageId: `${messagePrefix}-original-${index}`,
+        });
+      }
+
+      const saveResult = await saveReplacements();
+
+      expect(saveResult.createdMessages).toHaveLength(0);
+      expect(saveResult.messageExternalIdsAndIdsMap.size).toBe(messageCount);
+      expect(saveResult.messageExternalIdToMessageThreadIdMap.size).toBe(
+        messageCount,
+      );
+
+      const updatedMessages: {
+        id: string;
+        headerMessageId: string;
+        messageThreadId: string;
+        subject: string;
+        text: string;
+        rawProviderData: Record<string, unknown>;
+      }[] = await globalThis.testDataSource.query(
+        `SELECT id, "headerMessageId", "messageThreadId", subject, text,
+                "rawProviderData"
+           FROM "${WORKSPACE_SCHEMA}"."message" WHERE id = ANY($1)`,
+        [messageIds],
+      );
+      const updatedMessagesById = new Map(
+        updatedMessages.map((message) => [message.id, message]),
+      );
+      const associations: {
+        id: string;
+        messageId: string;
+        messageChannelId: string;
+        messageExternalId: string;
+        messageThreadExternalId: string;
+      }[] = await globalThis.testDataSource.query(
+        `SELECT id, "messageId", "messageChannelId", "messageExternalId",
+                "messageThreadExternalId"
+           FROM "${WORKSPACE_SCHEMA}"."messageChannelMessageAssociation"
+          WHERE "messageId" = ANY($1)`,
+        [messageIds],
+      );
+      const associationsByMessageId = new Map<string, typeof associations>();
+
+      for (const association of associations) {
+        const messageAssociations =
+          associationsByMessageId.get(association.messageId) ?? [];
+
+        messageAssociations.push(association);
+        associationsByMessageId.set(association.messageId, messageAssociations);
+      }
+
+      for (const [index, messageId] of messageIds.entries()) {
+        const persistedMessage = persistedMessagesById.get(messageId);
+        const updatedMessage = updatedMessagesById.get(messageId);
+        const replacement = replacementMessages[index];
+        const sourceExternalId = `${messagePrefix}-${index}`;
+        const replacementExternalId = `${messagePrefix}-replacement-${index}`;
+        const messageAssociations = associationsByMessageId.get(messageId);
+
+        expect(persistedMessage).toBeDefined();
+        expect(updatedMessage).toMatchObject({
+          id: messageId,
+          headerMessageId: persistedMessage?.headerMessageId,
+          messageThreadId: persistedMessage?.messageThreadId,
+          subject: `Original subject ${index}`,
+          text: `Original body ${index}`,
+          rawProviderData: replacement.rawProviderData,
+        });
+        expect(
+          saveResult.messageExternalIdsAndIdsMap.get(replacementExternalId),
+        ).toBe(messageId);
+        expect(
+          saveResult.messageExternalIdToMessageThreadIdMap.get(
+            replacementExternalId,
+          ),
+        ).toBe(persistedMessage?.messageThreadId);
+        expect(messageAssociations).toHaveLength(2);
+        expect(messageAssociations).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({
+              messageChannelId: sourceChannel.id,
+              messageExternalId: sourceExternalId,
+            }),
+            expect.objectContaining({
+              messageChannelId: replacementChannel.id,
+              messageExternalId: replacementExternalId,
+              messageThreadExternalId: `${messagePrefix}-thread-${index}`,
+            }),
+          ]),
+        );
+        expect(
+          saveResult.messageExternalIdToMessageChannelMessageAssociationIdMap.get(
+            replacementExternalId,
+          ),
+        ).toBe(
+          messageAssociations?.find(
+            ({ messageChannelId }) =>
+              messageChannelId === replacementChannel.id,
+          )?.id,
+        );
+      }
     });
 
     it('preserves raw data on more shared messages when a channel is removed @custom', async () => {

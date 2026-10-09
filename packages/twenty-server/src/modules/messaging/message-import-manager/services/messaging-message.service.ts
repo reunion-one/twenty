@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 
+import chunk from 'lodash.chunk';
 import isEqual from 'lodash.isequal';
+import { QUERY_MAX_RECORDS } from 'twenty-shared/constants';
 import { isDefined } from 'twenty-shared/utils';
 import { In } from 'typeorm';
 import { v4 } from 'uuid';
@@ -232,14 +234,17 @@ export class MessagingMessageService {
         }
 
         if (messageUpdatesById.size > 0) {
-          await messageRepository.updateMany(
+          for (const messageUpdatesChunk of chunk(
             Array.from(messageUpdatesById.values()).map(
               ({ id, ...partialEntity }) => ({
                 criteria: id,
                 partialEntity,
               }),
             ),
-          );
+            QUERY_MAX_RECORDS,
+          )) {
+            await messageRepository.updateMany(messageUpdatesChunk);
+          }
         }
 
         const messageThreadsToCreate = Array.from(
