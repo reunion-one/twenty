@@ -169,6 +169,7 @@ export class MicrosoftGetMessagesService {
           : [],
         isDraft: response.isDraft ?? false,
         messageHeaders: response.internetMessageHeaders ?? [],
+        rawProviderData: response,
       };
     });
 

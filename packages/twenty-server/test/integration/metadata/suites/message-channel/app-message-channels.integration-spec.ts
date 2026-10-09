@@ -5,8 +5,14 @@ import { generateAppleAdminApplicationTokenPair } from 'test/integration/utils/g
 import { setupApplicationForSync } from 'test/integration/metadata/suites/application/utils/setup-application-for-sync.util';
 import { syncApplication } from 'test/integration/metadata/suites/application/utils/sync-application.util';
 import { findConnectionProvidersByApplication } from 'test/integration/metadata/suites/connection-provider/utils/find-connection-providers-by-application.util';
+import { findOneOperationFactory } from 'test/integration/graphql/utils/find-one-operation-factory.util';
+import { makeGraphqlApiRequest } from 'test/integration/graphql/utils/make-graphql-api-request.util';
+import { makeRestApiRequest } from 'test/integration/rest/utils/make-rest-api-request.util';
 import { makeMetadataApiRequest } from 'test/integration/metadata/suites/utils/make-metadata-api-request.util';
 import { type Manifest } from 'twenty-shared/application';
+import { DatabaseEventAction } from 'src/engine/api/graphql/graphql-query-runner/enums/database-event-action';
+import { type WorkspaceEventEmitter } from 'src/engine/workspace-event-emitter/workspace-event-emitter';
+import { getAppProviderByClassName } from 'test/integration/utils/get-app-provider-by-class-name.util';
 import {
   ConnectedAccountProvider,
   MessageChannelType,
@@ -15,11 +21,21 @@ import {
 } from 'twenty-shared/types';
 import { isDefined } from 'twenty-shared/utils';
 import { v4 as uuidv4 } from 'uuid';
+import { type ObjectLiteral } from 'typeorm';
 
 import { INGEST_APP_MESSAGES_MAX_BATCH_SIZE } from 'src/engine/metadata-modules/message-channel/dtos/ingest-app-messages.input';
 import { getWorkspaceSchemaName } from 'src/engine/workspace-datasource/utils/get-workspace-schema-name.util';
 import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
 import { MessageDirection } from 'src/modules/messaging/common/enums/message-direction.enum';
+import { MessagingMessageService } from 'src/modules/messaging/message-import-manager/services/messaging-message.service';
+import { type MessageWithParticipants } from 'src/modules/messaging/message-import-manager/types/message.type';
+import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
+import { type WorkspaceTransactionScope } from 'src/engine/twenty-orm/types/workspace-transaction-scope.type';
+import { type WorkspaceRepository } from 'src/engine/twenty-orm/repository/workspace-repository';
+import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
+import { type MessageChannelMessageAssociationWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message-channel-message-association.workspace-entity';
+import { type MessageWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message.workspace-entity';
+import { MessagingMessageCleanerService } from 'src/modules/messaging/message-cleaner/services/messaging-message-cleaner.service';
 
 const OWNING_APP_ID = uuidv4();
 const OWNING_APP_ROLE_ID = uuidv4();
@@ -143,6 +159,7 @@ type AppMessagePayload = {
   subject?: string;
   text: string;
   receivedAt: string;
+  rawProviderData?: Record<string, unknown> | null;
   participants: AppMessageParticipantPayload[];
 };
 
@@ -153,6 +170,7 @@ const buildMessage = ({
   text = 'Hi there',
   subject,
   personId,
+  rawProviderData,
 }: {
   externalId: string;
   threadExternalId: string;
@@ -160,11 +178,13 @@ const buildMessage = ({
   text?: string;
   subject?: string;
   personId?: string;
+  rawProviderData?: Record<string, unknown> | null;
 }): AppMessagePayload => ({
   externalId,
   threadExternalId,
   subject,
   text,
+  rawProviderData,
   receivedAt: new Date('2026-01-01T10:00:00.000Z').toISOString(),
   participants: [
     {
@@ -705,6 +725,707 @@ describe('app message channels API (e2e)', () => {
       );
 
       expect(Number(count)).toBe(1);
+    });
+
+    it('updates only raw provider data on redelivery and exposes it through Message queries @custom', async () => {
+      const channel = await createChannelOrThrow();
+      const threadExternalId = `thread-${uuidv4()}`;
+      const initialRawProviderData = {
+        providerMessageId: 'source-message-1',
+        nested: { value: 'original' },
+      };
+      const initial = await ingest({
+        messageChannelId: channel.id,
+        messages: [
+          buildMessage({
+            externalId: 'raw-provider-data',
+            threadExternalId,
+            senderHandle: 'candidate@linkedin.test',
+            subject: 'Original subject',
+            text: 'Original body',
+            rawProviderData: initialRawProviderData,
+          }),
+        ],
+      });
+
+      expect(initial.body.errors).toBeUndefined();
+
+      const [ingestedMessage] = initial.body.data.ingestAppMessages.messages;
+      const [initialRelatedRecordCounts] =
+        await globalThis.testDataSource.query(
+          `SELECT
+           (SELECT count(*)::integer FROM "${WORKSPACE_SCHEMA}"."messageParticipant"
+             WHERE "messageId" = $1) AS "participantCount",
+           (SELECT count(*)::integer FROM "${WORKSPACE_SCHEMA}"."messageChannelMessageAssociation"
+             WHERE "messageId" = $1) AS "associationCount"`,
+          [ingestedMessage.messageId],
+        );
+      const omittedRawUpdate = await ingest({
+        messageChannelId: channel.id,
+        messages: [
+          buildMessage({
+            externalId: 'raw-provider-data',
+            threadExternalId,
+            senderHandle: 'candidate@linkedin.test',
+            subject: 'Changed subject',
+            text: 'Changed body',
+            rawProviderData: null,
+          }),
+        ],
+      });
+
+      expect(omittedRawUpdate.body.errors).toBeUndefined();
+      expect(omittedRawUpdate.body.data.ingestAppMessages.messages).toEqual(
+        initial.body.data.ingestAppMessages.messages,
+      );
+
+      const replacementRawProviderData = {
+        providerMessageId: 'source-message-2',
+        nested: { value: 'replacement' },
+      };
+      const workspaceEventEmitter =
+        getAppProviderByClassName<WorkspaceEventEmitter>(
+          'WorkspaceEventEmitter',
+        );
+      const emitDatabaseBatchEvent =
+        workspaceEventEmitter.emitDatabaseBatchEvent.bind(
+          workspaceEventEmitter,
+        );
+      const eventSpy = jest
+        .spyOn(workspaceEventEmitter, 'emitDatabaseBatchEvent')
+        .mockImplementation((event) => emitDatabaseBatchEvent(event));
+      let replacement: Awaited<ReturnType<typeof ingest>>;
+
+      try {
+        replacement = await ingest({
+          messageChannelId: channel.id,
+          messages: [
+            buildMessage({
+              externalId: 'raw-provider-data',
+              threadExternalId,
+              senderHandle: 'candidate@linkedin.test',
+              subject: 'Another changed subject',
+              text: 'Another changed body',
+              rawProviderData: replacementRawProviderData,
+            }),
+          ],
+        });
+
+        const rawProviderDataUpdateBatch = eventSpy.mock.calls
+          .map(([event]) => event)
+          .find(
+            (event) =>
+              event?.objectMetadataNameSingular === 'message' &&
+              event.action === DatabaseEventAction.UPDATED,
+          );
+        const rawProviderDataUpdateEvent =
+          rawProviderDataUpdateBatch?.events.find(
+            (event) => event.recordId === ingestedMessage.messageId,
+          );
+
+        expect(rawProviderDataUpdateEvent).toMatchObject({
+          properties: {
+            updatedFields: expect.arrayContaining(['rawProviderData']),
+            after: { rawProviderData: replacementRawProviderData },
+          },
+        });
+      } finally {
+        eventSpy.mockRestore();
+      }
+
+      expect(replacement.body.errors).toBeUndefined();
+      expect(replacement.body.data.ingestAppMessages.messages).toEqual(
+        initial.body.data.ingestAppMessages.messages,
+      );
+
+      const [message] = await globalThis.testDataSource.query(
+        `SELECT subject, text, "rawProviderData"
+           FROM "${WORKSPACE_SCHEMA}"."message" WHERE id = $1`,
+        [ingestedMessage.messageId],
+      );
+
+      expect(message).toMatchObject({
+        subject: 'Original subject',
+        text: 'Original body',
+        rawProviderData: replacementRawProviderData,
+      });
+
+      const [relatedRecordCounts] = await globalThis.testDataSource.query(
+        `SELECT
+           (SELECT count(*)::integer FROM "${WORKSPACE_SCHEMA}"."messageParticipant"
+             WHERE "messageId" = $1) AS "participantCount",
+           (SELECT count(*)::integer FROM "${WORKSPACE_SCHEMA}"."messageChannelMessageAssociation"
+             WHERE "messageId" = $1) AS "associationCount"`,
+        [ingestedMessage.messageId],
+      );
+
+      expect(relatedRecordCounts).toEqual(initialRelatedRecordCounts);
+
+      const directMessageQuery = await makeGraphqlApiRequest(
+        findOneOperationFactory({
+          objectMetadataSingularName: 'message',
+          filter: { id: { eq: ingestedMessage.messageId } },
+          gqlFields: 'id rawProviderData',
+        }),
+      );
+
+      expect(directMessageQuery.body.errors).toBeUndefined();
+      expect(directMessageQuery.body.data.message).toMatchObject({
+        id: ingestedMessage.messageId,
+        rawProviderData: replacementRawProviderData,
+      });
+
+      const nestedThreadQuery = await makeGraphqlApiRequest(
+        findOneOperationFactory({
+          objectMetadataSingularName: 'messageThread',
+          filter: { id: { eq: ingestedMessage.messageThreadId } },
+          gqlFields: `
+            id
+            messages {
+              edges {
+                node {
+                  id
+                  rawProviderData
+                }
+              }
+            }
+          `,
+        }),
+      );
+
+      expect(nestedThreadQuery.body.errors).toBeUndefined();
+      expect(
+        nestedThreadQuery.body.data.messageThread.messages.edges,
+      ).toContainEqual({
+        node: {
+          id: ingestedMessage.messageId,
+          rawProviderData: replacementRawProviderData,
+        },
+      });
+
+      const restRead = await makeRestApiRequest({
+        method: 'get',
+        path: `/messages/${ingestedMessage.messageId}?fields=rawProviderData`,
+      });
+
+      expect(restRead.status).toBe(200);
+      expect(restRead.body.data.message).toMatchObject({
+        id: ingestedMessage.messageId,
+        rawProviderData: replacementRawProviderData,
+      });
+
+      const restWrite = await makeRestApiRequest({
+        method: 'patch',
+        path: `/messages/${ingestedMessage.messageId}`,
+        body: {
+          rawProviderData: { providerMessageId: 'manual-mutation' },
+        },
+      });
+
+      expect(restWrite.status).toBe(400);
+      const [messageAfterRejectedRestWrite] =
+        await globalThis.testDataSource.query(
+          `SELECT "rawProviderData"
+             FROM "${WORKSPACE_SCHEMA}"."message" WHERE id = $1`,
+          [ingestedMessage.messageId],
+        );
+
+      expect(messageAfterRejectedRestWrite).toEqual({
+        rawProviderData: replacementRawProviderData,
+      });
+    });
+
+    it('keeps the last committed whole payload when redeliveries overlap @custom', async () => {
+      const channel = await createChannelOrThrow();
+      const threadExternalId = `thread-${uuidv4()}`;
+      const initialRawProviderData = { providerMessageId: 'initial' };
+      const initial = await ingest({
+        messageChannelId: channel.id,
+        messages: [
+          buildMessage({
+            externalId: 'concurrent-raw-provider-data',
+            threadExternalId,
+            senderHandle: 'candidate@linkedin.test',
+            rawProviderData: initialRawProviderData,
+          }),
+        ],
+      });
+
+      expect(initial.body.errors).toBeUndefined();
+
+      const [ingestedMessage] = initial.body.data.ingestAppMessages.messages;
+      const rawProviderDataUpdates = [
+        { providerMessageId: 'concurrent-update-1', payload: 'first' },
+        { providerMessageId: 'concurrent-update-2', payload: 'second' },
+      ];
+
+      const overlappingUpdates = await Promise.all(
+        rawProviderDataUpdates.map((rawProviderData) =>
+          ingest({
+            messageChannelId: channel.id,
+            messages: [
+              buildMessage({
+                externalId: 'concurrent-raw-provider-data',
+                threadExternalId,
+                senderHandle: 'candidate@linkedin.test',
+                rawProviderData,
+              }),
+            ],
+          }),
+        ),
+      );
+
+      expect(
+        overlappingUpdates.every(({ body }) => body.errors === undefined),
+      ).toBe(true);
+
+      const [message] = await globalThis.testDataSource.query(
+        `SELECT subject, text, "rawProviderData"
+           FROM "${WORKSPACE_SCHEMA}"."message" WHERE id = $1`,
+        [ingestedMessage.messageId],
+      );
+
+      expect(rawProviderDataUpdates).toContainEqual(message.rawProviderData);
+      expect(message.subject).toBeNull();
+      expect(message.text).toBe('Hi there');
+    });
+
+    it('keeps the last successful raw write across concurrent channels @custom', async () => {
+      const originalChannel = await createChannelOrThrow({
+        handle: `original-${uuidv4()}@linkedin.test`,
+      });
+      const competingChannel = await createChannelOrThrow({
+        handle: `competing-${uuidv4()}@linkedin.test`,
+      });
+      const threadExternalId = `thread-${uuidv4()}`;
+      const originalRawProviderData = { providerMessageId: 'original' };
+      const initial = await ingest({
+        messageChannelId: originalChannel.id,
+        messages: [
+          buildMessage({
+            externalId: 'cross-channel-race',
+            threadExternalId,
+            senderHandle: 'candidate@linkedin.test',
+            subject: 'Original subject',
+            text: 'Original body',
+            rawProviderData: originalRawProviderData,
+          }),
+        ],
+      });
+
+      expect(initial.body.errors).toBeUndefined();
+
+      const [ingestedMessage] = initial.body.data.ingestAppMessages.messages;
+      const [persistedMessage] = await globalThis.testDataSource.query(
+        `SELECT "headerMessageId" FROM "${WORKSPACE_SCHEMA}"."message"
+           WHERE id = $1`,
+        [ingestedMessage.messageId],
+      );
+      const workspaceOrmManager =
+        getAppProviderByClassName<WorkspaceOrmManager>('WorkspaceOrmManager');
+      const messagingMessageService =
+        getAppProviderByClassName<MessagingMessageService>(
+          'MessagingMessageService',
+        );
+      const runSave = (
+        messageChannelId: string,
+        rawProviderData: Record<string, unknown>,
+      ) =>
+        workspaceOrmManager.executeInWorkspaceContext(
+          () =>
+            workspaceOrmManager.runInWorkspaceTransaction((transactionScope) =>
+              messagingMessageService.saveMessagesWithinTransaction(
+                [
+                  {
+                    externalId: `cross-channel-${messageChannelId}`,
+                    headerMessageId: persistedMessage.headerMessageId,
+                    subject: 'Changed subject',
+                    receivedAt: new Date('2026-01-01T10:00:00.000Z'),
+                    text: 'Changed body',
+                    isDraft: false,
+                    attachments: [],
+                    messageThreadExternalId: threadExternalId,
+                    direction: MessageDirection.INCOMING,
+                    participants: [],
+                    rawProviderData,
+                  } satisfies MessageWithParticipants,
+                ],
+                messageChannelId,
+                transactionScope,
+                SEED_APPLE_WORKSPACE_ID,
+              ),
+            ),
+          buildSystemAuthContext(SEED_APPLE_WORKSPACE_ID),
+          { lite: true },
+        );
+
+      let releaseFirstUpdate!: () => void;
+      let signalFirstUpdate!: () => void;
+      const firstUpdateGate = new Promise<void>((resolve) => {
+        releaseFirstUpdate = resolve;
+      });
+      const firstUpdateReached = new Promise<void>((resolve) => {
+        signalFirstUpdate = resolve;
+      });
+      let signalSecondUpdate!: () => void;
+      const secondUpdateStarted = new Promise<void>((resolve) => {
+        signalSecondUpdate = resolve;
+      });
+      const originalRunInWorkspaceTransaction =
+        workspaceOrmManager.runInWorkspaceTransaction.bind(
+          workspaceOrmManager,
+        ) as <TData>(
+          work: (transactionScope: WorkspaceTransactionScope) => Promise<TData>,
+        ) => Promise<TData>;
+      let rawProviderUpdateCount = 0;
+      const transactionSpy = jest
+        .spyOn(workspaceOrmManager, 'runInWorkspaceTransaction')
+        .mockImplementation(
+          <TData>(
+            work: (
+              transactionScope: WorkspaceTransactionScope,
+            ) => Promise<TData>,
+          ) =>
+            originalRunInWorkspaceTransaction<TData>(
+              async (transactionScope: WorkspaceTransactionScope) => {
+                const originalGetRepository =
+                  transactionScope.getRepository.bind(
+                    transactionScope,
+                  ) as WorkspaceTransactionScope['getRepository'];
+
+                transactionScope.getRepository = (<TData extends ObjectLiteral>(
+                  objectMetadataName: string,
+                  rolePermissionConfig?: Parameters<
+                    WorkspaceTransactionScope['getRepository']
+                  >[1],
+                  repositoryOptions?: Parameters<
+                    WorkspaceTransactionScope['getRepository']
+                  >[2],
+                ): WorkspaceRepository<TData> => {
+                  if (objectMetadataName === 'message') {
+                    const repository =
+                      originalGetRepository<MessageWorkspaceEntity>(
+                        objectMetadataName,
+                        rolePermissionConfig,
+                        repositoryOptions,
+                      );
+                    const originalUpdateMany =
+                      repository.updateMany.bind(repository);
+
+                    repository.updateMany = async (updates) => {
+                      const containsRawProviderFields = updates.some(
+                        ({ partialEntity }) =>
+                          Object.prototype.hasOwnProperty.call(
+                            partialEntity,
+                            'rawProviderData',
+                          ),
+                      );
+
+                      if (!containsRawProviderFields) {
+                        return originalUpdateMany(updates);
+                      }
+
+                      rawProviderUpdateCount += 1;
+
+                      if (rawProviderUpdateCount === 1) {
+                        const updateResult = await originalUpdateMany(updates);
+
+                        signalFirstUpdate();
+                        await firstUpdateGate;
+
+                        return updateResult;
+                      }
+
+                      if (rawProviderUpdateCount === 2) {
+                        signalSecondUpdate();
+                      }
+
+                      return originalUpdateMany(updates);
+                    };
+
+                    return repository as unknown as WorkspaceRepository<TData>;
+                  }
+
+                  return originalGetRepository<TData>(
+                    objectMetadataName,
+                    rolePermissionConfig,
+                    repositoryOptions,
+                  );
+                }) as WorkspaceTransactionScope['getRepository'];
+
+                return work(transactionScope);
+              },
+            ),
+        );
+      const delayedCrossChannelWriteOutcome = runSave(competingChannel.id, {
+        providerMessageId: 'competing',
+      }).then(
+        () => ({ status: 'completed' as const }),
+        (error: unknown) => ({ status: 'failed' as const, error }),
+      );
+
+      try {
+        const firstWriteResult = await Promise.race([
+          firstUpdateReached.then(() => ({ status: 'reached' as const })),
+          delayedCrossChannelWriteOutcome,
+        ]);
+
+        if (firstWriteResult.status === 'failed') {
+          throw firstWriteResult.error;
+        }
+
+        expect(firstWriteResult.status).toBe('reached');
+        const secondCrossChannelWriteOutcome = runSave(originalChannel.id, {
+          providerMessageId: 'replacement',
+        }).then(
+          () => ({ status: 'completed' as const }),
+          (error: unknown) => ({ status: 'failed' as const, error }),
+        );
+        const secondWriteResult = await Promise.race([
+          secondUpdateStarted.then(() => ({ status: 'reached' as const })),
+          secondCrossChannelWriteOutcome,
+        ]);
+
+        if (secondWriteResult.status === 'failed') {
+          throw secondWriteResult.error;
+        }
+
+        expect(secondWriteResult.status).toBe('reached');
+        releaseFirstUpdate();
+
+        const [delayedWriteResult, competingWriteResult] = await Promise.all([
+          delayedCrossChannelWriteOutcome,
+          secondCrossChannelWriteOutcome,
+        ]);
+
+        if (delayedWriteResult.status === 'failed') {
+          throw delayedWriteResult.error;
+        }
+
+        if (competingWriteResult.status === 'failed') {
+          throw competingWriteResult.error;
+        }
+      } finally {
+        releaseFirstUpdate();
+        transactionSpy.mockRestore();
+      }
+
+      const [message] = await globalThis.testDataSource.query(
+        `SELECT subject, text, "rawProviderData"
+           FROM "${WORKSPACE_SCHEMA}"."message" WHERE id = $1`,
+        [ingestedMessage.messageId],
+      );
+
+      expect(message).toEqual({
+        subject: 'Original subject',
+        text: 'Original body',
+        rawProviderData: { providerMessageId: 'replacement' },
+      });
+    });
+
+    it('stores a large raw payload without truncation @custom', async () => {
+      const channel = await createChannelOrThrow();
+      const threadExternalId = `thread-${uuidv4()}`;
+      const rawProviderData = {
+        providerMessageId: 'large-raw-provider-data',
+        payload: 'a'.repeat(64 * 1024),
+      };
+      const response = await ingest({
+        messageChannelId: channel.id,
+        messages: [
+          buildMessage({
+            externalId: 'large-raw-provider-data',
+            threadExternalId,
+            senderHandle: 'candidate@linkedin.test',
+            rawProviderData,
+          }),
+        ],
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body.errors).toBeUndefined();
+
+      const [ingestedMessage] = response.body.data.ingestAppMessages.messages;
+      const [message] = await globalThis.testDataSource.query(
+        `SELECT "rawProviderData" FROM "${WORKSPACE_SCHEMA}"."message"
+          WHERE id = $1`,
+        [ingestedMessage.messageId],
+      );
+
+      expect(message.rawProviderData).toEqual(rawProviderData);
+    });
+
+    it('preserves raw data on more shared messages when a channel is removed @custom', async () => {
+      const sourceChannel = await createChannelOrThrow({
+        handle: `source-${uuidv4()}@linkedin.test`,
+      });
+      const retainedChannel = await createChannelOrThrow({
+        handle: `retained-${uuidv4()}@linkedin.test`,
+      });
+      const messagePrefix = `bulk-cleanup-${uuidv4()}`;
+      const messageCount = 201;
+      const messages = Array.from({ length: messageCount }, (_, index) => ({
+        ...buildMessage({
+          externalId: `${messagePrefix}-${index}`,
+          threadExternalId: `${messagePrefix}-thread-${index}`,
+          senderHandle: sourceChannel.handle,
+          subject: `Bulk cleanup ${index}`,
+          text: `Body ${index}`,
+          rawProviderData: {
+            providerMessageId: `${messagePrefix}-${index}`,
+          },
+        }),
+        participants: [
+          {
+            role: MessageParticipantRole.FROM,
+            handle: sourceChannel.handle,
+          },
+        ],
+      }));
+      const messageIds: string[] = [];
+
+      for (
+        let batchStart = 0;
+        batchStart < messages.length;
+        batchStart += INGEST_APP_MESSAGES_MAX_BATCH_SIZE
+      ) {
+        const response = await ingest({
+          messageChannelId: sourceChannel.id,
+          messages: messages.slice(
+            batchStart,
+            batchStart + INGEST_APP_MESSAGES_MAX_BATCH_SIZE,
+          ),
+        });
+
+        expect(response.body.errors).toBeUndefined();
+        messageIds.push(
+          ...response.body.data.ingestAppMessages.messages.map(
+            ({ messageId }: { messageId: string }) => messageId,
+          ),
+        );
+      }
+
+      const authContext = buildSystemAuthContext(SEED_APPLE_WORKSPACE_ID);
+      const workspaceOrmManager =
+        getAppProviderByClassName<WorkspaceOrmManager>('WorkspaceOrmManager');
+
+      await workspaceOrmManager.executeInWorkspaceContext(
+        () =>
+          workspaceOrmManager.runInWorkspaceTransaction(async (scope) => {
+            await scope
+              .getRepository<MessageChannelMessageAssociationWorkspaceEntity>(
+                'messageChannelMessageAssociation',
+                { shouldBypassPermissionChecks: true },
+              )
+              .insert(
+                messageIds.map((messageId, index) => ({
+                  id: uuidv4(),
+                  messageId,
+                  messageChannelId: retainedChannel.id,
+                  messageExternalId: `retained-${index}`,
+                  messageThreadExternalId: `retained-thread-${index}`,
+                  direction: MessageDirection.INCOMING,
+                })),
+              );
+          }),
+        authContext,
+        { lite: true },
+      );
+
+      const cleaner = getAppProviderByClassName<MessagingMessageCleanerService>(
+        'MessagingMessageCleanerService',
+      );
+
+      await cleaner.deleteMessageChannelMessageAssociationsByChannelId({
+        workspaceId: SEED_APPLE_WORKSPACE_ID,
+        messageChannelId: sourceChannel.id,
+      });
+
+      const [counts] = await globalThis.testDataSource.query(
+        `SELECT
+           (SELECT count(*)::integer FROM "${WORKSPACE_SCHEMA}"."message"
+             WHERE id = ANY($1)) AS "messageCount",
+           (SELECT count(*)::integer FROM "${WORKSPACE_SCHEMA}"."messageChannelMessageAssociation"
+             WHERE "messageId" = ANY($1) AND "messageChannelId" = $2) AS "retainedAssociationCount",
+           (SELECT count(*)::integer FROM "${WORKSPACE_SCHEMA}"."messageChannelMessageAssociation"
+             WHERE "messageId" = ANY($1) AND "messageChannelId" = $3) AS "sourceAssociationCount",
+           (SELECT count(*)::integer FROM "${WORKSPACE_SCHEMA}"."message"
+             WHERE id = ANY($1) AND "rawProviderData" IS NOT NULL) AS "rawProviderDataCount"`,
+        [messageIds, retainedChannel.id, sourceChannel.id],
+      );
+
+      expect(counts).toEqual({
+        messageCount,
+        retainedAssociationCount: messageCount,
+        sourceAssociationCount: 0,
+        rawProviderDataCount: messageCount,
+      });
+    });
+
+    it('rolls back a raw replacement when the message transaction fails @custom', async () => {
+      const channel = await createChannelOrThrow();
+      const threadExternalId = `thread-${uuidv4()}`;
+      const initialRawProviderData = { providerMessageId: 'before-failure' };
+      const initial = await ingest({
+        messageChannelId: channel.id,
+        messages: [
+          buildMessage({
+            externalId: 'rolled-back-raw-provider-data',
+            threadExternalId,
+            senderHandle: 'candidate@linkedin.test',
+            rawProviderData: initialRawProviderData,
+          }),
+        ],
+      });
+
+      expect(initial.body.errors).toBeUndefined();
+
+      const [ingestedMessage] = initial.body.data.ingestAppMessages.messages;
+      const messagingMessageService =
+        getAppProviderByClassName<MessagingMessageService>(
+          'MessagingMessageService',
+        );
+      const saveMessagesWithinTransaction =
+        messagingMessageService.saveMessagesWithinTransaction.bind(
+          messagingMessageService,
+        );
+      const saveSpy = jest
+        .spyOn(messagingMessageService, 'saveMessagesWithinTransaction')
+        .mockImplementation(async (...args) => {
+          await saveMessagesWithinTransaction(...args);
+          throw new Error('Force the message transaction to roll back');
+        });
+      let failedReplacement: Awaited<ReturnType<typeof ingest>>;
+
+      try {
+        failedReplacement = await ingest({
+          messageChannelId: channel.id,
+          messages: [
+            buildMessage({
+              externalId: 'rolled-back-raw-provider-data',
+              threadExternalId,
+              senderHandle: 'candidate@linkedin.test',
+              rawProviderData: { providerMessageId: 'must-not-commit' },
+            }),
+          ],
+        });
+
+        expect(saveSpy).toHaveBeenCalledTimes(1);
+      } finally {
+        saveSpy.mockRestore();
+      }
+
+      expect(failedReplacement.body.errors).toBeDefined();
+
+      const [message] = await globalThis.testDataSource.query(
+        `SELECT "rawProviderData"
+           FROM "${WORKSPACE_SCHEMA}"."message" WHERE id = $1`,
+        [ingestedMessage.messageId],
+      );
+
+      expect(message).toEqual({
+        rawProviderData: initialRawProviderData,
+      });
     });
 
     it('derives direction from the sender, matching the handle case-insensitively', async () => {

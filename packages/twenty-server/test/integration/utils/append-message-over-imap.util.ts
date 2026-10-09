@@ -21,7 +21,7 @@ export const appendMessageOverImap = async ({
   from: string;
   to: string;
   subject: string;
-}): Promise<void> => {
+}): Promise<Buffer> => {
   const client = new ImapFlow({
     host,
     port,
@@ -33,17 +33,21 @@ export const appendMessageOverImap = async ({
   await client.connect();
 
   try {
-    const message = [
-      `From: ${from}`,
-      `To: ${to}`,
-      `Subject: ${subject}`,
-      'Content-Type: text/plain; charset=utf-8',
-      '',
-      `body of ${subject}`,
-      '',
-    ].join('\r\n');
+    const message = Buffer.from(
+      [
+        `From: ${from}`,
+        `To: ${to}`,
+        `Subject: ${subject}`,
+        'Content-Type: text/plain; charset=utf-8',
+        '',
+        `body of ${subject}`,
+        '',
+      ].join('\r\n'),
+    );
 
-    await client.append(folder, Buffer.from(message));
+    await client.append(folder, message);
+
+    return message;
   } finally {
     await client.logout();
   }

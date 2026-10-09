@@ -6,6 +6,7 @@ import PostalMime, { type Email as ParsedEmail } from 'postal-mime';
 export type MessageParseResult = {
   uid: number;
   parsed: ParsedEmail | null;
+  rawMessage?: Buffer;
   flags?: Set<string>;
   internalDate?: Date | string;
   error?: Error;
@@ -93,7 +94,7 @@ export class ImapMessageParserService {
     try {
       const parsed = await PostalMime.parse(source);
 
-      return { uid, parsed, flags, internalDate };
+      return { uid, parsed, rawMessage: source, flags, internalDate };
     } catch (error) {
       this.logger.error(`Failed to parse message UID ${uid}: ${error.message}`);
 

@@ -1088,6 +1088,9 @@ export const STANDARD_OBJECT_FIELDS = {
     isDraft: {
       universalIdentifier: '20202020-4d3a-4b6e-9c1f-2a5e7b9d0c34',
     },
+    rawProviderData: {
+      universalIdentifier: '8d6210a5-2195-49bc-b03e-2f9f792f7f45',
+    },
   },
   note: {
     ...buildStandardObjectSystemFields(

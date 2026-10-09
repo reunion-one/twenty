@@ -25,6 +25,21 @@ const buildMessage = (
 });
 
 describe('parseAndFormatGmailMessage', () => {
+  it('keeps the original Gmail response as raw provider data @custom', () => {
+    const providerMessage = buildMessage([
+      { name: 'From', value: 'sender@example.com' },
+      { name: 'To', value: 'me@example.com' },
+      { name: 'Message-ID', value: '<abc@example.com>' },
+    ]);
+
+    const result = parseAndFormatGmailMessage(
+      providerMessage,
+      connectedAccount,
+    );
+
+    expect(result?.rawProviderData).toBe(providerMessage);
+  });
+
   it('should emit one participant per recipient in a multi-address `To` header', () => {
     // Regression: prior implementation kept only the first parsed address.
     const result = parseAndFormatGmailMessage(

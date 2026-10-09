@@ -5,6 +5,8 @@ import {
   MessageFolderPendingSyncAction,
 } from 'twenty-shared/types';
 
+import { getWorkspaceSchemaName } from 'src/engine/workspace-datasource/utils/get-workspace-schema-name.util';
+import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
 import { setupMicrosoftMock } from 'test/integration/microsoft/mocks/setup-microsoft-mock.util';
 import { connectMessagingAccount } from 'test/integration/utils/connect-messaging-account.util';
 import { findImportedMessageSubjects } from 'test/integration/utils/find-imported-records.util';
@@ -46,6 +48,7 @@ describe('Microsoft folder actions (integration)', () => {
   let folders: MessageFolderDto[];
   let subjectsBeforeFolderDeletion: string[];
   let subjectsAfterFolderDeletion: string[];
+  let importedRawProviderData: unknown;
 
   beforeAll(async () => {
     channel = await connectMessagingAccount({
@@ -58,6 +61,14 @@ describe('Microsoft folder actions (integration)', () => {
     subjectsBeforeFolderDeletion = await findImportedMessageSubjects([
       IMPORTED_SUBJECT,
     ]);
+    const workspaceSchema = getWorkspaceSchemaName(SEED_APPLE_WORKSPACE_ID);
+    const [importedMessage] = await global.testDataSource.query(
+      `SELECT "rawProviderData"
+         FROM "${workspaceSchema}"."message"
+        WHERE subject = $1`,
+      [IMPORTED_SUBJECT],
+    );
+    importedRawProviderData = importedMessage.rawProviderData;
 
     messageExternalIdsToImport = await runFolderActions({
       messageChannelId: channel.channelId,
@@ -76,6 +87,10 @@ describe('Microsoft folder actions (integration)', () => {
   afterAll(async () => {
     jest.restoreAllMocks();
     await channel?.cleanup().catch(() => undefined);
+  });
+
+  it('stores the original Microsoft Graph message payload @custom', () => {
+    expect(importedRawProviderData).toEqual(INBOX_MESSAGE);
   });
 
   it('imports every message id of a folder larger than the spread-argument limit, deduplicated', () => {

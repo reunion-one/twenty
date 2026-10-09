@@ -8,12 +8,14 @@ import {
   IsDate,
   IsEnum,
   IsNotEmpty,
+  IsObject,
   IsOptional,
   IsString,
   IsUUID,
   MaxLength,
   ValidateNested,
 } from 'class-validator';
+import GraphQLJSON from 'graphql-type-json';
 import { MessageParticipantRole } from 'twenty-shared/types';
 
 import { UUIDScalarType } from 'src/engine/api/graphql/workspace-schema-builder/graphql-types/scalars';
@@ -61,7 +63,7 @@ export class AppMessageParticipantInput {
 
 @InputType('AppMessageInput')
 export class AppMessageInput {
-  // re-ingesting the same externalId is a no-op, so redelivered webhooks are safe
+  // Re-ingestion preserves normalized fields and replaces raw data only when provided.
   @Field()
   @IsString()
   @IsNotEmpty()
@@ -99,6 +101,11 @@ export class AppMessageInput {
   @ValidateNested({ each: true })
   @Type(() => AppMessageParticipantInput)
   participants: AppMessageParticipantInput[];
+
+  @Field(() => GraphQLJSON, { nullable: true })
+  @IsOptional()
+  @IsObject()
+  rawProviderData?: Record<string, unknown> | null;
 }
 
 @InputType('IngestAppMessagesInput')

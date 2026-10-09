@@ -6,6 +6,8 @@ import { MessageChannelSyncStatus } from 'twenty-shared/types';
 import { MessageChannelEntity } from 'src/engine/metadata-modules/message-channel/entities/message-channel.entity';
 import { MessageFolderEntity } from 'src/engine/metadata-modules/message-folder/entities/message-folder.entity';
 import { ImapSyncService } from 'src/modules/messaging/message-import-manager/drivers/imap/services/imap-sync.service';
+import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
+import { getWorkspaceSchemaName } from 'src/engine/workspace-datasource/utils/get-workspace-schema-name.util';
 
 import { deleteConnectedAccount } from 'test/integration/metadata/suites/connected-account/utils/delete-connected-account.util';
 import { updateConfigVariable } from 'test/integration/twenty-config/utils/update-config-variable.util';
@@ -71,14 +73,27 @@ describe('IMAP messages import (integration)', () => {
     await dovecot?.stop().catch(() => undefined);
   });
 
-  it('imports a message delivered to the mailbox', async () => {
+  it('imports a message and stores its original MIME bytes @custom', async () => {
     const subject = `IMAP message ${randomUUID()}`;
 
-    await deliverMessage({ subject });
+    const rawMessage = await deliverMessage({ subject });
 
     await runMessageChannelSync(messageChannelId);
 
     expect(await findImportedMessageSubjects([subject])).toEqual([subject]);
+
+    const workspaceSchema = getWorkspaceSchemaName(SEED_APPLE_WORKSPACE_ID);
+    const [storedMessage] = await global.testDataSource.query(
+      `SELECT "rawProviderData"
+         FROM "${workspaceSchema}"."message"
+        WHERE subject = $1`,
+      [subject],
+    );
+
+    expect(storedMessage.rawProviderData).toEqual({
+      encoding: 'base64',
+      data: rawMessage.toString('base64'),
+    });
   }, 300000);
 
   it('keeps the channel active when the mailbox has not changed', async () => {

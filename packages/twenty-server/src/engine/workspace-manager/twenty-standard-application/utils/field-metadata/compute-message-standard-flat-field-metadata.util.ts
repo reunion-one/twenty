@@ -4,6 +4,7 @@ import { STANDARD_OBJECTS } from 'twenty-shared/metadata';
 import {
   DateDisplayFormat,
   FieldMetadataType,
+  MetadataWritability,
   RelationOnDeleteAction,
   RelationType,
 } from 'twenty-shared/types';
@@ -482,4 +483,33 @@ export const buildMessageStandardFlatFieldMetadatas = ({
     twentyStandardApplicationId,
     now,
   }),
+  rawProviderData: {
+    ...createStandardFieldFlatMetadata({
+      objectName,
+      workspaceId,
+      context: {
+        fieldName: 'rawProviderData',
+        type: FieldMetadataType.RAW_JSON,
+        label: i18nLabel(
+          msg({ message: `Raw provider data`, context: 'fieldMetadata.label' }),
+        ),
+        description: i18nLabel(
+          msg({
+            message: `Original message payload from its provider`,
+            context: 'fieldMetadata.description',
+          }),
+        ),
+        icon: 'IconCode',
+        isSystem: true,
+        isNullable: true,
+        isUIEditable: false,
+      },
+      standardObjectMetadataRelatedEntityIds,
+      dependencyFlatEntityMaps,
+      twentyStandardApplicationId,
+      now,
+    }),
+    writability: MetadataWritability.SYSTEM,
+    isAuditLogged: false,
+  },
 });
