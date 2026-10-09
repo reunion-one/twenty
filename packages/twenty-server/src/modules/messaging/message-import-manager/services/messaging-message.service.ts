@@ -1,5 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 
+import chunk from 'lodash.chunk';
+import isEqual from 'lodash.isequal';
+import { QUERY_MAX_RECORDS } from 'twenty-shared/constants';
 import { isDefined } from 'twenty-shared/utils';
 import { In } from 'typeorm';
 import { v4 } from 'uuid';
@@ -25,7 +28,8 @@ type MessageAccumulator = {
     | 'text'
     | 'messageThreadId'
     | 'isDraft'
-  >;
+  > &
+    Partial<Pick<MessageWorkspaceEntity, 'rawProviderData'>>;
   threadToCreate?: Pick<MessageThreadWorkspaceEntity, 'id' | 'subject'>;
   messageChannelMessageAssociationToCreate?: Pick<
     MessageChannelMessageAssociationWorkspaceEntity,
@@ -137,6 +141,10 @@ export class MessagingMessageService {
             MessageAccumulator['messageChannelMessageAssociationToCreate']
           >
         >();
+        const messageUpdatesById = new Map<
+          string,
+          Partial<MessageWorkspaceEntity> & Pick<MessageWorkspaceEntity, 'id'>
+        >();
 
         for (const message of messages) {
           const messageAccumulator = messageAccumulatorMap.get(
@@ -172,11 +180,29 @@ export class MessagingMessageService {
               text: message.text,
               messageThreadId,
               isDraft: message.isDraft,
+              ...(isDefined(message.rawProviderData)
+                ? { rawProviderData: message.rawProviderData }
+                : {}),
             };
 
             messageAccumulator.messageToCreate = messageToCreate;
           } else {
             newOrExistingMessageId = messageAccumulator.existingMessageInDB.id;
+
+            if (isDefined(message.rawProviderData)) {
+              const existingMessage = messageAccumulator.existingMessageInDB;
+              const rawProviderDataChanged = !isEqual(
+                existingMessage.rawProviderData,
+                message.rawProviderData,
+              );
+
+              if (rawProviderDataChanged) {
+                messageUpdatesById.set(existingMessage.id, {
+                  id: existingMessage.id,
+                  rawProviderData: message.rawProviderData,
+                });
+              }
+            }
           }
 
           if (
@@ -205,6 +231,20 @@ export class MessagingMessageService {
           }
 
           messageAccumulatorMap.set(message.externalId, messageAccumulator);
+        }
+
+        if (messageUpdatesById.size > 0) {
+          for (const messageUpdatesChunk of chunk(
+            Array.from(messageUpdatesById.values()).map(
+              ({ id, ...partialEntity }) => ({
+                criteria: id,
+                partialEntity,
+              }),
+            ),
+            QUERY_MAX_RECORDS,
+          )) {
+            await messageRepository.updateMany(messageUpdatesChunk);
+          }
         }
 
         const messageThreadsToCreate = Array.from(

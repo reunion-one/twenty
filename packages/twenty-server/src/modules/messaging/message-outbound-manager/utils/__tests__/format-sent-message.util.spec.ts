@@ -103,4 +103,10 @@ describe('formatSentMessage', () => {
     expect(message.attachments).toEqual([]);
     expect(message.messageFolderIds).toBeUndefined();
   });
+
+  it('keeps raw provider fields absent from outbound messages @custom', () => {
+    const message = formatSentMessage(buildInput());
+
+    expect(message).not.toHaveProperty('rawProviderData');
+  });
 });

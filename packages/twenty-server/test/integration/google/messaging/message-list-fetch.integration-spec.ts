@@ -7,6 +7,8 @@ import { connectMessagingAccount } from 'test/integration/utils/connect-messagin
 import { findImportedMessageSubjects } from 'test/integration/utils/find-imported-records.util';
 import { queryMessageFolders } from 'test/integration/utils/query-messaging.util';
 import { runMessageChannelSync } from 'test/integration/utils/run-message-channel-sync.util';
+import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
+import { getWorkspaceSchemaName } from 'src/engine/workspace-datasource/utils/get-workspace-schema-name.util';
 
 const HANDLE = 'gmail-message-list-fetch@apple.dev';
 
@@ -28,7 +30,7 @@ describe('Gmail message list fetch (integration)', () => {
     await channel?.cleanup().catch(() => undefined);
   });
 
-  it('runs the full sync pipeline on the real worker: folders synced, messages imported', async () => {
+  it('runs the full sync pipeline and stores the original Gmail response @custom', async () => {
     await runMessageChannelSync(channel.channelId);
 
     const expectedSubjects = inbox.map(getGmailMessageSubject);
@@ -36,6 +38,24 @@ describe('Gmail message list fetch (integration)', () => {
     expect(await findImportedMessageSubjects(expectedSubjects)).toEqual(
       [...expectedSubjects].sort(),
     );
+
+    const workspaceSchema = getWorkspaceSchemaName(SEED_APPLE_WORKSPACE_ID);
+    const storedRawProviderData = await global.testDataSource.query(
+      `SELECT "rawProviderData"
+         FROM "${workspaceSchema}"."message"
+        WHERE subject = ANY($1)
+        ORDER BY subject`,
+      [expectedSubjects],
+    );
+    const expectedRawProviderData = [...inbox].sort((left, right) =>
+      getGmailMessageSubject(left).localeCompare(getGmailMessageSubject(right)),
+    );
+
+    expect(
+      storedRawProviderData.map(
+        ({ rawProviderData }: { rawProviderData: unknown }) => rawProviderData,
+      ),
+    ).toEqual(expectedRawProviderData);
 
     const folders = await queryMessageFolders(channel.channelId);
 
