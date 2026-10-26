@@ -40,7 +40,7 @@ export const fromObjectManifestToUniversalFlatObjectMetadata = ({
     readabilityParentFieldUniversalIdentifiers:
       objectManifest.readabilityParentFieldUniversalIdentifiers ?? null,
     sharingReach: objectManifest.sharingReach ?? ObjectSharingReach.WORKSPACE,
-    isAuditLogged: true,
+    isAuditLogged: objectManifest.isAuditLogged ?? true,
     isSearchable: objectManifest.isSearchable ?? true,
     duplicateCriteria: null,
     shortcut: null,

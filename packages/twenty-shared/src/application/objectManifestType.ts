@@ -15,6 +15,7 @@ export type ObjectManifest = SyncableEntityOptions & {
   color?: string | null;
   isLabelSyncedWithName?: boolean;
   isSearchable?: boolean;
+  isAuditLogged?: boolean;
   isUICreatable?: boolean;
   isUIEditable?: boolean;
   writability?: MetadataWritability;

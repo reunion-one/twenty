@@ -29,6 +29,7 @@ export const fromFlatObjectMetadataToObjectManifest = ({
   color: flatObjectMetadata.color,
   isLabelSyncedWithName: flatObjectMetadata.isLabelSyncedWithName,
   isSearchable: flatObjectMetadata.isSearchable,
+  isAuditLogged: flatObjectMetadata.isAuditLogged,
   isUICreatable: flatObjectMetadata.isUICreatable,
   isUIEditable: flatObjectMetadata.isUIEditable,
   writability: flatObjectMetadata.writability,
