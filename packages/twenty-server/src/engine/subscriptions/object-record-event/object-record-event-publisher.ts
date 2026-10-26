@@ -20,6 +20,7 @@ import {
 import { FindOptionsRelations, ObjectLiteral } from 'typeorm';
 
 import { ProcessNestedRelationsHelper } from 'src/engine/api/common/common-nested-relations-processor/process-nested-relations.helper';
+import { CommonResultGettersService } from 'src/engine/api/common/common-result-getters/common-result-getters.service';
 import { CommonSelectFieldsBuilder } from 'src/engine/api/common/common-select-fields/common-select-fields-builder';
 import { DatabaseEventAction } from 'src/engine/api/graphql/graphql-query-runner/enums/database-event-action';
 import { GraphqlQueryParser } from 'src/engine/api/graphql/graphql-query-runner/graphql-query-parsers/graphql-query.parser';
@@ -80,6 +81,7 @@ export class ObjectRecordEventPublisher {
     private readonly workspaceManyOrAllFlatEntityMapsCacheService: WorkspaceManyOrAllFlatEntityMapsCacheService,
     private readonly commonSelectFieldsBuilder: CommonSelectFieldsBuilder,
     private readonly recordAccessPolicyService: RecordAccessPolicyService,
+    private readonly commonResultGettersService: CommonResultGettersService,
   ) {}
 
   async publish(
@@ -288,7 +290,7 @@ export class ObjectRecordEventPublisher {
         });
       } catch (error) {
         this.logger.warn(
-          `Failed to enrich nested relations for ${workspaceEventBatch.name} subscription event, broadcasting without them: ${
+          `Failed to enrich query results for ${workspaceEventBatch.name} subscription event, broadcasting without enrichment: ${
             error instanceof Error ? error.message : String(error)
           }`,
           error instanceof Error ? error.stack : undefined,
@@ -388,6 +390,19 @@ export class ObjectRecordEventPublisher {
       >,
       selectedFields: selectedFieldsResult.select,
     });
+
+    for (const record of allRecords) {
+      const processedRecord =
+        await this.commonResultGettersService.processRecord(
+          record,
+          objectMetadata,
+          flatObjectMetadataMaps,
+          flatFieldMetadataMaps,
+          workspaceId,
+        );
+
+      Object.assign(record, processedRecord);
+    }
   }
 
   private resolveStreamRoleIds(

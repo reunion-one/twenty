@@ -5,6 +5,7 @@ import {
   FeatureFlagKey,
   FieldMetadataType,
   MetadataReadability,
+  type ObjectRecord,
   type ObjectsPermissions,
   type ObjectsPermissionsByRoleId,
   type RecordGqlOperationFilter,
@@ -14,6 +15,7 @@ import {
 } from 'twenty-shared/types';
 
 import { ProcessNestedRelationsHelper } from 'src/engine/api/common/common-nested-relations-processor/process-nested-relations.helper';
+import { CommonResultGettersService } from 'src/engine/api/common/common-result-getters/common-result-getters.service';
 import { type FlatApplicationCacheMaps } from 'src/engine/core-modules/application/types/flat-application-cache-maps.type';
 import { CommonSelectFieldsBuilder } from 'src/engine/api/common/common-select-fields/common-select-fields-builder';
 import { createEmptyFlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/constant/create-empty-flat-entity-maps.constant';
@@ -342,6 +344,14 @@ describe('ObjectRecordEventPublisher', () => {
         {
           provide: ProcessNestedRelationsHelper,
           useValue: mockProcessNestedRelationsHelper,
+        },
+        {
+          provide: CommonResultGettersService,
+          useValue: {
+            processRecord: jest
+              .fn()
+              .mockImplementation(async (record: ObjectRecord) => record),
+          },
         },
         {
           provide: WorkspaceManyOrAllFlatEntityMapsCacheService,

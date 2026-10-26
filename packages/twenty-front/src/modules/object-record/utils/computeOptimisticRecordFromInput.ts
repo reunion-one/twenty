@@ -185,68 +185,59 @@ export const computeOptimisticRecordFromInput = ({
         },
       );
 
-      const relationGqlField = relationGqlFields?.find(
-        (relationGqlField) =>
-          recordInput[
-            computeRelationGqlFieldJoinColumnName({ name: relationGqlField })
-          ],
-      );
-
-      const relationGqlFieldWithId = computeRelationGqlFieldJoinColumnName({
-        name: relationGqlField ?? '',
-      });
-
-      if (isUndefined(relationGqlField)) {
-        continue;
-      }
-
-      const recordInputFieldIdValue: string | null | undefined =
-        recordInput[relationGqlFieldWithId];
-
-      if (isUndefined(recordInputFieldIdValue)) {
-        continue;
-      }
-
-      if (isNull(recordInputFieldIdValue)) {
-        optimisticRecord[relationGqlField] = null;
-        optimisticRecord[fieldMetadataItem.name] = null;
-        continue;
-      }
-
-      if (!isDefined(fieldMetadataItem.morphRelations)) {
-        throw new Error(
-          'Should never occur, encountered invalid relation definition',
-        );
-      }
-
-      const fieldMetadataMorphRelation =
-        getMorphRelationFromFieldMetadataAndGqlField({
-          objectMetadataItems,
-          fieldMetadata: { morphRelations: fieldMetadataItem.morphRelations },
-          gqlField: relationGqlField,
+      for (const relationGqlField of relationGqlFields ?? []) {
+        const relationGqlFieldWithId = computeRelationGqlFieldJoinColumnName({
+          name: relationGqlField,
         });
 
-      if (!isDefined(fieldMetadataMorphRelation?.targetObjectMetadata)) {
-        throw new Error(
-          'Should never occur, encountered invalid relation definition',
-        );
+        const recordInputFieldIdValue: string | null | undefined =
+          recordInput[relationGqlFieldWithId];
+
+        if (isUndefined(recordInputFieldIdValue)) {
+          continue;
+        }
+
+        if (isNull(recordInputFieldIdValue)) {
+          optimisticRecord[relationGqlFieldWithId] = null;
+          optimisticRecord[relationGqlField] = null;
+          continue;
+        }
+
+        if (!isDefined(fieldMetadataItem.morphRelations)) {
+          throw new Error(
+            'Should never occur, encountered invalid relation definition',
+          );
+        }
+
+        const fieldMetadataMorphRelation =
+          getMorphRelationFromFieldMetadataAndGqlField({
+            objectMetadataItems,
+            fieldMetadata: { morphRelations: fieldMetadataItem.morphRelations },
+            gqlField: relationGqlField,
+          });
+
+        if (!isDefined(fieldMetadataMorphRelation?.targetObjectMetadata)) {
+          throw new Error(
+            'Should never occur, encountered invalid relation definition',
+          );
+        }
+
+        const cachedRecord = getRecordFromCache({
+          cache,
+          objectMetadataItem: fieldMetadataMorphRelation.targetObjectMetadata,
+          objectMetadataItems,
+          recordId: recordInputFieldIdValue,
+          objectPermissionsByObjectMetadataId,
+        });
+
+        optimisticRecord[relationGqlFieldWithId] = recordInputFieldIdValue;
+
+        if (!isDefined(cachedRecord) || Object.keys(cachedRecord).length <= 0) {
+          continue;
+        }
+
+        optimisticRecord[relationGqlField] = cachedRecord;
       }
-
-      const cachedRecord = getRecordFromCache({
-        cache,
-        objectMetadataItem: fieldMetadataMorphRelation.targetObjectMetadata,
-        objectMetadataItems,
-        recordId: recordInputFieldIdValue as string,
-        objectPermissionsByObjectMetadataId,
-      });
-
-      optimisticRecord[relationGqlFieldWithId] = recordInputFieldIdValue;
-
-      if (!isDefined(cachedRecord) || Object.keys(cachedRecord).length <= 0) {
-        continue;
-      }
-
-      optimisticRecord[relationGqlField] = cachedRecord;
     }
   }
 
