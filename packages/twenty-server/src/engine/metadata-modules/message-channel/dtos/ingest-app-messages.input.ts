@@ -29,6 +29,8 @@ export const INGEST_APP_MESSAGES_MAX_BATCH_SIZE = 100;
 // above a long plain-text message, well below what would strain a full batch's transaction
 export const MAX_APP_MESSAGE_TEXT_LENGTH = 262_144;
 
+export const MAX_APP_MESSAGE_FOLDERS_PER_MESSAGE = 32;
+
 @InputType('AppMessageParticipantInput')
 export class AppMessageParticipantInput {
   @Field(() => MessageParticipantRole)
@@ -63,7 +65,6 @@ export class AppMessageParticipantInput {
 
 @InputType('AppMessageInput')
 export class AppMessageInput {
-  // Re-ingestion preserves normalized fields and replaces raw data only when provided.
   @Field()
   @IsString()
   @IsNotEmpty()
@@ -102,10 +103,20 @@ export class AppMessageInput {
   @Type(() => AppMessageParticipantInput)
   participants: AppMessageParticipantInput[];
 
+  // Re-ingestion preserves normalized fields and replaces raw data only when provided.
   @Field(() => GraphQLJSON, { nullable: true })
   @IsOptional()
   @IsObject()
   rawProviderData?: Record<string, unknown> | null;
+
+  @Field(() => [String], { nullable: true })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(MAX_APP_MESSAGE_FOLDERS_PER_MESSAGE)
+  @IsString({ each: true })
+  @IsNotEmpty({ each: true })
+  @MaxLength(512, { each: true })
+  folderExternalIds?: string[];
 }
 
 @InputType('IngestAppMessagesInput')
