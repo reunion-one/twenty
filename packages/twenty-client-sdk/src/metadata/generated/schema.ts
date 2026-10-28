@@ -243,7 +243,7 @@ export interface AiSystemPromptSection {
     __typename: 'AiSystemPromptSection'
 }
 
-export type AllMetadataName = 'agent' | 'agentChatChannel' | 'agentChatChannelRole' | 'applicationVariable' | 'commandMenuItem' | 'connectionProvider' | 'fieldMetadata' | 'fieldPermission' | 'frontComponent' | 'index' | 'logicFunction' | 'messagingProvider' | 'navigationMenuItem' | 'objectMetadata' | 'objectPermission' | 'pageLayout' | 'pageLayoutTab' | 'pageLayoutWidget' | 'permissionFlag' | 'role' | 'rolePermissionFlag' | 'roleTarget' | 'rowLevelPermissionPredicate' | 'rowLevelPermissionPredicateGroup' | 'searchFieldMetadata' | 'settingsMenuItem' | 'skill' | 'timelineActivityType' | 'validationRule' | 'view' | 'viewField' | 'viewFieldGroup' | 'viewFilter' | 'viewFilterGroup' | 'viewGroup' | 'viewSort' | 'webhook' | 'workflow' | 'workflowVersion'
+export type AllMetadataName = 'agent' | 'agentChatChannel' | 'agentChatChannelRole' | 'applicationVariable' | 'commandMenuItem' | 'connectionProvider' | 'fieldMetadata' | 'fieldPermission' | 'frontComponent' | 'index' | 'logicFunction' | 'mcpServer' | 'messagingProvider' | 'navigationMenuItem' | 'objectMetadata' | 'objectPermission' | 'pageLayout' | 'pageLayoutTab' | 'pageLayoutWidget' | 'permissionFlag' | 'role' | 'rolePermissionFlag' | 'roleTarget' | 'rowLevelPermissionPredicate' | 'rowLevelPermissionPredicateGroup' | 'searchFieldMetadata' | 'settingsMenuItem' | 'skill' | 'timelineActivityType' | 'validationRule' | 'view' | 'viewField' | 'viewFieldGroup' | 'viewFilter' | 'viewFilterGroup' | 'viewGroup' | 'viewSort' | 'webhook' | 'workflow' | 'workflowVersion'
 
 export interface Analytics {
     /** Boolean that confirms query was dispatched */
@@ -1503,7 +1503,7 @@ export interface FeatureFlag {
     __typename: 'FeatureFlag'
 }
 
-export type FeatureFlagKey = 'IS_AI_CHAT_INBOX_ENABLED' | 'IS_APP_PREFERENCES_ENABLED' | 'IS_CALENDAR_EVENT_SHARED_ACROSS_CHANNELS_ENABLED' | 'IS_CONFIGURABLE_SEARCH_FIELDS_ENABLED' | 'IS_DEFERRED_WORKSPACE_MIGRATION_ACTIONS_ENABLED' | 'IS_MESSAGE_CAMPAIGN_ENABLED' | 'IS_RECORD_CREATION_FORM_ENABLED' | 'IS_RECORD_LEVEL_SHARING_ENABLED' | 'IS_REST_METADATA_API_NEW_FORMAT_DIRECT'
+export type FeatureFlagKey = 'IS_AI_CHAT_INBOX_ENABLED' | 'IS_APP_PREFERENCES_ENABLED' | 'IS_CALENDAR_EVENT_SHARED_ACROSS_CHANNELS_ENABLED' | 'IS_CONFIGURABLE_SEARCH_FIELDS_ENABLED' | 'IS_DEFERRED_WORKSPACE_MIGRATION_ACTIONS_ENABLED' | 'IS_MCP_SERVERS_ENABLED' | 'IS_MESSAGE_CAMPAIGN_ENABLED' | 'IS_RECORD_CREATION_FORM_ENABLED' | 'IS_RECORD_LEVEL_SHARING_ENABLED' | 'IS_REST_METADATA_API_NEW_FORMAT_DIRECT'
 
 export interface Field {
     applicationId: Scalars['UUID']
@@ -2026,6 +2026,19 @@ export interface MarketplaceAppRoleObjectPermission {
     __typename: 'MarketplaceAppRoleObjectPermission'
 }
 
+export interface McpServer {
+    applicationId: Scalars['UUID']
+    connectionProviderId?: Scalars['UUID']
+    createdAt: Scalars['DateTime']
+    id: Scalars['UUID']
+    isActive: Scalars['Boolean']
+    label: Scalars['String']
+    name: Scalars['String']
+    updatedAt: Scalars['DateTime']
+    url: Scalars['String']
+    __typename: 'McpServer'
+}
+
 export interface MessageCampaignBodyConfiguration {
     configurationType: WidgetConfigurationType
     __typename: 'MessageCampaignBodyConfiguration'
@@ -2231,6 +2244,7 @@ export interface Mutation {
     createManyViewFieldGroups: ViewFieldGroup[]
     createManyViewFields: ViewField[]
     createManyViewGroups: ViewGroup[]
+    createMcpServer: McpServer
     createMessageSuppression: MessageSuppression
     createNavigationMenuItem: NavigationMenuItem
     createNewWorkspaceLogoUpload: FileUploadTarget
@@ -2273,6 +2287,7 @@ export interface Mutation {
     deleteEmailingDomain: Scalars['Boolean']
     deleteFrontComponent: FrontComponent
     deleteManyNavigationMenuItems: NavigationMenuItem[]
+    deleteMcpServer: McpServer
     deleteMessageSuppression: Scalars['Boolean']
     deleteNavigationMenuItem: NavigationMenuItem
     deleteOneAgent: Agent
@@ -2395,6 +2410,7 @@ export interface Mutation {
     stopImpersonation: StopImpersonation
     switchBillingPlan: BillingUpdate
     switchSubscriptionInterval: BillingUpdate
+    syncAppMessageFolders: MessageFolder[]
     syncApplication: WorkspaceMigration
     syncMarketplaceCatalog: Scalars['Boolean']
     trackAnalytics: Analytics
@@ -2423,6 +2439,7 @@ export interface Mutation {
     updateManyNavigationMenuItems: NavigationMenuItem[]
     updateManyObjects: Object[]
     updateManyViewGroups: ViewGroup[]
+    updateMcpServer: McpServer
     updateMessageChannel: MessageChannel
     updateMessageFolder: MessageFolder
     updateMessageFolders: MessageFolder[]
@@ -2525,6 +2542,7 @@ export interface Object {
     color?: Scalars['String']
     createdAt: Scalars['DateTime']
     description?: Scalars['String']
+    disabledObjectPermissionActions?: Scalars['String'][]
     duplicateCriteria?: Scalars['String'][][]
     fields: ObjectFieldsConnection
     fieldsList: Field[]
@@ -2534,6 +2552,7 @@ export interface Object {
     indexMetadataList: Index[]
     indexMetadatas: ObjectIndexMetadatasConnection
     isActive: Scalars['Boolean']
+    isAuditLogged: Scalars['Boolean']
     isLabelSyncedWithName: Scalars['Boolean']
     isRemote: Scalars['Boolean']
     isSearchable: Scalars['Boolean']
@@ -2924,12 +2943,14 @@ export interface Query {
     appConnections: AppConnection[]
     appKeyValue?: AppKeyValue
     appMessageChannels: MessageChannel[]
+    appMessageFolders: MessageFolder[]
     applicationConnectedAccounts: ApplicationConnectedAccountDTO[]
     applicationConnectionProviders: ApplicationConnectionProvider[]
     applicationCoreGraphqlSchema: Scalars['String']
     applicationRegistrationTarballUrl?: Scalars['String']
     applicationSdkClientChecksums?: SdkClientChecksums
     barChartData: BarChartData
+    billingPlans: BillingPlan[]
     billingPortalSession: BillingSession
     callRecordingIdForCalendarEvent?: Scalars['UUID']
     chatMessages: AgentMessage[]
@@ -3021,7 +3042,10 @@ export interface Query {
     githubClaimAuthorizationUrl: Scalars['String']
     isApplicationStopped: Scalars['Boolean']
     lineChartData: LineChartData
+    /** @deprecated Use billingPlans instead. */
     listPlans: BillingPlan[]
+    mcpServer?: McpServer
+    mcpServers: McpServer[]
     messageSuppressions: MessageSuppressionList
     metadataTranslations: MetadataTranslation[]
     minimalMetadata: MinimalMetadata
@@ -4480,7 +4504,9 @@ export interface AppKeyValueGenqlSelection{
     __scalar?: boolean | number
 }
 
-export interface AppMessageInput {externalId: Scalars['String'],participants: AppMessageParticipantInput[],receivedAt: Scalars['DateTime'],subject?: (Scalars['String'] | null),text: Scalars['String'],threadExternalId: Scalars['String']}
+export interface AppMessageFolderInput {externalId: Scalars['String'],isSynced?: (Scalars['Boolean'] | null),name: Scalars['String']}
+
+export interface AppMessageInput {externalId: Scalars['String'],folderExternalIds?: (Scalars['String'][] | null),participants: AppMessageParticipantInput[],receivedAt: Scalars['DateTime'],subject?: (Scalars['String'] | null),text: Scalars['String'],threadExternalId: Scalars['String']}
 
 export interface AppMessageParticipantInput {displayName?: (Scalars['String'] | null),handle: Scalars['String'],personId?: (Scalars['UUID'] | null),role: MessageParticipantRole,workspaceMemberId?: (Scalars['UUID'] | null)}
 
@@ -5569,6 +5595,8 @@ export interface CreateIndexInput {fields: CreateIndexFieldInput[],indexType: In
 
 export interface CreateLogicFunctionFromSourceInput {cronTriggerSettings?: (Scalars['JSON'] | null),databaseEventTriggerSettings?: (Scalars['JSON'] | null),description?: (Scalars['String'] | null),httpRouteTriggerSettings?: (Scalars['JSON'] | null),id?: (Scalars['UUID'] | null),name: Scalars['String'],serverRouteTriggerSettings?: (Scalars['JSON'] | null),source?: (Scalars['JSON'] | null),timeoutSeconds?: (Scalars['Float'] | null),toolTriggerSettings?: (Scalars['JSON'] | null),universalIdentifier?: (Scalars['UUID'] | null),workflowActionTriggerSettings?: (Scalars['JSON'] | null)}
 
+export interface CreateMcpServerInput {connectionProviderId?: (Scalars['UUID'] | null),id?: (Scalars['UUID'] | null),isActive?: (Scalars['Boolean'] | null),label: Scalars['String'],name: Scalars['String'],url: Scalars['String']}
+
 export interface CreateMessageSuppressionInput {emailAddress: Scalars['String'],unsubscribeTopicId?: (Scalars['UUID'] | null)}
 
 export interface CreateNavigationMenuItemInput {agentChatChannelId?: (Scalars['UUID'] | null),color?: (Scalars['String'] | null),folderId?: (Scalars['UUID'] | null),icon?: (Scalars['String'] | null),id?: (Scalars['UUID'] | null),link?: (Scalars['String'] | null),name?: (Scalars['String'] | null),pageLayoutId?: (Scalars['UUID'] | null),position?: (Scalars['Float'] | null),targetObjectMetadataId?: (Scalars['UUID'] | null),targetRecordId?: (Scalars['UUID'] | null),type: NavigationMenuItemType,userWorkspaceId?: (Scalars['UUID'] | null),viewId?: (Scalars['UUID'] | null)}
@@ -6326,6 +6354,8 @@ export interface ListAppConnectionsInput {providerName?: (Scalars['String'] | nu
 
 export interface ListAppMessageChannelsInput {connectedAccountId?: (Scalars['UUID'] | null)}
 
+export interface ListAppMessageFoldersInput {messageChannelId?: (Scalars['UUID'] | null)}
+
 export interface LocationGenqlSelection{
     lat?: boolean | number
     lng?: boolean | number
@@ -6482,6 +6512,20 @@ export interface MarketplaceAppRoleObjectPermissionGenqlSelection{
     canUpdateObjectRecords?: boolean | number
     objectUniversalIdentifier?: boolean | number
     universalIdentifier?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
+export interface McpServerGenqlSelection{
+    applicationId?: boolean | number
+    connectionProviderId?: boolean | number
+    createdAt?: boolean | number
+    id?: boolean | number
+    isActive?: boolean | number
+    label?: boolean | number
+    name?: boolean | number
+    updatedAt?: boolean | number
+    url?: boolean | number
     __typename?: boolean | number
     __scalar?: boolean | number
 }
@@ -6671,6 +6715,7 @@ export interface MutationGenqlSelection{
     createManyViewFieldGroups?: (ViewFieldGroupGenqlSelection & { __args: {inputs: CreateViewFieldGroupInput[]} })
     createManyViewFields?: (ViewFieldGenqlSelection & { __args: {inputs: CreateViewFieldInput[]} })
     createManyViewGroups?: (ViewGroupGenqlSelection & { __args: {inputs: CreateViewGroupInput[]} })
+    createMcpServer?: (McpServerGenqlSelection & { __args: {input: CreateMcpServerInput} })
     createMessageSuppression?: (MessageSuppressionGenqlSelection & { __args: {input: CreateMessageSuppressionInput} })
     createNavigationMenuItem?: (NavigationMenuItemGenqlSelection & { __args: {input: CreateNavigationMenuItemInput} })
     createNewWorkspaceLogoUpload?: (FileUploadTargetGenqlSelection & { __args: {filename: Scalars['String'], size: Scalars['Float'], workspaceId: Scalars['String']} })
@@ -6713,6 +6758,7 @@ export interface MutationGenqlSelection{
     deleteEmailingDomain?: { __args: {id: Scalars['String']} }
     deleteFrontComponent?: (FrontComponentGenqlSelection & { __args: {id: Scalars['UUID']} })
     deleteManyNavigationMenuItems?: (NavigationMenuItemGenqlSelection & { __args: {ids: Scalars['UUID'][]} })
+    deleteMcpServer?: (McpServerGenqlSelection & { __args: {id: Scalars['UUID']} })
     deleteMessageSuppression?: { __args: {id: Scalars['UUID']} }
     deleteNavigationMenuItem?: (NavigationMenuItemGenqlSelection & { __args: {id: Scalars['UUID']} })
     deleteOneAgent?: (AgentGenqlSelection & { __args: {input: AgentIdInput} })
@@ -6835,6 +6881,7 @@ export interface MutationGenqlSelection{
     stopImpersonation?: StopImpersonationGenqlSelection
     switchBillingPlan?: (BillingUpdateGenqlSelection & { __args?: {plan?: (BillingPlanKey | null)} })
     switchSubscriptionInterval?: BillingUpdateGenqlSelection
+    syncAppMessageFolders?: (MessageFolderGenqlSelection & { __args: {input: SyncAppMessageFoldersInput} })
     syncApplication?: (WorkspaceMigrationGenqlSelection & { __args: {dryRun?: (Scalars['Boolean'] | null), inferDeletionFromMissingEntities?: (Scalars['Boolean'] | null), manifest: Scalars['JSON']} })
     syncMarketplaceCatalog?: boolean | number
     trackAnalytics?: (AnalyticsGenqlSelection & { __args: {event?: (Scalars['String'] | null), name?: (Scalars['String'] | null), properties?: (Scalars['JSON'] | null), type: AnalyticsType} })
@@ -6863,6 +6910,7 @@ export interface MutationGenqlSelection{
     updateManyNavigationMenuItems?: (NavigationMenuItemGenqlSelection & { __args: {inputs: UpdateOneNavigationMenuItemInput[]} })
     updateManyObjects?: (ObjectGenqlSelection & { __args: {inputs: UpdateOneObjectInput[]} })
     updateManyViewGroups?: (ViewGroupGenqlSelection & { __args: {inputs: UpdateViewGroupInput[]} })
+    updateMcpServer?: (McpServerGenqlSelection & { __args: {input: UpdateMcpServerInput} })
     updateMessageChannel?: (MessageChannelGenqlSelection & { __args: {input: UpdateMessageChannelInput} })
     updateMessageFolder?: (MessageFolderGenqlSelection & { __args: {input: UpdateMessageFolderInput} })
     updateMessageFolders?: (MessageFolderGenqlSelection & { __args: {input: UpdateMessageFoldersInput} })
@@ -6967,6 +7015,7 @@ export interface ObjectGenqlSelection{
     color?: boolean | number
     createdAt?: boolean | number
     description?: boolean | number
+    disabledObjectPermissionActions?: boolean | number
     duplicateCriteria?: boolean | number
     fields?: (ObjectFieldsConnectionGenqlSelection & { __args: {
     /** Specify to filter the records returned. */
@@ -6984,6 +7033,7 @@ export interface ObjectGenqlSelection{
     /** Limit or page results. */
     paging: CursorPaging} })
     isActive?: boolean | number
+    isAuditLogged?: boolean | number
     isLabelSyncedWithName?: boolean | number
     isRemote?: boolean | number
     isSearchable?: boolean | number
@@ -7402,12 +7452,14 @@ export interface QueryGenqlSelection{
     appConnections?: (AppConnectionGenqlSelection & { __args?: {filter?: (ListAppConnectionsInput | null)} })
     appKeyValue?: (AppKeyValueGenqlSelection & { __args: {key: Scalars['String'], scope?: (AppKeyValueScope | null)} })
     appMessageChannels?: (MessageChannelGenqlSelection & { __args?: {filter?: (ListAppMessageChannelsInput | null)} })
+    appMessageFolders?: (MessageFolderGenqlSelection & { __args?: {filter?: (ListAppMessageFoldersInput | null)} })
     applicationConnectedAccounts?: (ApplicationConnectedAccountDTOGenqlSelection & { __args: {applicationId: Scalars['UUID']} })
     applicationConnectionProviders?: (ApplicationConnectionProviderGenqlSelection & { __args: {applicationId: Scalars['UUID']} })
     applicationCoreGraphqlSchema?: { __args: {applicationUniversalIdentifier: Scalars['String']} }
     applicationRegistrationTarballUrl?: { __args: {id: Scalars['String']} }
     applicationSdkClientChecksums?: (SdkClientChecksumsGenqlSelection & { __args: {applicationId: Scalars['UUID']} })
     barChartData?: (BarChartDataGenqlSelection & { __args: {input: BarChartDataInput} })
+    billingPlans?: BillingPlanGenqlSelection
     billingPortalSession?: (BillingSessionGenqlSelection & { __args?: {forPaymentMethodUpdate?: (Scalars['Boolean'] | null), returnUrlPath?: (Scalars['String'] | null)} })
     callRecordingIdForCalendarEvent?: { __args: {calendarEventId: Scalars['UUID']} }
     chatMessages?: (AgentMessageGenqlSelection & { __args: {threadId: Scalars['UUID']} })
@@ -7505,7 +7557,10 @@ export interface QueryGenqlSelection{
     githubClaimAuthorizationUrl?: { __args: {applicationRegistrationId: Scalars['String']} }
     isApplicationStopped?: { __args: {applicationUniversalIdentifier: Scalars['String']} }
     lineChartData?: (LineChartDataGenqlSelection & { __args: {input: LineChartDataInput} })
+    /** @deprecated Use billingPlans instead. */
     listPlans?: BillingPlanGenqlSelection
+    mcpServer?: (McpServerGenqlSelection & { __args: {id: Scalars['UUID']} })
+    mcpServers?: McpServerGenqlSelection
     messageSuppressions?: (MessageSuppressionListGenqlSelection & { __args: {input: FindMessageSuppressionsInput} })
     metadataTranslations?: (MetadataTranslationGenqlSelection & { __args: {input: MetadataTranslationsInput} })
     minimalMetadata?: MinimalMetadataGenqlSelection
@@ -7915,7 +7970,7 @@ export interface SignUpGenqlSelection{
     __scalar?: boolean | number
 }
 
-export interface SignUpInNewWorkspaceInput {displayName?: (Scalars['String'] | null),partner?: (Scalars['String'] | null),subdomain?: (Scalars['String'] | null)}
+export interface SignUpInNewWorkspaceInput {captchaToken?: (Scalars['String'] | null),displayName?: (Scalars['String'] | null),partner?: (Scalars['String'] | null),subdomain?: (Scalars['String'] | null)}
 
 export interface SkillGenqlSelection{
     applicationId?: boolean | number
@@ -7979,6 +8034,8 @@ export interface SupportGenqlSelection{
     __typename?: boolean | number
     __scalar?: boolean | number
 }
+
+export interface SyncAppMessageFoldersInput {folders: AppMessageFolderInput[],messageChannelId: Scalars['UUID']}
 
 export interface TasksConfigurationGenqlSelection{
     configurationType?: boolean | number
@@ -8185,6 +8242,10 @@ id: Scalars['UUID'],
 update: UpdateLogicFunctionFromSourceInputUpdates}
 
 export interface UpdateLogicFunctionFromSourceInputUpdates {cronTriggerSettings?: (Scalars['JSON'] | null),databaseEventTriggerSettings?: (Scalars['JSON'] | null),description?: (Scalars['String'] | null),handlerName?: (Scalars['String'] | null),httpRouteTriggerSettings?: (Scalars['JSON'] | null),name?: (Scalars['String'] | null),sourceHandlerCode?: (Scalars['String'] | null),sourceHandlerPath?: (Scalars['String'] | null),timeoutSeconds?: (Scalars['Float'] | null),toolTriggerSettings?: (Scalars['JSON'] | null),workflowActionTriggerSettings?: (Scalars['JSON'] | null)}
+
+export interface UpdateMcpServerInput {id: Scalars['UUID'],update: UpdateMcpServerInputUpdates}
+
+export interface UpdateMcpServerInputUpdates {connectionProviderId?: (Scalars['UUID'] | null),isActive?: (Scalars['Boolean'] | null),label?: (Scalars['String'] | null),name?: (Scalars['String'] | null),url?: (Scalars['String'] | null)}
 
 export interface UpdateMessageChannelInput {id: Scalars['UUID'],update: UpdateMessageChannelInputUpdates}
 
@@ -10516,6 +10577,14 @@ export interface WorkspaceUrlsAndIdGenqlSelection{
     
 
 
+    const McpServer_possibleTypes: string[] = ['McpServer']
+    export const isMcpServer = (obj?: { __typename?: any } | null): obj is McpServer => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isMcpServer"')
+      return McpServer_possibleTypes.includes(obj.__typename)
+    }
+
+
+
     const MessageCampaignBodyConfiguration_possibleTypes: string[] = ['MessageCampaignBodyConfiguration']
     export const isMessageCampaignBodyConfiguration = (obj?: { __typename?: any } | null): obj is MessageCampaignBodyConfiguration => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isMessageCampaignBodyConfiguration"')
@@ -11844,6 +11913,7 @@ export const enumAllMetadataName = {
    frontComponent: 'frontComponent' as const,
    index: 'index' as const,
    logicFunction: 'logicFunction' as const,
+   mcpServer: 'mcpServer' as const,
    messagingProvider: 'messagingProvider' as const,
    navigationMenuItem: 'navigationMenuItem' as const,
    objectMetadata: 'objectMetadata' as const,
@@ -12159,6 +12229,7 @@ export const enumFeatureFlagKey = {
    IS_CALENDAR_EVENT_SHARED_ACROSS_CHANNELS_ENABLED: 'IS_CALENDAR_EVENT_SHARED_ACROSS_CHANNELS_ENABLED' as const,
    IS_CONFIGURABLE_SEARCH_FIELDS_ENABLED: 'IS_CONFIGURABLE_SEARCH_FIELDS_ENABLED' as const,
    IS_DEFERRED_WORKSPACE_MIGRATION_ACTIONS_ENABLED: 'IS_DEFERRED_WORKSPACE_MIGRATION_ACTIONS_ENABLED' as const,
+   IS_MCP_SERVERS_ENABLED: 'IS_MCP_SERVERS_ENABLED' as const,
    IS_MESSAGE_CAMPAIGN_ENABLED: 'IS_MESSAGE_CAMPAIGN_ENABLED' as const,
    IS_RECORD_CREATION_FORM_ENABLED: 'IS_RECORD_CREATION_FORM_ENABLED' as const,
    IS_RECORD_LEVEL_SHARING_ENABLED: 'IS_RECORD_LEVEL_SHARING_ENABLED' as const,

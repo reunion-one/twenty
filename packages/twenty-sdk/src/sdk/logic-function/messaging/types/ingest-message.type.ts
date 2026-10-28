@@ -14,7 +14,6 @@ export type IngestMessageParticipant = {
 };
 
 export type IngestMessage = {
-  // Re-ingestion preserves normalized fields and replaces raw data only when provided.
   externalId: string;
   // Messages sharing one land in the same Message Thread
   threadExternalId: string;
@@ -23,7 +22,9 @@ export type IngestMessage = {
   text: string;
   receivedAt: Date;
   participants: IngestMessageParticipant[];
+  // Re-ingestion preserves normalized fields and replaces raw data only when provided.
   rawProviderData?: Record<string, unknown> | null;
+  folderExternalIds?: string[];
 };
 
 export type IngestedMessage = {
