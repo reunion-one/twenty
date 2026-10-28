@@ -21,10 +21,12 @@ type HasObjectInUnion<T> = T extends unknown
 type MetadataEntityPropertyConfiguration<
   TMetadataName extends AllMetadataName,
 > = {
-  [K in keyof Omit<
-    ScalarFlatEntity<MetadataEntity<TMetadataName>>,
-    'id' | 'workspaceId' | 'applicationId' | 'universalIdentifier'
-  >]: {
+  [
+    K in keyof Omit<
+      ScalarFlatEntity<MetadataEntity<TMetadataName>>,
+      'id' | 'workspaceId' | 'applicationId' | 'universalIdentifier'
+    >
+  ]: {
     universalProperty: K extends AllJsonbPropertiesWithSerializedPropertiesForMetadataName<TMetadataName> &
       string
       ? `universal${Capitalize<K>}`
@@ -863,6 +865,11 @@ export const ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME = {
       toStringify: false,
       universalProperty: undefined,
     },
+    canAccessAllAgentChatChannels: {
+      toCompare: true,
+      toStringify: false,
+      universalProperty: undefined,
+    },
     canReadAllObjectRecords: {
       toCompare: true,
       toStringify: false,
@@ -1420,6 +1427,11 @@ export const ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME = {
       toStringify: false,
       universalProperty: 'pageLayoutUniversalIdentifier',
     },
+    agentChatChannelId: {
+      toCompare: false,
+      toStringify: false,
+      universalProperty: 'agentChatChannelUniversalIdentifier',
+    },
   },
   rolePermissionFlag: {
     permissionFlagId: {
@@ -1776,6 +1788,11 @@ export const ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME = {
       toStringify: false,
       universalProperty: undefined,
     },
+    widgetAvailability: {
+      toCompare: true,
+      toStringify: true,
+      universalProperty: 'universalWidgetAvailability',
+    },
     usesSdkClient: {
       toCompare: true,
       toStringify: false,
@@ -1837,7 +1854,7 @@ export const ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME = {
     },
     value: {
       toCompare: false,
-      toStringify: true,
+      toStringify: false,
       universalProperty: undefined,
     },
     description: {
@@ -1851,7 +1868,7 @@ export const ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME = {
       universalProperty: undefined,
     },
     isSecret: {
-      toCompare: true,
+      toCompare: false,
       toStringify: false,
       universalProperty: undefined,
     },
@@ -1905,9 +1922,24 @@ export const ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME = {
     },
     logo: { toCompare: true, toStringify: false, universalProperty: undefined },
     type: { toCompare: true, toStringify: false, universalProperty: undefined },
+    scope: {
+      toCompare: true,
+      toStringify: false,
+      universalProperty: undefined,
+    },
     oauthConfig: {
       toCompare: true,
       toStringify: true,
+      universalProperty: undefined,
+    },
+    customConfig: {
+      toCompare: true,
+      toStringify: true,
+      universalProperty: undefined,
+    },
+    identifyAccountLogicFunctionUniversalIdentifier: {
+      toCompare: true,
+      toStringify: false,
       universalProperty: undefined,
     },
     onConnectLogicFunctionUniversalIdentifier: {
@@ -1916,6 +1948,34 @@ export const ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME = {
       universalProperty: undefined,
     },
     onDisconnectLogicFunctionUniversalIdentifier: {
+      toCompare: true,
+      toStringify: false,
+      universalProperty: undefined,
+    },
+    createdAt: {
+      toCompare: false,
+      toStringify: false,
+      universalProperty: undefined,
+    },
+    updatedAt: {
+      toCompare: false,
+      toStringify: false,
+      universalProperty: undefined,
+    },
+  },
+  messagingProvider: {
+    name: { toCompare: true, toStringify: false, universalProperty: undefined },
+    displayName: {
+      toCompare: true,
+      toStringify: false,
+      universalProperty: undefined,
+    },
+    connectionProviderUniversalIdentifier: {
+      toCompare: true,
+      toStringify: false,
+      universalProperty: undefined,
+    },
+    sendMessageLogicFunctionUniversalIdentifier: {
       toCompare: true,
       toStringify: false,
       universalProperty: undefined,
@@ -2212,6 +2272,65 @@ export const ALL_ENTITY_PROPERTIES_CONFIGURATION_BY_METADATA_NAME = {
       toCompare: false,
       toStringify: false,
       universalProperty: undefined,
+    },
+    createdAt: {
+      toCompare: false,
+      toStringify: false,
+      universalProperty: undefined,
+    },
+    updatedAt: {
+      toCompare: false,
+      toStringify: false,
+      universalProperty: undefined,
+    },
+  },
+  agentChatChannel: {
+    name: {
+      toCompare: true,
+      toStringify: false,
+      universalProperty: undefined,
+    },
+    icon: {
+      toCompare: true,
+      toStringify: false,
+      universalProperty: undefined,
+    },
+    color: {
+      toCompare: true,
+      toStringify: false,
+      universalProperty: undefined,
+    },
+    position: {
+      toCompare: true,
+      toStringify: false,
+      universalProperty: undefined,
+    },
+    isCustom: {
+      toCompare: false,
+      toStringify: false,
+      universalProperty: undefined,
+    },
+    createdAt: {
+      toCompare: false,
+      toStringify: false,
+      universalProperty: undefined,
+    },
+    updatedAt: {
+      toCompare: false,
+      toStringify: false,
+      universalProperty: undefined,
+    },
+  },
+  agentChatChannelRole: {
+    channelId: {
+      toCompare: true,
+      toStringify: false,
+      universalProperty: 'channelUniversalIdentifier',
+    },
+    roleId: {
+      toCompare: true,
+      toStringify: false,
+      universalProperty: 'roleUniversalIdentifier',
     },
     createdAt: {
       toCompare: false,

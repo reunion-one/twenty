@@ -52,12 +52,15 @@ export const useMetadataErrorHandler = () => {
     viewSort: t`view sort`,
     applicationVariable: t`application variable`,
     connectionProvider: t`connection provider`,
+    messagingProvider: t`messaging provider`,
     searchFieldMetadata: t`search field metadata`,
     timelineActivityType: t`timeline activity type`,
     settingsMenuItem: t`settings menu item`,
     validationRule: t`validation rule`,
     workflow: t`workflow`,
     workflowVersion: t`workflow version`,
+    agentChatChannel: t`channel`,
+    agentChatChannelRole: t`channel role`,
   } as const satisfies Record<AllMetadataName, string>;
 
   const handleMetadataError = (
@@ -89,7 +92,7 @@ export const useMetadataErrorHandler = () => {
           targetErrors.forEach((entityError) => {
             entityError.errors.forEach((validationError) =>
               enqueueToast({
-                variant: 'error',
+                status: 'error',
                 children:
                   validationError.userFriendlyMessage ??
                   validationError.message,
@@ -110,7 +113,7 @@ export const useMetadataErrorHandler = () => {
             .join(', ');
 
           enqueueToast({
-            variant: 'error',
+            status: 'error',
             children: t`Failed to ${translatedOperationType} ${translatedMetadataName}. Related ${relatedEntityNames} validation failed. Please check your configuration and try again.`,
           });
         }
@@ -120,7 +123,7 @@ export const useMetadataErrorHandler = () => {
           relatedFailingMetadataNames.length === 0
         ) {
           enqueueToast({
-            variant: 'error',
+            status: 'error',
             children: t`Failed to ${translatedOperationType} ${translatedMetadataName}. Please try again.`,
           });
         }
@@ -135,7 +138,7 @@ export const useMetadataErrorHandler = () => {
             ? t`An internal error occurred while validating your changes. Please contact support.`
             : t`An internal error occurred while applying your changes. Please contact support and try again later.`;
 
-        enqueueToast({ variant: 'error', children: errorMessage });
+        enqueueToast({ status: 'error', children: errorMessage });
         break;
       }
     }

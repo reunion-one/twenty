@@ -39,6 +39,7 @@ import {
   ASSETS_DIR,
   type CommandMenuItemManifest,
   type ConnectionProviderManifest,
+  type MessagingProviderManifest,
   type FieldManifest,
   type FrontComponentManifest,
   type IndexManifest,
@@ -60,6 +61,7 @@ import {
   type SettingsMenuItemManifest,
   type TimelineActivityTypeManifest,
   type ViewManifest,
+  type WorkflowManifest,
 } from 'twenty-shared/application';
 import { assertUnreachable, isDefined } from 'twenty-shared/utils';
 
@@ -109,7 +111,9 @@ export const buildManifest = async (
   const roles: RoleManifest[] = [];
   const skills: SkillManifest[] = [];
   const agents: AgentManifest[] = [];
+  const workflows: WorkflowManifest[] = [];
   const connectionProviders: ConnectionProviderManifest[] = [];
+  const messagingProviders: MessagingProviderManifest[] = [];
   const logicFunctions: LogicFunctionManifest[] = [];
   const frontComponents: FrontComponentManifest[] = [];
   const publicAssets: AssetManifest[] = [];
@@ -140,7 +144,9 @@ export const buildManifest = async (
   const rolesFilePaths: string[] = [];
   const skillsFilePaths: string[] = [];
   const agentsFilePaths: string[] = [];
+  const workflowsFilePaths: string[] = [];
   const connectionProvidersFilePaths: string[] = [];
+  const messagingProvidersFilePaths: string[] = [];
   const logicFunctionsFilePaths: string[] = [];
   const frontComponentsFilePaths: string[] = [];
   const publicAssetsFilePaths: string[] = [];
@@ -259,6 +265,17 @@ export const buildManifest = async (
         agentsFilePaths.push(relativePath);
         break;
       }
+      case 'workflows': {
+        const extract = await extractManifestFromFile<WorkflowManifest>({
+          appPath,
+          filePath,
+        });
+        workflows.push(extract.config);
+        errors.push(...extract.errors);
+        warnings.push(...(extract.warnings ?? []));
+        workflowsFilePaths.push(relativePath);
+        break;
+      }
       case 'connectionProviders': {
         const extract =
           await extractManifestFromFile<ConnectionProviderManifest>({
@@ -269,6 +286,18 @@ export const buildManifest = async (
         errors.push(...extract.errors);
         warnings.push(...(extract.warnings ?? []));
         connectionProvidersFilePaths.push(relativePath);
+        break;
+      }
+      case 'messagingProviders': {
+        const extract =
+          await extractManifestFromFile<MessagingProviderManifest>({
+            appPath,
+            filePath,
+          });
+        messagingProviders.push(extract.config);
+        errors.push(...extract.errors);
+        warnings.push(...(extract.warnings ?? []));
+        messagingProvidersFilePaths.push(relativePath);
         break;
       }
       case 'logicFunctions': {
@@ -689,7 +718,9 @@ export const buildManifest = async (
         roles: roles.sort(byId),
         skills: skills.sort(byId),
         agents: agents.sort(byId),
+        workflows: workflows.sort(byId),
         connectionProviders: connectionProviders.sort(byId),
+        messagingProviders: messagingProviders.sort(byId),
         logicFunctions: logicFunctions.sort(byId),
         frontComponents: frontComponents.sort(byId),
         publicAssets: publicAssets.sort(byPath),
@@ -713,7 +744,9 @@ export const buildManifest = async (
     roles: rolesFilePaths,
     skills: skillsFilePaths,
     agents: agentsFilePaths,
+    workflows: workflowsFilePaths,
     connectionProviders: connectionProvidersFilePaths,
+    messagingProviders: messagingProvidersFilePaths,
     logicFunctions: logicFunctionsFilePaths,
     frontComponents: frontComponentsFilePaths,
     publicAssets: publicAssetsFilePaths,

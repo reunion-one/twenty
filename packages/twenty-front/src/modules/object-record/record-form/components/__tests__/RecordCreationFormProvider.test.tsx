@@ -21,17 +21,16 @@ jest.mock('@/side-panel/hooks/useSidePanelMenu', () => ({
     closeSidePanelMenu: mockCloseSidePanelMenu,
   }),
 }));
-jest.mock('twenty-ui/components/feedback', () => ({
-  ...jest.requireActual('twenty-ui/components/feedback'),
-  useToast: () => ({ enqueueToast: jest.fn() }),
-}));
 
 const setup = () => {
   const store = createStore();
   mockNavigateSidePanelMenu.mockImplementation(
     (page: SidePanelNavigationStackItem) => {
       store.set(isSidePanelOpenedState.atom, true);
-      store.set(sidePanelNavigationStackState.atom, [page]);
+      store.set(sidePanelNavigationStackState.atom, [
+        ...store.get(sidePanelNavigationStackState.atom),
+        page,
+      ]);
     },
   );
   const wrapper = ({ children }: { children: ReactNode }) => (
@@ -128,4 +127,83 @@ it('resolves with the error the server rejected the draft with and keeps the for
   expect(createRecord).toHaveBeenCalledWith({ name: 'Test' });
   expect(settlement).toEqual({ error: rejection });
   expect(store.get(sidePanelNavigationStackState.atom)).toEqual([formPage]);
+});
+
+it('creates the record and keeps the request open when asked to keep the form open', async () => {
+  const { result, store } = setup();
+  const createdRecord = { id: 'created-company', __typename: 'Company' };
+  const createRecord = jest.fn(() => Promise.resolve(createdRecord));
+  let requestResult: unknown = 'pending';
+  act(() => {
+    void result.current
+      .requestRecordCreation({
+        objectMetadataItem: getMockObjectMetadataItemOrThrow('company'),
+        createRecord,
+      })
+      .then((record) => {
+        requestResult = record;
+      });
+  });
+  const [formPage] = store.get(sidePanelNavigationStackState.atom);
+
+  await act(async () => {
+    await result.current.settleRecordCreationDraft({
+      requestId: formPage.pageId,
+      draftRecord: { name: 'First' },
+      shouldKeepOpen: true,
+    });
+  });
+
+  await act(async () => {
+    await result.current.settleRecordCreationDraft({
+      requestId: formPage.pageId,
+      draftRecord: { name: 'Second' },
+      shouldKeepOpen: true,
+    });
+  });
+
+  expect(createRecord).toHaveBeenNthCalledWith(1, { name: 'First' });
+  expect(createRecord).toHaveBeenNthCalledWith(2, { name: 'Second' });
+  expect(requestResult).toBe('pending');
+  expect(store.get(sidePanelNavigationStackState.atom)).toEqual([formPage]);
+});
+
+it('keeps the open creation form of the same object instead of stacking another', async () => {
+  const { result, store } = setup();
+  act(() => {
+    void result.current.requestRecordCreation({
+      objectMetadataItem: getMockObjectMetadataItemOrThrow('company'),
+      createRecord: jest.fn(),
+    });
+  });
+
+  let secondCreation: Promise<ObjectRecord | null> | undefined;
+  act(() => {
+    secondCreation = result.current.requestRecordCreation({
+      objectMetadataItem: getMockObjectMetadataItemOrThrow('company'),
+      createRecord: jest.fn(),
+    });
+  });
+
+  expect(store.get(sidePanelNavigationStackState.atom)).toHaveLength(1);
+  await expect(secondCreation).resolves.toBeNull();
+});
+
+it('opens a creation form for another object on top of the open one', () => {
+  const { result, store } = setup();
+  act(() => {
+    void result.current.requestRecordCreation({
+      objectMetadataItem: getMockObjectMetadataItemOrThrow('company'),
+      createRecord: jest.fn(),
+    });
+  });
+
+  act(() => {
+    void result.current.requestRecordCreation({
+      objectMetadataItem: getMockObjectMetadataItemOrThrow('person'),
+      createRecord: jest.fn(),
+    });
+  });
+
+  expect(store.get(sidePanelNavigationStackState.atom)).toHaveLength(2);
 });

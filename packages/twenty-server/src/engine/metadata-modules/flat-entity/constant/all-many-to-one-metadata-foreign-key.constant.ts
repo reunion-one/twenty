@@ -26,9 +26,11 @@ type ManyToOneRelationConfiguration<
 
 type ManyToOneMetadataRelationsProperties = {
   [TSourceMetadataName in AllMetadataName]: {
-    [TRelationProperty in ExtractEntityManyToOneEntityRelationProperties<
-      MetadataEntity<TSourceMetadataName>
-    >]: ManyToOneRelationConfiguration<TSourceMetadataName, TRelationProperty>;
+    [
+      TRelationProperty in ExtractEntityManyToOneEntityRelationProperties<
+        MetadataEntity<TSourceMetadataName>
+      >
+    ]: ManyToOneRelationConfiguration<TSourceMetadataName, TRelationProperty>;
   };
 };
 
@@ -72,6 +74,9 @@ export const ALL_MANY_TO_ONE_METADATA_FOREIGN_KEY = {
     },
     pageLayout: {
       foreignKey: 'pageLayoutId',
+    },
+    agentChatChannel: {
+      foreignKey: 'agentChatChannelId',
     },
   },
   fieldMetadata: {
@@ -312,6 +317,10 @@ export const ALL_MANY_TO_ONE_METADATA_FOREIGN_KEY = {
     workspace: null,
     application: null,
   },
+  messagingProvider: {
+    workspace: null,
+    application: null,
+  },
   timelineActivityType: {
     workspace: null,
     application: null,
@@ -354,6 +363,20 @@ export const ALL_MANY_TO_ONE_METADATA_FOREIGN_KEY = {
   workflowVersion: {
     workspace: null,
     application: null,
+  },
+  agentChatChannel: {
+    workspace: null,
+    application: null,
+  },
+  agentChatChannelRole: {
+    workspace: null,
+    application: null,
+    channel: {
+      foreignKey: 'channelId',
+    },
+    role: {
+      foreignKey: 'roleId',
+    },
   },
 } as const satisfies ManyToOneMetadataRelationsProperties;
 

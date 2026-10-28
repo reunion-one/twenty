@@ -279,7 +279,7 @@ describe('AttachmentUploader @custom', () => {
 
     await waitFor(() => expect(mockEnqueueToast).toHaveBeenCalledTimes(1));
     expect(mockEnqueueToast).toHaveBeenCalledWith(
-      expect.objectContaining({ variant: 'error' }),
+      expect.objectContaining({ status: 'error' }),
     );
     expect(mockEnqueueToast).not.toHaveBeenCalledWith(
       expect.objectContaining({ variant: 'info' }),

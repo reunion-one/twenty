@@ -127,10 +127,8 @@ const buildStorage = (threads: Thread[]) => {
 
 const buildContext = ({
   threads = [],
-  hasInboxState = true,
 }: {
   threads?: Thread[];
-  hasInboxState?: boolean;
 } = {}) => {
   const storage = buildStorage(threads);
   const events: string[] = [];
@@ -152,10 +150,8 @@ const buildContext = ({
   );
 
   jest
-    .spyOn(sharingService, 'findParticipantObjectMetadataId')
-    .mockResolvedValue(
-      hasInboxState ? PARTICIPANT_OBJECT_METADATA_ID : undefined,
-    );
+    .spyOn(sharingService, 'getParticipantObjectMetadataId')
+    .mockResolvedValue(PARTICIPANT_OBJECT_METADATA_ID);
   jest.spyOn(sharingService, 'getAuthContext').mockResolvedValue({
     workspaceMemberId: CREATOR_ID,
     userWorkspaceId: CREATOR_USER_WORKSPACE_ID,
@@ -187,6 +183,8 @@ const buildContext = ({
     sharingService,
     recordEventService as never,
     participantService as never,
+    {} as never,
+    {} as never,
   );
 
   return {
@@ -271,27 +269,6 @@ describe('agentChatThread record API creation', () => {
       workspaceMemberId: 'other-member-id',
       lastActivityAt: null,
     });
-  });
-
-  it('only assigns the creator in a workspace whose 2.46 inbox commands have not run', async () => {
-    const context = buildContext({
-      threads: [
-        { id: 'new-thread', workspaceMemberId: null, lastActivityAt: null },
-      ],
-      hasInboxState: false,
-    });
-
-    await context.createOneHook.execute(creatorAuthContext, 'agentChatThread', [
-      { id: 'new-thread' },
-    ]);
-
-    expect(context.manager.query).not.toHaveBeenCalled();
-    expect(context.threads[0]).toEqual({
-      id: 'new-thread',
-      workspaceMemberId: CREATOR_ID,
-      lastActivityAt: null,
-    });
-    expect(context.events).toEqual(['thread updated new-thread']);
   });
 
   it('sets up the inbox state the same way as createChatThread', async () => {

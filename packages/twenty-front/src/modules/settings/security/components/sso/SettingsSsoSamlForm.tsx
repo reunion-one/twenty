@@ -7,10 +7,9 @@ import { type ChangeEvent, useRef } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { isDefined } from 'twenty-shared/utils';
 import { useToast } from 'twenty-ui/components/feedback';
-import { Section } from 'twenty-ui/components/layout';
+import { LabeledSeparator, Section } from 'twenty-ui/components/layout';
 import { IconCheck, IconCopy, IconDownload, IconUpload } from 'twenty-ui/icon';
 import { Button } from 'twenty-ui/primitives/input';
-import { LabeledDivider } from '@/ui/layout/line/components/LabeledDivider';
 import { useTheme, themeCssVariables } from 'twenty-ui/theme';
 import { REACT_APP_SERVER_BASE_URL } from '~/config';
 import { useCopyToClipboard } from '~/hooks/useCopyToClipboard';
@@ -49,6 +48,10 @@ const StyledButtonCopy = styled.div`
   margin-bottom: ${themeCssVariables.spacing[1]};
 `;
 
+const StyledDividerContainer = styled.div`
+  margin-block: ${themeCssVariables.spacing[3]};
+`;
+
 export const SettingsSsoSamlForm = () => {
   const theme = useTheme();
   const { enqueueToast } = useToast();
@@ -64,7 +67,7 @@ export const SettingsSsoSamlForm = () => {
       e.target.value = '';
       if (!samlMetadataParsed.success) {
         return enqueueToast({
-          variant: 'error',
+          status: 'error',
           children: t`Invalid file: ${samlMetadataParsed.reason}`,
           duration: 5000,
         });
@@ -101,7 +104,7 @@ export const SettingsSsoSamlForm = () => {
     );
     if (!response.ok) {
       return enqueueToast({
-        variant: 'error',
+        status: 'error',
         children: t`Metadata file generation failed`,
         duration: 2000,
       });
@@ -158,7 +161,9 @@ export const SettingsSsoSamlForm = () => {
               type="button"
             >{t`Download file`}</Button>
           </StyledContainer>
-          <LabeledDivider>{t`Or`}</LabeledDivider>
+          <StyledDividerContainer>
+            <LabeledSeparator>{t`Or`}</LabeledSeparator>
+          </StyledDividerContainer>
           <StyledContainer>
             <StyledLinkContainer>
               <SettingsTextInput

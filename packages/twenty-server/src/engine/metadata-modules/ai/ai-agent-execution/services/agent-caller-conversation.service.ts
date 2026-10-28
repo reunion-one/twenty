@@ -22,7 +22,6 @@ import {
   AiException,
   AiExceptionCode,
 } from 'src/engine/metadata-modules/ai/ai.exception';
-import { getRoleIdsFromRolePermissionConfig } from 'src/engine/twenty-orm/utils/get-role-ids-from-role-permission-config.util';
 
 const MAX_ASK_ATTEMPTS = 10;
 
@@ -34,6 +33,11 @@ type AgentCallerAwaitedToolCall = {
   toolName: string;
   arguments: Record<string, unknown>;
   caller: AgentRunCaller;
+  // called before the call is posted, so its answer always finds the caller waiting
+  waitOnAnswer: (postedCall: {
+    threadId: string;
+    toolCallId: string;
+  }) => Promise<void>;
 };
 
 // The conversations a caller, such as a workflow step, holds with a member's inbox: the one its agent
@@ -120,11 +124,12 @@ export class AgentCallerConversationService {
     const isKeyedConversationUnavailable =
       !isDefined(keyedConversation) ||
       isDefined(keyedConversation.thread.deletedAt) ||
-      isDefined(keyedConversation.thread.pendingQuestionMessageId) ||
-      (await this.agentRunSuspensionService.isConversationWaiting({
-        workspaceId,
-        threadId: keyedConversation.thread.id,
-      }));
+      (
+        await this.agentRunSuspensionService.findConversationWait({
+          workspaceId,
+          thread: keyedConversation.thread,
+        })
+      ).isWaiting;
     const { thread, isCreated } = isKeyedConversationUnavailable
       ? await openThreadUnderKey(fallbackThreadKey)
       : keyedConversation;
@@ -189,12 +194,21 @@ export class AgentCallerConversationService {
     let pendingToolCall:
       | ReturnType<AgentCallerConversationService['buildPendingToolCall']>
       | undefined;
-    const buildAwaitingToolCall = () =>
-      (pendingToolCall ??= this.buildPendingToolCall({
-        workspaceId,
-        awaitedToolCall,
-        summary: message.text,
-      }));
+    const buildAwaitingToolCall = async (postedCall: {
+      threadId: string;
+      toolCallId: string;
+    }) => {
+      const awaitingToolCall = await (pendingToolCall ??=
+        this.buildPendingToolCall({
+          workspaceId,
+          awaitedToolCall,
+          summary: message.text,
+        }));
+
+      await awaitedToolCall.waitOnAnswer(postedCall);
+
+      return awaitingToolCall;
+    };
 
     // a message sent again finds the call it posted before: a pending one is still awaited, an answered
     // one is reused so nothing runs twice, and one closed unanswered, such as by a run that ended and
@@ -261,7 +275,6 @@ export class AgentCallerConversationService {
 
     const toolContext = {
       workspaceId,
-      roleId: getRoleIdsFromRolePermissionConfig(rolePermissionConfig)[0] ?? '',
       rolePermissionConfig,
       authContext,
       application,
