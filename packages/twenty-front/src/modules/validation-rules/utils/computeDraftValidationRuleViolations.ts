@@ -1,5 +1,5 @@
 import { type FieldMetadataItem } from '@/object-metadata/types/FieldMetadataItem';
-import { type DraftValidationRuleViolation } from '@/validation-rules/types/DraftValidationRuleViolation';
+import { type ValidationRuleViolation } from '@/validation-rules/types/ValidationRuleViolation';
 import { type ValidationRule } from '@/validation-rules/types/ValidationRule';
 import { isNonEmptyString, isUndefined } from '@sniptt/guards';
 import {
@@ -35,7 +35,7 @@ const IS_DRAFT_VALUE_COMPLETED_BY_SERVER_BY_FIELD_TYPE: Partial<
 > = {
   [FieldMetadataType.RICH_TEXT]: (draftValue) =>
     isPlainObject(draftValue) &&
-    isNonEmptyString(draftValue.blocknote) &&
+    isNonEmptyString(draftValue.tiptap) &&
     !isNonEmptyString(draftValue.markdown),
 };
 
@@ -166,7 +166,7 @@ export const computeDraftValidationRuleViolations = ({
   fields: ValidationRuleFieldDescriptor[];
   fieldMetadataItems: DraftFieldMetadataItem[];
   now: string;
-}): DraftValidationRuleViolation[] => {
+}): ValidationRuleViolation[] => {
   const draftRecordWithDefaultValues = withStaticDefaultValues({
     draftRecord,
     fieldMetadataItems,

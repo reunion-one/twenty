@@ -1,11 +1,14 @@
 import { useRefreshAgentChatThreadPermissions } from '@/ai/hooks/useRefreshAgentChatThreadPermissions';
 import { currentUserWorkspaceState } from '@/auth/states/currentUserWorkspaceState';
 import { isGraphqlErrorOfType } from '~/utils/is-graphql-error-of-type.util';
+import { agentChatMessageReactionsFamilyState } from '@/ai/states/agentChatMessageReactionsFamilyState';
+import { agentChatLiveReactionRevisionsFamilyState } from '@/ai/states/agentChatLiveReactionRevisionsFamilyState';
 import { agentChatFetchedMessagesFamilyState } from '@/ai/states/agentChatFetchedMessagesFamilyState';
 import { agentChatQueuedMessagesFamilyState } from '@/ai/states/agentChatQueuedMessagesFamilyState';
 import { useRefreshAgentChatThreads } from '@/ai/hooks/useRefreshAgentChatThreads';
+import { useRefreshAiChatUsage } from '@/ai/hooks/useRefreshAiChatUsage';
 import { isChatAccessDenied } from '@/ai/utils/isChatAccessDenied';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { t } from '@lingui/core/macro';
 
 import { readUIMessageStream, type UIMessageChunk } from 'ai';
@@ -18,6 +21,8 @@ import {
 import { isDefined, isNonEmptyString } from 'twenty-shared/utils';
 
 import { AGENT_CHAT_REFETCH_MESSAGES_EVENT_NAME } from '@/ai/constants/AgentChatRefetchMessagesEventName';
+import { AGENT_CHAT_STREAM_LIVENESS_CHECK_INTERVAL_IN_MS } from '@/ai/constants/AgentChatStreamLivenessCheckIntervalInMs';
+import { AGENT_CHAT_STREAM_LIVENESS_TIMEOUT_IN_MS } from '@/ai/constants/AgentChatStreamLivenessTimeoutInMs';
 import { useApplyAgentChatThreadUpdate } from '@/ai/hooks/useApplyAgentChatThreadUpdate';
 import { agentChatErrorFamilyState } from '@/ai/states/agentChatErrorFamilyState';
 import { agentChatFirstLiveSeqFamilyState } from '@/ai/states/agentChatFirstLiveSeqFamilyState';
@@ -26,8 +31,7 @@ import { agentChatIsAwaitingFirstChunkFamilyState } from '@/ai/states/agentChatI
 import { agentChatIsAwaitingPersistedRefetchFamilyState } from '@/ai/states/agentChatIsAwaitingPersistedRefetchFamilyState';
 import { agentChatIsStreamingFamilyState } from '@/ai/states/agentChatIsStreamingFamilyState';
 import { agentChatMessagesFamilyState } from '@/ai/states/agentChatMessagesFamilyState';
-import { agentChatStreamLastEventTimestampState } from '@/ai/states/agentChatStreamLastEventTimestampState';
-import { agentChatStreamResubscribeNonceState } from '@/ai/states/agentChatStreamResubscribeNonceState';
+import { agentChatStreamRecoveryAttemptsState } from '@/ai/states/agentChatStreamRecoveryAttemptsState';
 import { agentChatUsageFamilyState } from '@/ai/states/agentChatUsageFamilyState';
 import { agentChatThreadRecordFamilySelector } from '@/ai/states/selectors/agentChatThreadRecordFamilySelector';
 import { accumulateAgentChatUsage } from '@/ai/utils/accumulateAgentChatUsage';
@@ -37,6 +41,7 @@ import { createMidStreamAdapter } from '@/ai/utils/createMidStreamAdapter';
 import { createStreamChunkSequencer } from '@/ai/utils/createStreamChunkSequencer';
 import { getAgentChatMessageThreadTitle } from '@/ai/utils/getAgentChatMessageThreadTitle';
 import { upsertAgentChatMessage } from '@/ai/utils/upsertAgentChatMessage';
+import { currentWorkspaceMemberState } from '@/auth/states/currentWorkspaceMemberState';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { dispatchBrowserEvent } from '@/browser-event/utils/dispatchBrowserEvent';
 import { sseClientState } from '@/sse-db-event/states/sseClientState';
@@ -49,6 +54,7 @@ import {
 
 const THROTTLE_MS = 100;
 const PERMISSIONS_REFRESH_INTERVAL_MS = 30_000;
+const MAX_SILENT_RECOVERY_ATTEMPTS = 3;
 
 export const useAgentChatSubscription = (threadId: string | null) => {
   const store = useStore();
@@ -57,11 +63,10 @@ export const useAgentChatSubscription = (threadId: string | null) => {
   const { refreshAgentChatThreadPermissions } =
     useRefreshAgentChatThreadPermissions();
   const { refreshAgentChatThreads } = useRefreshAgentChatThreads();
+  const { refreshAiChatUsage } = useRefreshAiChatUsage();
   const { applyAgentChatThreadUpdate } = useApplyAgentChatThreadUpdate();
   const sseClient = useAtomStateValue(sseClientState);
-  const agentChatStreamResubscribeNonce = useAtomStateValue(
-    agentChatStreamResubscribeNonceState,
-  );
+  const [resubscribeNonce, setResubscribeNonce] = useState(0);
 
   useEffect(() => {
     if (!isDefined(threadId) || !isDefined(sseClient)) {
@@ -87,6 +92,11 @@ export const useAgentChatSubscription = (threadId: string | null) => {
     const queuedMessagesAtom =
       agentChatQueuedMessagesFamilyState.atomFamily(familyKey);
     const usageAtom = agentChatUsageFamilyState.atomFamily(familyKey);
+    const liveReactionRevisionsAtom =
+      agentChatLiveReactionRevisionsFamilyState.atomFamily(familyKey);
+
+    // Changes made while unsubscribed were missed, so fetches must fill them in again
+    store.set(liveReactionRevisionsAtom, {});
 
     let bridge: TransformStream<UIMessageChunk> | null = null;
     let throttleTimer: ReturnType<typeof setTimeout> | null = null;
@@ -95,9 +105,10 @@ export const useAgentChatSubscription = (threadId: string | null) => {
     let disposed = false;
     let accessDenied = false;
     let lastPermissionsRefreshAt: number | undefined;
+    let lastBroadcastAt = Date.now();
+    let hasReceivedInitialKeepalive = false;
 
     store.set(firstLiveSeqAtom, null);
-    store.set(agentChatStreamLastEventTimestampState.atom, Date.now());
 
     const closeWriter = () => {
       if (isDefined(writer)) {
@@ -254,8 +265,30 @@ export const useAgentChatSubscription = (threadId: string | null) => {
           break;
         }
 
+        case 'message-added':
         case 'tool-call-resolved': {
           dispatchBrowserEvent(AGENT_CHAT_REFETCH_MESSAGES_EVENT_NAME);
+          break;
+        }
+
+        case 'message-reactions-updated': {
+          const liveRevisions = store.get(liveReactionRevisionsAtom);
+          const appliedRevision = liveRevisions[event.messageId];
+
+          if (isDefined(appliedRevision) && event.revision < appliedRevision) {
+            break;
+          }
+
+          store.set(liveReactionRevisionsAtom, {
+            ...liveRevisions,
+            [event.messageId]: event.revision,
+          });
+          store.set(
+            agentChatMessageReactionsFamilyState.atomFamily({
+              messageId: event.messageId,
+            }),
+            event.reactions,
+          );
           break;
         }
 
@@ -306,6 +339,16 @@ export const useAgentChatSubscription = (threadId: string | null) => {
           store.set(isStreamingAtom, false);
           break;
         }
+
+        case 'user-credits-exhausted': {
+          if (
+            event.workspaceMemberId ===
+            store.get(currentWorkspaceMemberState.atom)?.id
+          ) {
+            refreshAiChatUsage();
+          }
+          break;
+        }
       }
     };
 
@@ -351,13 +394,23 @@ export const useAgentChatSubscription = (threadId: string | null) => {
             handleAccessDenied();
             return;
           }
-          store.set(agentChatStreamLastEventTimestampState.atom, Date.now());
+          // The server yields the first keepalive itself on subscribe, so only later events prove pub/sub delivers
+          if (hasReceivedInitialKeepalive) {
+            lastBroadcastAt = Date.now();
+            store.set(agentChatStreamRecoveryAttemptsState.atom, 0);
+          }
+          hasReceivedInitialKeepalive = true;
 
           const event: AgentChatSubscriptionEvent | undefined =
             value.data?.onAgentChatEvent?.event;
 
           if (isDefined(event)) {
-            if (isGraphqlErrorOfType(store.get(errorAtom), 'NOT_FOUND')) {
+            const error = store.get(errorAtom);
+
+            if (
+              isGraphqlErrorOfType(error, 'NOT_FOUND') ||
+              isGraphqlErrorOfType(error, AiChatErrorCode.CONNECTION_LOST)
+            ) {
               store.set(errorAtom, null);
               dispatchBrowserEvent(AGENT_CHAT_REFETCH_MESSAGES_EVENT_NAME);
             }
@@ -385,8 +438,47 @@ export const useAgentChatSubscription = (threadId: string | null) => {
       dispose();
     }
 
+    const livenessInterval = setInterval(() => {
+      const isPending =
+        store.get(isStreamingAtom) || store.get(isAwaitingFirstChunkAtom);
+      const recoveryAttempts = store.get(
+        agentChatStreamRecoveryAttemptsState.atom,
+      );
+
+      // Resubscribing clears the pending flags, so a started recovery runs until a broadcast arrives or it gives up
+      if (
+        accessDenied ||
+        (!isPending && recoveryAttempts === 0) ||
+        Date.now() - lastBroadcastAt <= AGENT_CHAT_STREAM_LIVENESS_TIMEOUT_IN_MS
+      ) {
+        return;
+      }
+
+      if (recoveryAttempts >= MAX_SILENT_RECOVERY_ATTEMPTS) {
+        store.set(agentChatStreamRecoveryAttemptsState.atom, 0);
+        store.set(
+          errorAtom,
+          createAiChatCodedError(
+            t`Connection to the assistant was lost. Reload to see the response.`,
+            AiChatErrorCode.CONNECTION_LOST,
+          ),
+        );
+        resetStreamProcessing();
+        store.set(isStreamingAtom, false);
+        return;
+      }
+
+      store.set(
+        agentChatStreamRecoveryAttemptsState.atom,
+        recoveryAttempts + 1,
+      );
+      setResubscribeNonce((nonce) => nonce + 1);
+      dispatchBrowserEvent(AGENT_CHAT_REFETCH_MESSAGES_EVENT_NAME);
+    }, AGENT_CHAT_STREAM_LIVENESS_CHECK_INTERVAL_IN_MS);
+
     return () => {
       disposed = true;
+      clearInterval(livenessInterval);
       chunkSequencer.reset();
       store.set(isAwaitingFirstChunkAtom, false);
       store.set(handleEventCallbackAtom, null);
@@ -401,10 +493,11 @@ export const useAgentChatSubscription = (threadId: string | null) => {
   }, [
     threadId,
     sseClient,
-    agentChatStreamResubscribeNonce,
+    resubscribeNonce,
     store,
     refreshAgentChatThreads,
     refreshAgentChatThreadPermissions,
+    refreshAiChatUsage,
     applyAgentChatThreadUpdate,
     currentUserWorkspace,
   ]);

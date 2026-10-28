@@ -23,7 +23,6 @@ import {
   CommandMenuItemAvailabilityType,
   type CommandMenuItemFieldsFragment,
   EngineComponentKey,
-  FeatureFlagKey,
 } from '~/generated-metadata/graphql';
 import { ContextStoreDecorator } from '~/testing/decorators/ContextStoreDecorator';
 import { MemoryRouterDecorator } from '~/testing/decorators/MemoryRouterDecorator';
@@ -42,6 +41,7 @@ const THIRD_PARTY_APPLICATION = {
   name: 'Acme Sync',
   universalIdentifier: 'acme-sync-application',
   logoUrl: null,
+  createdAt: '2024-01-01T00:00:00.000Z',
 };
 
 const THIRD_PARTY_COMMAND_MENU_ITEM: CommandMenuItemFieldsFragment = {
@@ -176,12 +176,7 @@ const meta: Meta<typeof RecordIndexCommandMenuDropdown> = {
         ...mockCurrentWorkspace.installedApplications,
         THIRD_PARTY_APPLICATION,
       ],
-      featureFlags: [
-        {
-          key: FeatureFlagKey.IS_ASYNC_CSV_EXPORT_ENABLED,
-          value: true,
-        },
-      ],
+      featureFlags: [],
     });
   },
 };
@@ -341,7 +336,7 @@ export const AsyncExportStaysOpenWithProgress: Story = {
       name: /Export 37%/,
     });
 
-    expect(exportAction).toHaveAttribute('aria-disabled', 'true');
+    expect(exportAction).toBeDisabled();
     await userEvent.click(exportAction);
 
     expect(jotaiStore.get(headlessCommandContextApisState.atom)).toBe(

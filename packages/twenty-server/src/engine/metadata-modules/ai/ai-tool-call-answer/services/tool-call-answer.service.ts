@@ -5,6 +5,7 @@ import { generateId } from 'ai';
 import { PermissionFlagType } from 'twenty-shared/constants';
 import { isDefined } from 'twenty-shared/utils';
 
+import { ToolCallAnswerRecorderService } from 'src/engine/metadata-modules/ai/ai-tool-call-answer/services/tool-call-answer-recorder.service';
 import { isUserAuthContext } from 'src/engine/core-modules/auth/guards/is-user-auth-context.guard';
 import { workspaceAuthContextStorage } from 'src/engine/core-modules/auth/storage/workspace-auth-context.storage';
 import { type PendingWakeUpEntity } from 'src/engine/core-modules/pending-wake-up/entities/pending-wake-up.entity';
@@ -29,6 +30,7 @@ import { AgentChatThreadService } from 'src/engine/metadata-modules/ai/ai-chat/s
 import { AgentChatTurnPreflightService } from 'src/engine/metadata-modules/ai/ai-chat/services/agent-chat-turn-preflight.service';
 import { AgentChatService } from 'src/engine/metadata-modules/ai/ai-chat/services/agent-chat.service';
 import { formatErrorWithCause } from 'src/engine/metadata-modules/ai/ai-chat/utils/format-error-with-cause.util';
+import { mapErrorToStreamError } from 'src/engine/metadata-modules/ai/ai-history/utils/map-error-to-stream-error.util';
 import { AgentHistoryRepository } from 'src/engine/metadata-modules/ai/ai-history/repositories/agent-history-repository';
 import { AgentConversationReaderService } from 'src/engine/metadata-modules/ai/ai-history/services/agent-conversation-reader.service';
 import { InjectAgentHistoryRepository } from 'src/engine/metadata-modules/ai/ai-history/repositories/inject-agent-history-repository.decorator';
@@ -64,6 +66,7 @@ export class ToolCallAnswerService {
     @InjectAgentHistoryRepository('agentChatThread')
     private readonly threadRepository: AgentHistoryRepository<AgentChatThreadWorkspaceEntity>,
     private readonly agentChatService: AgentChatService,
+    private readonly toolCallAnswerRecorderService: ToolCallAnswerRecorderService,
     private readonly agentChatStreamingService: AgentChatStreamingService,
     private readonly streamRecoveryService: AgentChatStreamRecoveryService,
     private readonly threadService: AgentChatThreadService,
@@ -80,6 +83,8 @@ export class ToolCallAnswerService {
     private readonly threadLifecycleService: AgentChatThreadLifecycleService,
   ) {}
 
+  // a run holds its conversation's stream until it has suspended, so an answer that comes sooner is
+  // turned away as busy rather than starting a chat turn
   async answer(args: AnswerToolCallArgs): Promise<AnswerToolCallOutcome> {
     const { threadId, toolCallId, userWorkspaceId, workspace } = args;
     const workspaceId = workspace.id;
@@ -145,13 +150,12 @@ export class ToolCallAnswerService {
 
     const streamId = generateId();
 
-    const hasClaimedStream =
-      await this.agentChatStreamingService.tryClaimStream({
-        threadId,
-        workspaceId,
-        streamId,
-        where: { pendingQuestionMessageId: toolPart.messageId },
-      });
+    const hasClaimedStream = await this.streamRecoveryService.tryClaimStream({
+      threadId,
+      workspaceId,
+      streamId,
+      where: { pendingQuestionMessageId: toolPart.messageId },
+    });
 
     if (!hasClaimedStream) {
       throw new AiException(
@@ -168,7 +172,7 @@ export class ToolCallAnswerService {
 
     try {
       const awaitingToolParts =
-        await this.agentChatService.findAwaitingToolParts({
+        await this.toolCallAnswerRecorderService.findAwaitingToolParts({
           messageId: toolPart.messageId,
           workspaceId,
         });
@@ -217,7 +221,7 @@ export class ToolCallAnswerService {
 
       if (isDefined(runningToolResult)) {
         if (
-          !(await this.agentChatService.claimToolCallAnswer({
+          !(await this.toolCallAnswerRecorderService.claimToolCallAnswer({
             partId: toolPart.id,
             toolOutput: runningToolResult,
             workspaceId,
@@ -240,7 +244,7 @@ export class ToolCallAnswerService {
 
       isLastAnswer = awaitingToolParts.length === 1;
 
-      await this.agentChatService.recordToolCallAnswer({
+      await this.toolCallAnswerRecorderService.recordToolCallAnswer({
         threadId,
         messageId: toolPart.messageId,
         partId: toolPart.id,
@@ -277,10 +281,11 @@ export class ToolCallAnswerService {
           error,
         });
       } else {
-        await this.streamRecoveryService.releaseStreamClaim({
+        await this.streamRecoveryService.release({
           threadId,
           workspaceId,
           streamId,
+          shouldFlush: true,
         });
       }
 
@@ -321,12 +326,13 @@ export class ToolCallAnswerService {
           ),
         );
 
-      // a suspended run continues in its own job, and only the last answer resumes a chat
+      // a suspended run continues in its own job and takes the queue itself; a chat waits for its last answer
       if (isDefined(wakeUp) || !isLastAnswer) {
-        await this.streamRecoveryService.releaseStreamClaim({
+        await this.streamRecoveryService.release({
           threadId,
           workspaceId,
           streamId,
+          shouldFlush: false,
         });
 
         if (isLastAnswer && isDefined(wakeUp)) {
@@ -347,15 +353,17 @@ export class ToolCallAnswerService {
         return { streamId: null, turnId: answerMessage.turnId };
       }
 
-      await this.agentChatStreamingService.enqueueResumeStream({
+      await this.agentChatStreamingService.enqueueStreamJob({
         threadId,
+        workspaceId,
         userWorkspaceId,
         workspaceMemberId: args.workspaceMemberId,
-        workspace,
         turnId: answerMessage.turnId,
         streamId,
         modelId: args.modelId,
         messageId: answerMessage.id,
+        // the answer resumes the turn rather than opens the thread, so it never titles it
+        lastUserMessageText: '',
       });
 
       return { streamId, turnId: answerMessage.turnId };
@@ -386,20 +394,22 @@ export class ToolCallAnswerService {
     error: unknown;
   }): Promise<void> {
     if (!isDefined(wakeUp)) {
-      await this.streamRecoveryService.failStream({
+      await this.streamRecoveryService.release({
         threadId,
         workspaceId,
         streamId,
-        error,
+        turnError: mapErrorToStreamError(error),
+        shouldFlush: true,
       });
 
       return;
     }
 
-    await this.streamRecoveryService.releaseStreamClaim({
+    await this.streamRecoveryService.release({
       threadId,
       workspaceId,
       streamId,
+      shouldFlush: false,
     });
     await this.pendingWakeUpResolverService.resolve({
       workspaceId,
@@ -502,7 +512,6 @@ export class ToolCallAnswerService {
 
     const rolePermissions = await this.actorService.resolveRolePermissions({
       workspaceId,
-      userWorkspaceId,
       authContext,
     });
 
@@ -541,9 +550,9 @@ export class ToolCallAnswerService {
     workspaceId: string;
   }): Promise<void> {
     const requestAuthContext = workspaceAuthContextStorage.getStore();
-    const applicationId =
+    const requestUserAuthContext =
       isDefined(requestAuthContext) && isUserAuthContext(requestAuthContext)
-        ? requestAuthContext.application?.id
+        ? requestAuthContext
         : undefined;
 
     const hasPermission =
@@ -551,7 +560,8 @@ export class ToolCallAnswerService {
         userWorkspaceId,
         workspaceId,
         setting,
-        applicationId,
+        applicationId: requestUserAuthContext?.application?.id,
+        agentId: requestUserAuthContext?.agentId,
       });
 
     if (!hasPermission) {

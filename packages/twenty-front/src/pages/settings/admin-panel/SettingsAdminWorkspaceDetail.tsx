@@ -48,14 +48,11 @@ import {
   IconSettings2,
   IconUsers,
 } from 'twenty-ui/icon';
-import { Avatar } from 'twenty-ui/primitives/data-display';
+import { Avatar, Status } from 'twenty-ui/primitives/data-display';
 import { Button, Switch } from 'twenty-ui/primitives/input';
 import { Tabs } from 'twenty-ui/primitives/navigation';
 import { Card } from 'twenty-ui/primitives/surfaces';
-import {
-  Text,
-  OverflowingTextWithTooltip,
-} from 'twenty-ui/primitives/typography';
+import { OverflowingTextWithTooltip } from 'twenty-ui/primitives/typography';
 import { themeCssVariables } from 'twenty-ui/theme';
 import {
   GetUpgradeStatusDocument,
@@ -66,10 +63,7 @@ import {
 } from '~/generated-admin/graphql';
 import { getAbsoluteImageUrl } from '~/utils/image/getAbsoluteImageUrl';
 
-const StyledFeatureFlagName = styled(Text)`
-  color: ${themeCssVariables.font.color.primary};
-  font-size: ${themeCssVariables.font.size.md};
-  font-weight: ${themeCssVariables.font.weight.regular};
+const StyledFeatureFlagName = styled(OverflowingTextWithTooltip)`
   min-width: 0;
 `;
 
@@ -82,11 +76,6 @@ const WORKSPACE_DETAIL_TAB_IDS = {
   FEATURE_FLAGS: 'feature-flags',
   CHATS: 'chats',
 };
-
-const StyledTabPanel = styled.div`
-  height: 100%;
-  min-height: 0;
-`;
 
 export const SettingsAdminWorkspaceDetail = () => {
   const { workspaceId } = useParams<{ workspaceId: string }>();
@@ -170,8 +159,8 @@ export const SettingsAdminWorkspaceDetail = () => {
           updateFeatureFlagState(workspaceId, featureFlag, previousValue);
         }
         enqueueToast({
-          variant: 'error',
-          children: `Failed to update feature flag. ${error.message}`,
+          status: 'error',
+          children: t`Failed to update feature flag. ${error.message}`,
         });
       },
     });
@@ -263,15 +252,16 @@ export const SettingsAdminWorkspaceDetail = () => {
       label: t`Name`,
       overflow: 'hidden',
       Cell: ({ item }) => (
-        <StyledFeatureFlagName>
-          <OverflowingTextWithTooltip
-            text={<>{item.label}</>}
-            tooltipContent={item.id}
-            tooltipPlace={'top'}
-            alwaysShowTooltip
-            isFocusable
-          />
-        </StyledFeatureFlagName>
+        <StyledFeatureFlagName
+          size="md"
+          weight="regular"
+          color="primary"
+          text={<>{item.label}</>}
+          tooltipContent={item.id}
+          tooltipPlace="top"
+          alwaysShowTooltip
+          isFocusable
+        />
       ),
     },
     {
@@ -339,7 +329,7 @@ export const SettingsAdminWorkspaceDetail = () => {
           />
         }
       >
-        <Tabs.Panel value={effectiveTabId} render={<StyledTabPanel />}>
+        <Tabs.Panel value={effectiveTabId}>
           <SettingsPageContainer>
             {effectiveTabId === WORKSPACE_DETAIL_TAB_IDS.INFO && workspace && (
               <SettingsAdminWorkspaceContent
@@ -367,9 +357,10 @@ export const SettingsAdminWorkspaceDetail = () => {
                   />
                   <Table>
                     <TableBody>
-                      <TableRow gridTemplateColumns="1fr 2fr 100px">
+                      <TableRow gridTemplateColumns="1fr 2fr 80px 100px">
                         <TableHeader>{t`Name`}</TableHeader>
                         <TableHeader>{t`Email`}</TableHeader>
+                        <TableHeader>{t`Admin`}</TableHeader>
                         <TableHeader align="right">{t`Actions`}</TableHeader>
                       </TableRow>
                       {workspace.users?.map((user) => {
@@ -380,7 +371,7 @@ export const SettingsAdminWorkspaceDetail = () => {
                         return (
                           <TableRow
                             key={userId}
-                            gridTemplateColumns="1fr 2fr 100px"
+                            gridTemplateColumns="1fr 2fr 80px 100px"
                             to={getSettingsPath(
                               SettingsPath.AdminPanelUserDetail,
                               {
@@ -411,6 +402,13 @@ export const SettingsAdminWorkspaceDetail = () => {
                               />
                             </TableCell>
                             <TableCell>{user.email}</TableCell>
+                            <TableCell>
+                              {user.isAdmin ? (
+                                <Status color="green">{t`Yes`}</Status>
+                              ) : (
+                                <Status color="gray">{t`No`}</Status>
+                              )}
+                            </TableCell>
                             <TableCell align="right">
                               {workspace.allowImpersonation &&
                                 isDefined(currentUser?.id) &&
@@ -456,7 +454,7 @@ export const SettingsAdminWorkspaceDetail = () => {
                 {isLoadingThreads ? (
                   <SettingsSectionSkeletonLoader />
                 ) : threads.length === 0 ? (
-                  <Card.Root rounded>
+                  <Card.Root>
                     <TableRow gridTemplateColumns="1fr">
                       <TableCell
                         color={themeCssVariables.font.color.tertiary}

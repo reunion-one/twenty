@@ -54,9 +54,11 @@ type ManyToOneRelationValue<
 
 type ManyToOneMetadataRelationsProperties = {
   [TSourceMetadataName in AllMetadataName]: {
-    [TRelationProperty in ExtractEntityManyToOneEntityRelationProperties<
-      MetadataEntity<TSourceMetadataName>
-    >]: ManyToOneRelationValue<TSourceMetadataName, TRelationProperty>;
+    [
+      TRelationProperty in ExtractEntityManyToOneEntityRelationProperties<
+        MetadataEntity<TSourceMetadataName>
+      >
+    ]: ManyToOneRelationValue<TSourceMetadataName, TRelationProperty>;
   };
 };
 
@@ -132,6 +134,13 @@ export const ALL_MANY_TO_ONE_METADATA_RELATIONS = {
       inverseOneToManyProperty: 'navigationMenuItems',
       isNullable: true,
       universalForeignKey: 'pageLayoutUniversalIdentifier',
+    },
+    agentChatChannel: {
+      metadataName: 'agentChatChannel',
+      foreignKey: 'agentChatChannelId',
+      inverseOneToManyProperty: 'navigationMenuItems',
+      isNullable: true,
+      universalForeignKey: 'agentChatChannelUniversalIdentifier',
     },
   },
   fieldMetadata: {
@@ -552,6 +561,10 @@ export const ALL_MANY_TO_ONE_METADATA_RELATIONS = {
     workspace: null,
     application: null,
   },
+  messagingProvider: {
+    workspace: null,
+    application: null,
+  },
   timelineActivityType: {
     workspace: null,
     application: null,
@@ -618,6 +631,28 @@ export const ALL_MANY_TO_ONE_METADATA_RELATIONS = {
   workflowVersion: {
     workspace: null,
     application: null,
+  },
+  agentChatChannel: {
+    workspace: null,
+    application: null,
+  },
+  agentChatChannelRole: {
+    workspace: null,
+    application: null,
+    channel: {
+      metadataName: 'agentChatChannel',
+      foreignKey: 'channelId',
+      inverseOneToManyProperty: 'channelRoles',
+      isNullable: false,
+      universalForeignKey: 'channelUniversalIdentifier',
+    },
+    role: {
+      metadataName: 'role',
+      foreignKey: 'roleId',
+      inverseOneToManyProperty: 'agentChatChannelRoles',
+      isNullable: false,
+      universalForeignKey: 'roleUniversalIdentifier',
+    },
   },
 } as const satisfies ManyToOneMetadataRelationsProperties;
 

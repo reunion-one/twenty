@@ -9,6 +9,7 @@ import { applyMouseEventProperties } from '@/host/events/utils/applyMouseEventPr
 import { applyPointerEventProperties } from '@/host/events/utils/applyPointerEventProperties';
 import { applyWheelEventProperties } from '@/host/events/utils/applyWheelEventProperties';
 import { serializeFileList } from '@/host/events/utils/serializeFileList';
+import { isTargetScrollStateForwardable } from '@/host/events/utils/isTargetScrollStateForwardable';
 import { type SerializedEventData } from '@/types/SerializedEventData';
 
 type SerializeEventOptions = {
@@ -39,6 +40,7 @@ export const serializeEvent = (
     serializedEvent,
     target: domEvent.target,
     includesFormControlState,
+    includesScrollState: isTargetScrollStateForwardable(domEvent),
   });
 
   const target = domEvent.target;

@@ -1,4 +1,4 @@
-import { FieldMetadataType } from 'twenty-shared/types';
+import { FieldMetadataType, ViewFilterOperand } from 'twenty-shared/types';
 import {
   workflowStepManifestSchema,
   type WorkflowStepManifest,
@@ -11,6 +11,7 @@ const STEP_ID = '11111111-1111-4111-8111-111111111111';
 const REFERENCE_ID = '22222222-2222-4222-8222-222222222222';
 const FIELD_ID = '33333333-3333-4333-8333-333333333333';
 const LOCAL_ID = '44444444-4444-4444-8444-444444444444';
+const RECORD_FILTER_ID = '55555555-5555-4555-8555-555555555555';
 const references = {
   logicFunctionIdByUniversalIdentifier: new Map([[REFERENCE_ID, LOCAL_ID]]),
   agentIdByUniversalIdentifier: new Map([[REFERENCE_ID, LOCAL_ID]]),
@@ -46,6 +47,10 @@ const record = {
   objectUniversalIdentifier: REFERENCE_ID,
   objectRecord: { name: 'Company' },
 };
+const email = {
+  connectedAccountId: '{{trigger.accountId}}',
+  recipients: { to: 'test@example.com' },
+};
 const filters = { stepFilterGroups: [], stepFilters: [] };
 const inputs = {
   LOGIC_FUNCTION: { value: 'Hello' },
@@ -65,8 +70,9 @@ const inputs = {
     filter: {
       recordFilters: [
         {
+          id: RECORD_FILTER_ID,
           fieldMetadataUniversalIdentifier: FIELD_ID,
-          operand: 'Is',
+          operand: ViewFilterOperand.IS,
           value: 'x',
         },
       ],
@@ -85,6 +91,17 @@ const inputs = {
       objectUniversalIdentifier: REFERENCE_ID,
       fieldUniversalIdentifier: FIELD_ID,
     },
+  },
+  SEND_EMAIL: email,
+  DRAFT_EMAIL: email,
+  CREATE_CALENDAR_EVENT: {
+    connectedAccountId: '{{trigger.accountId}}',
+    title: 'Meeting',
+    startsAt: '2026-10-01T10:00:00Z',
+    endsAt: '2026-10-01T11:00:00Z',
+    isFullDay: false,
+    sendInvitations: false,
+    addConferencing: false,
   },
   FORM: [
     {
@@ -181,9 +198,6 @@ describe('application workflow actions', () => {
     Object.values(WorkflowActionType).filter(
       (type) =>
         type !== WorkflowActionType.CODE &&
-        type !== WorkflowActionType.SEND_EMAIL &&
-        type !== WorkflowActionType.DRAFT_EMAIL &&
-        type !== WorkflowActionType.CREATE_CALENDAR_EVENT &&
         type !== WorkflowActionType.SEND_CHAT_MESSAGE,
     ),
   )('converts %s to its runtime action', (type) => {
@@ -209,7 +223,12 @@ describe('application workflow actions', () => {
       objectName: 'company',
       filter: {
         recordFilters: [
-          { fieldMetadataId: LOCAL_ID, operand: 'Is', value: 'x' },
+          {
+            id: RECORD_FILTER_ID,
+            fieldMetadataId: LOCAL_ID,
+            operand: ViewFilterOperand.IS,
+            value: 'x',
+          },
         ],
       },
       orderBy: {
@@ -225,6 +244,50 @@ describe('application workflow actions', () => {
     expect(convert(WorkflowActionType.FORM).settings.input).toMatchObject([
       { settings: { objectName: 'company' } },
     ]);
+  });
+
+  it('accepts record filters declared without an id or a value', () => {
+    const step = workflowStepManifestSchema.parse({
+      universalIdentifier: STEP_ID,
+      name: 'Find records',
+      type: WorkflowActionType.FIND_RECORDS,
+      input: {
+        objectUniversalIdentifier: REFERENCE_ID,
+        filter: {
+          recordFilters: [
+            {
+              fieldMetadataUniversalIdentifier: FIELD_ID,
+              operand: ViewFilterOperand.IS,
+              value: 'x',
+            },
+            {
+              fieldMetadataUniversalIdentifier: FIELD_ID,
+              operand: ViewFilterOperand.IS_EMPTY,
+            },
+          ],
+        },
+      },
+      nextStepIds: [],
+    });
+
+    expect(
+      fromWorkflowStepManifestToActionOrThrow({ step, index: 0, references })
+        .settings.input,
+    ).toMatchObject({
+      filter: {
+        recordFilters: [
+          {
+            fieldMetadataId: LOCAL_ID,
+            operand: ViewFilterOperand.IS,
+            value: 'x',
+          },
+          {
+            fieldMetadataId: LOCAL_ID,
+            operand: ViewFilterOperand.IS_EMPTY,
+          },
+        ],
+      },
+    });
   });
 
   it('rejects unavailable metadata and fields from another object', () => {

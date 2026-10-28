@@ -14,6 +14,7 @@ import {
 } from 'src/engine/core-modules/application/application.exception';
 import { type FlatApplication } from 'src/engine/core-modules/application/types/flat-application.type';
 import { type AllFlatEntityMaps } from 'src/engine/metadata-modules/flat-entity/types/all-flat-entity-maps.type';
+import { type UniversalFlatWorkflow } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/types/universal-flat-workflow.type';
 import { type IdByUniversalIdentifierByMetadataName } from 'src/engine/workspace-manager/workspace-migration/services/utils/enrich-create-workspace-migration-action-with-ids.util';
 import { addUniversalFlatEntityToUniversalFlatEntityMapsThroughMutationOrThrow } from 'src/engine/workspace-manager/workspace-migration/universal-flat-entity/utils/add-universal-flat-entity-to-universal-flat-entity-maps-through-mutation-or-throw.util';
 
@@ -24,7 +25,7 @@ export const addWorkflowManifestsToFlatEntityMapsOrThrow = ({
   toAllUniversalFlatEntityMaps,
   existingAllFlatEntityMaps,
   idByUniversalIdentifierByMetadataName,
-  isApplicationWorkflowsEnabled,
+  canReferenceOtherApplicationsWorkflowActions,
   now,
 }: {
   workflows: WorkflowManifest[];
@@ -33,21 +34,12 @@ export const addWorkflowManifestsToFlatEntityMapsOrThrow = ({
   toAllUniversalFlatEntityMaps: AllFlatEntityMaps;
   existingAllFlatEntityMaps: AllFlatEntityMaps;
   idByUniversalIdentifierByMetadataName: IdByUniversalIdentifierByMetadataName;
-  isApplicationWorkflowsEnabled: boolean | undefined;
+  canReferenceOtherApplicationsWorkflowActions: boolean;
   now: string;
-}): void => {
-  if (workflows.length > 0 && !isApplicationWorkflowsEnabled) {
-    throw new ApplicationException(
-      'Application workflows are not enabled for this workspace',
-      ApplicationExceptionCode.INVALID_INPUT,
-      {
-        userFriendlyMessage: msg`Application workflows are not enabled for this workspace.`,
-      },
-    );
-  }
-
+}): (UniversalFlatWorkflow & { id: string })[] => {
   const applicationUniversalIdentifier =
     ownerFlatApplication.universalIdentifier;
+  const applicationWorkflows: (UniversalFlatWorkflow & { id: string })[] = [];
 
   if (workflows.length > 0) {
     const references = prepareWorkflowManifestReferences({
@@ -55,6 +47,7 @@ export const addWorkflowManifestsToFlatEntityMapsOrThrow = ({
       existingAllFlatEntityMaps,
       ownerApplicationId: ownerFlatApplication.id,
       idByUniversalIdentifierByMetadataName,
+      canReferenceOtherApplicationsWorkflowActions,
     });
     const recordFieldErrors: string[] = [];
     for (const workflowManifest of workflows) {
@@ -89,6 +82,7 @@ export const addWorkflowManifestsToFlatEntityMapsOrThrow = ({
         universalFlatEntityMapsToMutate:
           toAllUniversalFlatEntityMaps.flatWorkflowMaps,
       });
+      applicationWorkflows.push(workflow);
     }
     if (recordFieldErrors.length > 0) {
       throw new ApplicationException(
@@ -100,4 +94,6 @@ export const addWorkflowManifestsToFlatEntityMapsOrThrow = ({
       );
     }
   }
+
+  return applicationWorkflows;
 };

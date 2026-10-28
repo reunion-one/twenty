@@ -30,13 +30,12 @@ import { useResetFocusStackToFocusItem } from '@/ui/utilities/focus/hooks/useRes
 import { FocusComponentType } from '@/ui/utilities/focus/types/FocusComponentType';
 import { useAtomComponentStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomComponentStateValue';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
-import { isSafeInternalPath } from '@/ui/navigation/utils/isSafeInternalPath';
 import { currentPageLayoutIdState } from '@/page-layout/states/currentPageLayoutIdState';
 import { useStore } from 'jotai';
 import { useEffect, useState } from 'react';
 import { matchPath, useLocation, useNavigate } from 'react-router-dom';
 import { AppBasePath, AppPath, SidePanelPages } from 'twenty-shared/types';
-import { isDefined } from 'twenty-shared/utils';
+import { isDefined, isSafeInternalPath } from 'twenty-shared/utils';
 import { usePageChangeEffectNavigateLocation } from '@/app/hooks/usePageChangeEffectNavigateLocation';
 import { getPageLayoutIdForLocation } from '@/app/utils/getPageLayoutIdForLocation';
 import { isMatchingLocation } from '~/utils/isMatchingLocation';
@@ -255,6 +254,32 @@ export const PageChangeEffect = () => {
 
           store.set(newRecordTitleCellToOpenState.atom, null);
         }
+        break;
+      }
+      case isMatchingLocation(location, AppPath.AiChatInbox): {
+        const isEnteringAiChatInbox = !matchPath(
+          AppPath.AiChatInbox,
+          previousLocation,
+        );
+
+        if (!isEnteringAiChatInbox) {
+          break;
+        }
+
+        resetFocusStackToFocusItem({
+          focusStackItem: {
+            focusId: PageFocusId.AiChatInbox,
+            componentInstance: {
+              componentType: FocusComponentType.PAGE,
+              componentInstanceId: PageFocusId.AiChatInbox,
+            },
+            globalHotkeysConfig: {
+              enableGlobalHotkeysWithModifiers: true,
+              enableGlobalHotkeysConflictingWithKeyboard: true,
+            },
+          },
+          shouldKeepItemsAbovePage: store.get(isSidePanelOpenedState.atom),
+        });
         break;
       }
       case isMatchingLocation(location, AppPath.PageLayoutPage): {

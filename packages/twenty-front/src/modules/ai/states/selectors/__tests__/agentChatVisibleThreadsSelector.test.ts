@@ -45,7 +45,17 @@ const THREADS: {
       snoozedUntil: '2026-10-02T09:00:00.000Z',
     },
   },
-  { id: 'unread', deletedAt: null, participant: undefined },
+  {
+    id: 'unread',
+    deletedAt: null,
+    participant: { ...READ, lastReadAt: null, archivedAt: null },
+  },
+  { id: 'not-followed', deletedAt: null, participant: undefined },
+  {
+    id: 'opened-not-followed',
+    deletedAt: null,
+    participant: { ...READ, archivedAt: null, isSubscribed: false },
+  },
   {
     id: 'snoozed',
     deletedAt: null,
@@ -113,17 +123,16 @@ const getVisibleThreadIds = (filterStatus: AgentChatThreadFilterStatus) => {
   setAgentChatThreadList(
     store,
     THREADS.map(
-      ({ id, deletedAt, lastActivityAt, pendingQuestionMessageId }) =>
-        ({
-          __typename: 'AgentChatThread',
-          id,
-          title: id,
-          deletedAt,
-          pendingQuestionMessageId: pendingQuestionMessageId ?? null,
-          createdAt: LAST_ACTIVITY_AT,
-          updatedAt: LAST_ACTIVITY_AT,
-          lastActivityAt: lastActivityAt ?? LAST_ACTIVITY_AT,
-        }) as never,
+      ({ id, deletedAt, lastActivityAt, pendingQuestionMessageId }) => ({
+        __typename: 'AgentChatThread',
+        id,
+        title: id,
+        deletedAt,
+        pendingQuestionMessageId: pendingQuestionMessageId ?? null,
+        createdAt: LAST_ACTIVITY_AT,
+        updatedAt: LAST_ACTIVITY_AT,
+        lastActivityAt: lastActivityAt ?? LAST_ACTIVITY_AT,
+      }),
     ),
   );
   store.set(

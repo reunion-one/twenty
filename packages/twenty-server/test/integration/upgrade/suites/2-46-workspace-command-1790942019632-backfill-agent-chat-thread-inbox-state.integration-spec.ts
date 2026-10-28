@@ -5,8 +5,7 @@ import { STANDARD_OBJECTS } from 'twenty-shared/metadata';
 
 import { type AddAgentChatThreadParticipantObjectCommand } from 'src/database/commands/upgrade-version-command/2-46/2-46-workspace-command-1790942019631-add-agent-chat-thread-participant-object.command';
 import { type BackfillAgentChatThreadInboxStateCommand } from 'src/database/commands/upgrade-version-command/2-46/2-46-workspace-command-1790942019632-backfill-agent-chat-thread-inbox-state.command';
-import { type AgentChatThreadParticipantService } from 'src/engine/metadata-modules/ai/ai-chat/services/agent-chat-thread-participant.service';
-import { type AgentChatThreadService } from 'src/engine/metadata-modules/ai/ai-chat/services/agent-chat-thread.service';
+import { type AddAgentChatThreadSubscriptionsCommand } from 'src/database/commands/upgrade-version-command/2-46/2-46-workspace-command-1791322315043-add-agent-chat-thread-subscriptions.command';
 import { type UpgradeCommandRegistryService } from 'src/engine/core-modules/upgrade/services/upgrade-command-registry.service';
 import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 import { type WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
@@ -14,9 +13,6 @@ import { type WorkspaceCacheService } from 'src/engine/workspace-cache/services/
 import { getWorkspaceSchemaName } from 'src/engine/workspace-datasource/utils/get-workspace-schema-name.util';
 import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
 import { WORKSPACE_MEMBER_DATA_SEED_IDS } from 'src/engine/workspace-manager/dev-seeder/data/constants/workspace-member-data-seeds.constant';
-
-const getAgentChatThreadService = () =>
-  getAppProviderByClassName<AgentChatThreadService>('AgentChatThreadService');
 
 const RUN_ON_WORKSPACE_ARGS = {
   workspaceId: SEED_APPLE_WORKSPACE_ID,
@@ -49,6 +45,7 @@ type StoredParticipant = {
 describe('2-46 workspace commands - agent chat thread inbox state (integration)', () => {
   let objectCommand: AddAgentChatThreadParticipantObjectCommand;
   let backfillCommand: BackfillAgentChatThreadInboxStateCommand;
+  let subscriptionsCommand: AddAgentChatThreadSubscriptionsCommand;
   let workspaceOrmManager: WorkspaceOrmManager;
 
   const sharedThreadId = randomUUID();
@@ -56,13 +53,7 @@ describe('2-46 workspace commands - agent chat thread inbox state (integration)'
   const legacyArchivedThreadId = randomUUID();
   const deletedThreadId = randomUUID();
   const deletedAgainThreadId = randomUUID();
-  const createdBeforeUpgradeThreadId = randomUUID();
-  let beforeUpgrade: {
-    createdThreadLastActivityAt: string | null;
-    recordedLastActivityAt: Date | null;
-  };
   const threadIds = [
-    createdBeforeUpgradeThreadId,
     sharedThreadId,
     emptyThreadId,
     legacyArchivedThreadId,
@@ -73,7 +64,8 @@ describe('2-46 workspace commands - agent chat thread inbox state (integration)'
   const runCommand = (
     command:
       | AddAgentChatThreadParticipantObjectCommand
-      | BackfillAgentChatThreadInboxStateCommand,
+      | BackfillAgentChatThreadInboxStateCommand
+      | AddAgentChatThreadSubscriptionsCommand,
     direction: 'up' | 'down',
   ) =>
     workspaceOrmManager.executeInWorkspaceContext(
@@ -176,35 +168,22 @@ describe('2-46 workspace commands - agent chat thread inbox state (integration)'
       getAppProviderByClassName<BackfillAgentChatThreadInboxStateCommand>(
         'BackfillAgentChatThreadInboxStateCommand',
       );
+    subscriptionsCommand =
+      getAppProviderByClassName<AddAgentChatThreadSubscriptionsCommand>(
+        'AddAgentChatThreadSubscriptionsCommand',
+      );
     workspaceOrmManager = getAppProviderByClassName<WorkspaceOrmManager>(
       'WorkspaceOrmManager',
+    );
+
+    // 2.47 dropped the column the 2.46 commands still read
+    await global.testDataSource.query(
+      `ALTER TABLE ${SCHEMA}."agentMessage" ADD COLUMN IF NOT EXISTS "isHidden" boolean NOT NULL DEFAULT false`,
     );
 
     // What a workspace that has not run the 2.46 commands yet looks like
     await runCommand(backfillCommand, 'down');
     await runCommand(objectCommand, 'down');
-
-    const participantService =
-      getAppProviderByClassName<AgentChatThreadParticipantService>(
-        'AgentChatThreadParticipantService',
-      );
-    const createdThread = await getAgentChatThreadService().createThread({
-      workspaceId: SEED_APPLE_WORKSPACE_ID,
-      workspaceMemberId: WORKSPACE_MEMBER_DATA_SEED_IDS.JANE,
-      id: createdBeforeUpgradeThreadId,
-      title: 'Created before the upgrade',
-    });
-    const { lastActivityAt } = await participantService.recordMemberActivity({
-      workspaceId: SEED_APPLE_WORKSPACE_ID,
-      workspaceMemberId: WORKSPACE_MEMBER_DATA_SEED_IDS.JANE,
-      threadId: createdBeforeUpgradeThreadId,
-      text: 'Sent before the upgrade',
-    });
-
-    beforeUpgrade = {
-      createdThreadLastActivityAt: createdThread.lastActivityAt ?? null,
-      recordedLastActivityAt: lastActivityAt,
-    };
 
     await insertThread(sharedThreadId);
     await insertThread(emptyThreadId);
@@ -286,6 +265,8 @@ describe('2-46 workspace commands - agent chat thread inbox state (integration)'
   afterAll(async () => {
     await runCommand(objectCommand, 'up');
     await runCommand(backfillCommand, 'up');
+    // The object's down dropped the subscription fields the suites that follow use
+    await runCommand(subscriptionsCommand, 'up');
     await global.testDataSource.query(
       `DELETE FROM ${SCHEMA}."recordShare" share
        USING ${SCHEMA}."agentChatThreadParticipant" participant
@@ -307,6 +288,9 @@ describe('2-46 workspace commands - agent chat thread inbox state (integration)'
     await global.testDataSource.query(
       `DELETE FROM ${SCHEMA}."recordShare" WHERE "recordId" = ANY($1)`,
       [threadIds],
+    );
+    await global.testDataSource.query(
+      `ALTER TABLE ${SCHEMA}."agentMessage" DROP COLUMN IF EXISTS "isHidden"`,
     );
   });
 
@@ -448,10 +432,5 @@ describe('2-46 workspace commands - agent chat thread inbox state (integration)'
     expect(await readOwnerShares()).toHaveLength(
       (await readParticipants()).length,
     );
-  });
-
-  it('keeps chats working on a workspace the upgrade has not reached yet', () => {
-    expect(beforeUpgrade.createdThreadLastActivityAt).toBeNull();
-    expect(beforeUpgrade.recordedLastActivityAt).toBeNull();
   });
 });

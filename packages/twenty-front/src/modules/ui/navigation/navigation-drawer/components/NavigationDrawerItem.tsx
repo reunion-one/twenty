@@ -9,6 +9,7 @@ import { StyledNavigationDrawerUnreadDot } from '@/ui/navigation/navigation-draw
 import { NAVIGATION_DRAWER_COLLAPSED_BUTTON_SIZE } from '@/ui/navigation/navigation-drawer/constants/NavigationDrawerCollapsedButtonSize';
 import { NavigationDrawerItemEditingContext } from '@/ui/navigation/navigation-drawer/contexts/NavigationDrawerItemEditingContext';
 import { useNavigationDrawerTooltip } from '@/ui/navigation/navigation-drawer/hooks/useNavigationDrawerTooltip';
+import { useShortcutAccessibleKeyLabels } from '@/ui/navigation/hooks/useShortcutAccessibleKeyLabels';
 import { isNavigationDrawerExpandedState } from '@/ui/navigation/states/isNavigationDrawerExpanded';
 import { useMouseDownNavigation } from '@/ui/navigation/hooks/useMouseDownNavigation';
 import { useIsMobile } from 'twenty-ui/utilities';
@@ -17,8 +18,8 @@ import { styled } from '@linaria/react';
 import { t } from '@lingui/core/macro';
 import { useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { isDefined } from 'twenty-shared/utils';
-import { Pill } from 'twenty-ui/primitives/data-display';
+import { isAbsoluteUrl, isDefined } from 'twenty-shared/utils';
+import { Badge } from 'twenty-ui/primitives/data-display';
 import { Tooltip } from 'twenty-ui/primitives/surfaces';
 import {
   Shortcut,
@@ -109,10 +110,6 @@ const StyledItem = styled.button<StyledItemProps>`
       variant === 'tertiary'
         ? themeCssVariables.font.color.tertiary
         : themeCssVariables.font.color.primary};
-  }
-
-  &:hover .keyboard-shortcuts {
-    visibility: visible;
   }
 
   @media (max-width: ${MOBILE_VIEWPORT}px) {
@@ -226,6 +223,7 @@ export const NavigationDrawerItem = ({
   isUnread = false,
 }: NavigationDrawerItemProps) => {
   const theme = useTheme();
+  const accessibleKeyLabels = useShortcutAccessibleKeyLabels();
   const editingContent = useContext(NavigationDrawerItemEditingContext);
   const isMobile = useIsMobile();
   const isExpanded = useIsNavigationDrawerContentExpanded();
@@ -248,8 +246,7 @@ export const NavigationDrawerItem = ({
     }
   };
 
-  const isExternalLink =
-    isDefined(to) && (to.startsWith('http://') || to.startsWith('https://'));
+  const isExternalLink = isDefined(to) && isAbsoluteUrl(to);
   const isInternalLink = isDefined(to) && !isExternalLink;
 
   const handleExternalLinkClick = () => {
@@ -391,22 +388,22 @@ export const NavigationDrawerItem = ({
 
             {isSoon && (
               <NavigationDrawerAnimatedCollapseWrapper>
-                <Pill label={t`Soon`} />
+                <Badge>{t`Soon`}</Badge>
               </NavigationDrawerAnimatedCollapseWrapper>
             )}
 
             {isNew && (
               <NavigationDrawerAnimatedCollapseWrapper>
-                <Pill label={t`New`} />
+                <Badge>{t`New`}</Badge>
               </NavigationDrawerAnimatedCollapseWrapper>
             )}
 
             {isDefined(keyboardKeys) && (
               <NavigationDrawerAnimatedCollapseWrapper>
                 <Shortcut
-                  className="keyboard-shortcuts"
                   shortcut={keyboardKeys}
                   sequenceJoinLabel={t`then`}
+                  accessibleKeyLabels={accessibleKeyLabels}
                 />
               </NavigationDrawerAnimatedCollapseWrapper>
             )}

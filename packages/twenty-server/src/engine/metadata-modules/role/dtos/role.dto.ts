@@ -35,6 +35,9 @@ export class RoleDTO {
   @Field(() => UUIDScalarType, { nullable: true })
   universalIdentifier?: string;
 
+  @Field(() => UUIDScalarType)
+  applicationId: string;
+
   @Field({ nullable: false })
   label: string;
 
@@ -73,6 +76,9 @@ export class RoleDTO {
 
   @Field({ nullable: false })
   canAccessAllTools: boolean;
+
+  @Field({ nullable: false })
+  canAccessAllAgentChatChannels: boolean;
 
   @Field({ nullable: false })
   canReadAllObjectRecords: boolean;
