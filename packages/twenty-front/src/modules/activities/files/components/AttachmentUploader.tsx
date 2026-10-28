@@ -18,7 +18,7 @@ import { styled } from '@linaria/react';
 import { useLingui } from '@lingui/react/macro';
 import { flushSync } from 'react-dom';
 import { useId, useRef, useState, type ReactNode } from 'react';
-import { IconPaperclip, IconPlus } from 'twenty-ui/icon';
+import { IconPlus } from 'twenty-ui/icon';
 import { SelectInput } from '@/ui/input/components/SelectInput';
 
 const StyledScreenReaderText = styled.span`
@@ -222,7 +222,7 @@ export const AttachmentUploader = ({
   const renderButton = (disabled: boolean, onClick?: () => void) =>
     appearance === 'header' ? (
       <WidgetCardHeaderActionButton
-        Icon={IconPaperclip}
+        Icon={IconPlus}
         label={triggerAccessibleLabel}
         onClick={onClick}
         disabled={disabled}

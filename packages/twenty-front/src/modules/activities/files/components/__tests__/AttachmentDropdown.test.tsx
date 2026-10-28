@@ -144,7 +144,7 @@ describe('AttachmentDropdown document type actions @custom', () => {
     const documentType = await screen.findByRole('menuitem', {
       name: /Document type/,
     });
-    expect(documentType).toHaveAttribute('aria-disabled', 'true');
+    expect(documentType).toBeDisabled();
     expect(mockUpdateOneRecord).toHaveBeenCalledTimes(1);
 
     await act(async () => {
@@ -153,11 +153,9 @@ describe('AttachmentDropdown document type actions @custom', () => {
 
     await waitFor(() => expect(mockEnqueueToast).toHaveBeenCalledTimes(1));
     expect(mockEnqueueToast).toHaveBeenCalledWith(
-      expect.objectContaining({ variant: 'error' }),
+      expect.objectContaining({ status: 'error' }),
     );
-    await waitFor(() =>
-      expect(documentType).not.toHaveAttribute('aria-disabled', 'true'),
-    );
+    await waitFor(() => expect(documentType).not.toBeDisabled());
     expect(
       screen.getByRole('menuitem', { name: 'Download' }),
     ).toBeInTheDocument();
