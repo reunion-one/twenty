@@ -62,6 +62,7 @@ export const useLazyFindManyRecordsWithOffset = ({
       const result =
         await apolloCoreClient.query<RecordGqlOperationFindManyResult>({
           query: findManyRecordsQuery,
+          fetchPolicy: 'network-only',
           variables: {
             ...params,
             limit,

@@ -54,6 +54,7 @@ export const RestoreRecordsCommand = () => {
     filter: combinedFilter,
     limit: DEFAULT_QUERY_PAGE_SIZE,
     recordGqlFields: { id: true },
+    fetchPolicy: 'network-only',
   });
 
   const handleExecute = async () => {

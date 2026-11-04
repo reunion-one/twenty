@@ -49,6 +49,7 @@ export const useOpenMergeRecordsPageInSidePanel = ({
         const { data } =
           await apolloCoreClient.query<RecordGqlOperationFindManyResult>({
             query: findManyRecordsQuery,
+            fetchPolicy: 'network-only',
             variables: { filter: { id: { in: objectRecordIds } } },
           });
         const recordConnection = data?.[objectMetadataItem.namePlural];
