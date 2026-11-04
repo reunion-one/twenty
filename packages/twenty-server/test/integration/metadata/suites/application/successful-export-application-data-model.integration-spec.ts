@@ -1,3 +1,18 @@
+import { TEST_AI_MODEL_ID } from 'test/integration/constants/test-ai-model-ids.constants';
+import {
+  activateCoreWorkflowVersion,
+  createCoreWorkflow,
+  createCoreWorkflowVersionStep,
+  deactivateCoreWorkflowVersion,
+  deleteCoreWorkflows,
+  runCoreWorkflowVersion,
+  updateCoreWorkflowVersionStep,
+  updateCoreWorkflowVersionTrigger,
+} from 'test/integration/graphql/suites/workflow/utils/core-workflow.util';
+import {
+  destroyWorkflowRun,
+  getWorkflowRun,
+} from 'test/integration/graphql/suites/workflow/utils/workflow-run-test.util';
 import { findManyApplications } from 'test/integration/graphql/utils/find-many-applications.util';
 import { buildBaseManifest } from 'test/integration/metadata/suites/application/utils/build-base-manifest.util';
 import { buildDefaultObjectManifest } from 'test/integration/metadata/suites/application/utils/build-default-object-manifest.util';
@@ -16,6 +31,7 @@ import { createOneViewFilter } from 'test/integration/metadata/suites/view-filte
 import { destroyOneViewFilter } from 'test/integration/metadata/suites/view-filter/utils/destroy-one-view-filter.util';
 import { createOneView } from 'test/integration/metadata/suites/view/utils/create-one-view.util';
 import { destroyOneView } from 'test/integration/metadata/suites/view/utils/destroy-one-view.util';
+import { getAppProviderByClassName } from 'test/integration/utils/get-app-provider-by-class-name.util';
 import { jestExpectToBeDefined } from 'test/utils/jest-expect-to-be-defined.util.test';
 import {
   type AgentManifest,
@@ -33,6 +49,7 @@ import {
   getSystemViewUniversalIdentifier,
   getWorkflowCommandMenuItemUniversalIdentifier,
   getWorkflowVersionUniversalIdentifier,
+  type Manifest,
   type NavigationMenuItemManifest,
   type ObjectManifest,
   type PageLayoutManifest,
@@ -45,6 +62,7 @@ import {
   TWENTY_STANDARD_APPLICATION_UNIVERSAL_IDENTIFIER,
   type ViewManifest,
   type WorkflowManifest,
+  type WorkflowStepManifest,
 } from 'twenty-shared/application';
 import {
   PermissionFlagType,
@@ -69,13 +87,18 @@ import {
   WidgetType,
 } from 'twenty-shared/types';
 import { isDefined } from 'twenty-shared/utils';
+import { WORKFLOW_AI_AGENT_STEP_CONFIG_ISSUE_MESSAGES } from 'twenty-shared/workflow';
 import { version as getUuidVersion, v4 } from 'uuid';
 
+import { type ApplicationManifestMigrationService } from 'src/engine/core-modules/application/application-manifest/application-manifest-migration.service';
+import { type ApplicationService } from 'src/engine/core-modules/application/application.service';
 import { WORKSPACE_CUSTOM_APPLICATION_NAME } from 'src/engine/core-modules/application/constants/workspace-custom-application.constant';
+import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
 import { ApplicationExportCoverageStatus } from 'src/engine/core-modules/application/enums/application-export-coverage-status.enum';
 import { fromObjectManifestToUniversalFlatObjectMetadata } from 'src/engine/core-modules/application/application-manifest/converters/from-object-manifest-to-universal-flat-object-metadata.util';
 import { buildSearchVectorFlatFieldMetadataForCustomObject } from 'src/engine/metadata-modules/object-metadata/utils/build-search-vector-flat-field-metadata-for-custom-object.util';
 import { buildSearchVectorGinIndexForCustomObject } from 'src/engine/metadata-modules/object-metadata/utils/build-search-vector-gin-index-for-custom-object.util';
+import { type ConnectedAccountScope } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
 
 const TEST_APP_ID = '7e3d1c2b-0000-4a7b-8c9d-0e1f2a3b4c5d';
 const TEST_ROLE_ID = '7e3d1c2b-0001-4a7b-8c9d-0e1f2a3b4c5d';
@@ -1199,6 +1222,82 @@ describe('Application export - data model', () => {
     }
   }, 60000);
 
+  it('only deletes workspace Custom application entities missing from the manifest when deletion is explicitly requested', async () => {
+    const { data: applicationsData } = await findManyApplications({
+      expectToFail: false,
+    });
+    const customApplication = applicationsData.findManyApplications.find(
+      ({ name }) => name === WORKSPACE_CUSTOM_APPLICATION_NAME,
+    );
+
+    jestExpectToBeDefined(customApplication);
+
+    const personObject = (
+      await findManyObjectMetadata({
+        expectToFail: false,
+        input: { filter: {}, paging: { first: 1000 } },
+        gqlFields: 'id nameSingular',
+      })
+    ).objects.find(({ nameSingular }) => nameSingular === 'person');
+
+    jestExpectToBeDefined(personObject);
+
+    const { data: createdViewData } = await createOneView({
+      expectToFail: false,
+      input: {
+        name: 'Pruned Custom Application People',
+        objectMetadataId: personObject.id,
+        type: ViewType.TABLE,
+        icon: 'IconUser',
+      },
+    });
+
+    try {
+      const { data } = await exportApplication({
+        universalIdentifier: customApplication.universalIdentifier,
+        expectToFail: false,
+      });
+      const { manifest } = data.exportApplication;
+      const prunedView = manifest.views.find(
+        ({ name }) => name === 'Pruned Custom Application People',
+      );
+
+      jestExpectToBeDefined(prunedView);
+
+      const manifestWithoutView = {
+        ...manifest,
+        views: manifest.views.filter((view) => view !== prunedView),
+      };
+      const planWith = async (inferDeletionFromMissingEntities?: boolean) => {
+        const dryRun = await syncApplication({
+          manifest: manifestWithoutView,
+          dryRun: true,
+          inferDeletionFromMissingEntities,
+          expectToFail: false,
+        });
+
+        expect(dryRun.errors).toBeUndefined();
+
+        return dryRun.data.syncApplication.actions;
+      };
+
+      expect(await planWith(undefined)).toEqual([]);
+      expect(await planWith(false)).toEqual([]);
+      expect(await planWith(true)).toContainEqual(
+        expect.objectContaining({
+          type: 'delete',
+          metadataName: 'view',
+          universalIdentifier: prunedView.universalIdentifier,
+        }),
+      );
+    } finally {
+      await destroyOneView({
+        expectToFail: false,
+        viewId: createdViewData.createView.id,
+      });
+    }
+  }, 60000);
+
   it('should round-trip a role with object, field and flag permissions created through the metadata API in the workspace Custom application without any action', async () => {
     const { objects } = await findManyObjectMetadata({
       expectToFail: false,
@@ -1432,6 +1531,8 @@ const ESCALATION_WORKFLOW_ID = '7e3d1c2b-0110-4a7b-8c9d-0e1f2a3b4c5d';
 const NOTIFY_WORKFLOW_ID = '7e3d1c2b-0111-4a7b-8c9d-0e1f2a3b4c5d';
 const NIGHTLY_WORKFLOW_ID = '7e3d1c2b-0112-4a7b-8c9d-0e1f2a3b4c5d';
 const INTAKE_WORKFLOW_ID = '7e3d1c2b-0113-4a7b-8c9d-0e1f2a3b4c5d';
+const OUTREACH_WORKFLOW_ID = '7e3d1c2b-0114-4a7b-8c9d-0e1f2a3b4c5d';
+const SEEDED_CONNECTED_ACCOUNT_HANDLE = 'tim@apple.dev';
 const workflowNodeIdentifier = (suffix: number) =>
   `7e3d1c2b-${(200 + suffix).toString().padStart(4, '0')}-4a7b-8c9d-0e1f2a3b4c5d`;
 
@@ -1628,7 +1729,75 @@ const EXPORTED_WORKFLOWS: WorkflowManifest[] = [
       ],
     },
   },
+  {
+    universalIdentifier: OUTREACH_WORKFLOW_ID,
+    name: 'Reach out to the incident reporter',
+    version: {
+      trigger: {
+        universalIdentifier: workflowNodeIdentifier(40),
+        type: 'MANUAL',
+        nextStepIds: [workflowNodeIdentifier(41)],
+      },
+      steps: [
+        {
+          universalIdentifier: workflowNodeIdentifier(41),
+          name: 'Email the reporter',
+          type: 'SEND_EMAIL',
+          nextStepIds: [workflowNodeIdentifier(42)],
+          input: {
+            connectedAccountHandle: SEEDED_CONNECTED_ACCOUNT_HANDLE,
+            recipients: { to: 'reporter@example.com', cc: '', bcc: '' },
+            subject: 'We are on it',
+            files: [],
+          },
+        },
+        {
+          universalIdentifier: workflowNodeIdentifier(42),
+          name: 'Book a review',
+          type: 'CREATE_CALENDAR_EVENT',
+          nextStepIds: [],
+          input: {
+            connectedAccountId: '{{trigger.connectedAccountId}}',
+            title: 'Incident review',
+            startsAt: '2026-11-02T09:00:00.000Z',
+            endsAt: '2026-11-02T09:30:00.000Z',
+            isFullDay: false,
+            attendees: '',
+            sendInvitations: false,
+            addConferencing: false,
+          },
+        },
+      ],
+    },
+  },
 ];
+
+const withSendEmailConnectedAccountHandle = ({
+  workflow,
+  connectedAccountHandle,
+}: {
+  workflow: WorkflowManifest;
+  connectedAccountHandle: string;
+}): WorkflowManifest => ({
+  ...workflow,
+  version: {
+    ...workflow.version,
+    steps: workflow.version.steps.map((step) => {
+      if (step.type !== 'SEND_EMAIL') {
+        return step;
+      }
+
+      return { ...step, input: { ...step.input, connectedAccountHandle } };
+    }),
+  },
+});
+
+const setSeededConnectedAccountScope = (scope: ConnectedAccountScope) =>
+  globalThis.testDataSource.query(
+    `UPDATE core."connectedAccount" SET scope = $1
+      WHERE handle = $2 AND "workspaceId" = $3`,
+    [scope, SEEDED_CONNECTED_ACCOUNT_HANDLE, SEED_APPLE_WORKSPACE_ID],
+  );
 
 const workflowsManifest = buildBaseManifest({
   appId: WORKFLOW_TEST_APP_ID,
@@ -1657,7 +1826,19 @@ const workflowsManifest = buildBaseManifest({
 });
 
 describe('Application export - workflows', () => {
+  let seededConnectedAccountScope: ConnectedAccountScope;
+
   beforeAll(async () => {
+    const [seededConnectedAccount] = await globalThis.testDataSource.query(
+      `SELECT scope FROM core."connectedAccount"
+        WHERE handle = $1 AND "workspaceId" = $2`,
+      [SEEDED_CONNECTED_ACCOUNT_HANDLE, SEED_APPLE_WORKSPACE_ID],
+    );
+
+    seededConnectedAccountScope = seededConnectedAccount.scope;
+    // A handle only names an account shared with the workspace; the seed connects it for Tim alone
+    await setSeededConnectedAccountScope('WORKSPACE');
+
     await cleanupApplicationAndAppRegistration({
       applicationUniversalIdentifier: WORKFLOW_TEST_APP_ID,
     });
@@ -1678,6 +1859,7 @@ describe('Application export - workflows', () => {
     await cleanupApplicationAndAppRegistration({
       applicationUniversalIdentifier: WORKFLOW_TEST_APP_ID,
     });
+    await setSeededConnectedAccountScope(seededConnectedAccountScope);
   });
 
   it('exports the synced workflows as they were declared', async () => {
@@ -1740,6 +1922,325 @@ describe('Application export - workflows', () => {
     expect(dryRun.errors).toBeUndefined();
     expect(dryRun.data.syncApplication.actions).toEqual([]);
   }, 60000);
+
+  it('refuses a step whose connected account handle is not connected in the workspace', async () => {
+    const unknownHandle = 'nobody@apple.dev';
+    const { errors } = await syncApplication({
+      manifest: {
+        ...workflowsManifest,
+        workflows: EXPORTED_WORKFLOWS.map((workflow) =>
+          workflow.universalIdentifier === OUTREACH_WORKFLOW_ID
+            ? withSendEmailConnectedAccountHandle({
+                workflow,
+                connectedAccountHandle: unknownHandle,
+              })
+            : workflow,
+        ),
+      },
+      dryRun: true,
+      expectToFail: true,
+    });
+
+    expect(errors?.[0]?.message).toContain(unknownHandle);
+  }, 60000);
+
+  it('refuses a step whose connected account handle names an account private to a member', async () => {
+    await setSeededConnectedAccountScope('USER');
+
+    try {
+      const { errors } = await syncApplication({
+        manifest: workflowsManifest,
+        dryRun: true,
+        expectToFail: true,
+      });
+
+      expect(errors?.[0]?.message).toContain(SEEDED_CONNECTED_ACCOUNT_HANDLE);
+    } finally {
+      await setSeededConnectedAccountScope('WORKSPACE');
+    }
+  }, 60000);
+});
+
+const findWorkspaceCustomFlatApplication = async () =>
+  (
+    await getAppProviderByClassName<ApplicationService>(
+      'ApplicationService',
+    ).findWorkspaceTwentyStandardAndCustomApplicationOrThrow({
+      workspaceId: SEED_APPLE_WORKSPACE_ID,
+    })
+  ).workspaceCustomFlatApplication;
+
+// The seeded workspace lacks the dependency files a full sync of its custom application needs
+const applyWorkspaceCustomApplicationManifest = async (manifest: Manifest) =>
+  (
+    await getAppProviderByClassName<ApplicationManifestMigrationService>(
+      'ApplicationManifestMigrationService',
+    ).syncMetadataFromManifest({
+      manifest,
+      workspaceId: SEED_APPLE_WORKSPACE_ID,
+      ownerFlatApplication: await findWorkspaceCustomFlatApplication(),
+      inferDeletionFromMissingEntities: false,
+    })
+  ).workspaceMigration.actions;
+
+describe('Application export - workflows built in the workflow builder', () => {
+  const workflowName = 'Notify sales from the builder';
+  let coreWorkflowId: string;
+  let builderVersionId: string;
+  let workflowUniversalIdentifier: string;
+  let workflowRunId: string | undefined;
+
+  let stepId: string;
+
+  const buildManifest = (url: string): WorkflowManifest => ({
+    universalIdentifier: workflowUniversalIdentifier,
+    name: workflowName,
+    version: {
+      trigger: {
+        name: 'Launch manually',
+        type: 'MANUAL',
+        nextStepIds: [stepId],
+        settings: {
+          availability: { type: 'GLOBAL' },
+          icon: 'IconHandMove',
+          isPinned: false,
+        },
+      },
+      steps: [
+        {
+          universalIdentifier: stepId,
+          name: 'HTTP Request',
+          type: 'HTTP_REQUEST',
+          nextStepIds: [],
+          position: { x: 200, y: 0 },
+          input: { method: 'POST', url, headers: {}, body: {} },
+          expectedOutputSchema: {},
+        },
+      ],
+    },
+  });
+
+  const findWorkflowVersions = async () => {
+    const versions: {
+      id: string;
+      status: string;
+      steps: { settings: { input: { url: string } } }[];
+    }[] = await global.testDataSource.query(
+      `SELECT id, status, steps FROM core."workflowVersion" WHERE "coreWorkflowId" = $1`,
+      [coreWorkflowId],
+    );
+
+    return versions;
+  };
+
+  const exportWorkspaceCustomApplication = async () => {
+    const { universalIdentifier } = await findWorkspaceCustomFlatApplication();
+    const { data, errors } = await exportApplication({
+      universalIdentifier,
+      expectToFail: false,
+    });
+
+    expect(errors).toBeUndefined();
+
+    return data.exportApplication;
+  };
+
+  beforeAll(async () => {
+    const createdWorkflow = await createCoreWorkflow({ name: workflowName });
+
+    coreWorkflowId = createdWorkflow.coreWorkflowId;
+    builderVersionId = createdWorkflow.coreWorkflowVersionId;
+
+    const [{ universalIdentifier }] = await global.testDataSource.query(
+      `SELECT "universalIdentifier" FROM core.workflow WHERE id = $1`,
+      [coreWorkflowId],
+    );
+
+    workflowUniversalIdentifier = universalIdentifier;
+
+    // Same calls and payloads as the builder front, so the stored version is a real builder one
+    await updateCoreWorkflowVersionTrigger({
+      coreWorkflowVersionId: builderVersionId,
+      trigger: {
+        name: 'Launch manually',
+        type: 'MANUAL',
+        position: { x: 0, y: 0 },
+        settings: {
+          availability: { type: 'GLOBAL' },
+          outputSchema: {},
+          icon: 'IconHandMove',
+          isPinned: false,
+        },
+      },
+    });
+
+    const createdStep = await createCoreWorkflowVersionStep({
+      coreWorkflowVersionId: builderVersionId,
+      stepType: 'HTTP_REQUEST',
+    });
+
+    stepId = createdStep.id;
+
+    await updateCoreWorkflowVersionStep({
+      coreWorkflowVersionId: builderVersionId,
+      step: {
+        ...createdStep,
+        settings: {
+          ...createdStep.settings,
+          input: {
+            ...createdStep.settings.input,
+            method: 'POST',
+            url: 'http://localhost:1/before',
+          },
+        },
+      },
+    });
+    await activateCoreWorkflowVersion({
+      coreWorkflowVersionId: builderVersionId,
+    });
+
+    const { triggers, steps } = (
+      await global.testDataSource.query(
+        `SELECT triggers, steps FROM core."workflowVersion" WHERE id = $1`,
+        [builderVersionId],
+      )
+    )[0];
+
+    expect(triggers[0]).not.toHaveProperty('universalIdentifier');
+    expect(steps[0]).toMatchObject({ valid: false });
+  }, 60000);
+
+  afterAll(async () => {
+    if (isDefined(workflowRunId)) {
+      await destroyWorkflowRun(workflowRunId);
+    }
+    await deleteCoreWorkflows({ coreWorkflowIds: [coreWorkflowId] });
+  });
+
+  it('exports the active version and round-trips it without any action', async () => {
+    const { manifest, coverage } = await exportWorkspaceCustomApplication();
+
+    expect(
+      coverage.find(
+        (entry) => entry.universalIdentifier === workflowUniversalIdentifier,
+      )?.status,
+    ).toBe(ApplicationExportCoverageStatus.EXPORTED);
+    expect(
+      manifest.workflows?.find(
+        (workflow) =>
+          workflow.universalIdentifier === workflowUniversalIdentifier,
+      ),
+    ).toEqual(buildManifest('http://localhost:1/before'));
+
+    const dryRun = await syncApplication({
+      manifest,
+      dryRun: true,
+      inferDeletionFromMissingEntities: false,
+      expectToFail: false,
+    });
+
+    expect(dryRun.errors).toBeUndefined();
+    expect(dryRun.data.syncApplication.actions).toEqual([]);
+  }, 60000);
+
+  it('publishes a changed definition like the builder and keeps the run history', async () => {
+    workflowRunId = await runCoreWorkflowVersion({
+      coreWorkflowVersionId: builderVersionId,
+    });
+
+    const { manifest } = await exportWorkspaceCustomApplication();
+    const changedManifest: Manifest = {
+      ...manifest,
+      workflows: [buildManifest('http://localhost:1/after')],
+    };
+
+    await applyWorkspaceCustomApplicationManifest(changedManifest);
+
+    const versions = await findWorkflowVersions();
+    const activeVersions = versions.filter(({ status }) => status === 'ACTIVE');
+
+    expect(activeVersions).toHaveLength(1);
+    expect(activeVersions[0].id).not.toBe(builderVersionId);
+    expect(activeVersions[0].steps[0].settings.input.url).toBe(
+      'http://localhost:1/after',
+    );
+    expect(versions.find(({ id }) => id === builderVersionId)).toMatchObject({
+      status: 'ARCHIVED',
+      steps: [
+        expect.objectContaining({
+          settings: expect.objectContaining({
+            input: expect.objectContaining({
+              url: 'http://localhost:1/before',
+            }),
+          }),
+        }),
+      ],
+    });
+    expect((await getWorkflowRun(workflowRunId))?.coreWorkflowVersionId).toBe(
+      builderVersionId,
+    );
+
+    const [workflow] = await global.testDataSource.query(
+      `SELECT "lastPublishedCoreWorkflowVersionId", "createdByUserWorkspaceId" FROM core.workflow WHERE id = $1`,
+      [coreWorkflowId],
+    );
+
+    expect(workflow.lastPublishedCoreWorkflowVersionId).toBe(
+      activeVersions[0].id,
+    );
+    expect(workflow.createdByUserWorkspaceId).not.toBeNull();
+
+    const commandMenuItems = await global.testDataSource.query(
+      `SELECT "coreWorkflowVersionId" FROM core."commandMenuItem" WHERE "coreWorkflowVersionId" = ANY($1)`,
+      [versions.map(({ id }) => id)],
+    );
+
+    expect(commandMenuItems).toEqual([
+      { coreWorkflowVersionId: activeVersions[0].id },
+    ]);
+
+    expect(
+      await applyWorkspaceCustomApplicationManifest(changedManifest),
+    ).toEqual([]);
+    expect(await findWorkflowVersions()).toHaveLength(versions.length);
+
+    const { manifest: exportedAfterPublish } =
+      await exportWorkspaceCustomApplication();
+
+    expect(
+      exportedAfterPublish.workflows?.find(
+        (workflow) =>
+          workflow.universalIdentifier === workflowUniversalIdentifier,
+      ),
+    ).toEqual(buildManifest('http://localhost:1/after'));
+  }, 60000);
+
+  it('shows the published command again after a deactivation and reactivation', async () => {
+    const [activeVersion] = (await findWorkflowVersions()).filter(
+      ({ status }) => status === 'ACTIVE',
+    );
+
+    await deactivateCoreWorkflowVersion({
+      coreWorkflowVersionId: activeVersion.id,
+    });
+    await activateCoreWorkflowVersion({
+      coreWorkflowVersionId: activeVersion.id,
+    });
+
+    const commandMenuItems: {
+      isActive: boolean;
+      overrides: Record<string, { isActive?: boolean }> | null;
+    }[] = await global.testDataSource.query(
+      `SELECT "isActive", overrides FROM core."commandMenuItem" WHERE "coreWorkflowVersionId" = $1`,
+      [activeVersion.id],
+    );
+
+    expect(commandMenuItems).toHaveLength(1);
+    expect(commandMenuItems[0].isActive).toBe(true);
+    expect(
+      Object.values(commandMenuItems[0].overrides ?? {}),
+    ).not.toContainEqual(expect.objectContaining({ isActive: false }));
+  }, 60000);
 });
 
 const AI_TEST_APP_ID = '7e3d1c2b-0300-4a7b-8c9d-0e1f2a3b4c5d';
@@ -1749,6 +2250,13 @@ const DIGEST_AGENT_ID = '7e3d1c2b-0303-4a7b-8c9d-0e1f2a3b4c5d';
 const DIGEST_CRON_TRIGGER_ID = '7e3d1c2b-0304-4a7b-8c9d-0e1f2a3b4c5d';
 const DIGEST_EVENT_TRIGGER_ID = '7e3d1c2b-0305-4a7b-8c9d-0e1f2a3b4c5d';
 const TRIAGE_SKILL_ID = '7e3d1c2b-0306-4a7b-8c9d-0e1f2a3b4c5d';
+const AI_TICKET_OBJECT_ID = '7e3d1c2b-0307-4a7b-8c9d-0e1f2a3b4c5d';
+const AI_TICKET_PRIORITY_FIELD_ID = '7e3d1c2b-0308-4a7b-8c9d-0e1f2a3b4c5d';
+const AI_STEPS_WORKFLOW_ID = '7e3d1c2b-0309-4a7b-8c9d-0e1f2a3b4c5d';
+const AI_STEPS_TRIGGER_ID = '7e3d1c2b-0310-4a7b-8c9d-0e1f2a3b4c5d';
+const GENERATE_STEP_ID = '7e3d1c2b-0311-4a7b-8c9d-0e1f2a3b4c5d';
+const AGENT_STEP_ID = '7e3d1c2b-0312-4a7b-8c9d-0e1f2a3b4c5d';
+const UNKNOWN_OBJECT_ID = '7e3d1c2b-0313-4a7b-8c9d-0e1f2a3b4c5d';
 
 const EXPORTED_AGENTS: AgentManifest[] = [
   {
@@ -1803,24 +2311,137 @@ const EXPORTED_SKILLS: SkillManifest[] = [
   },
 ];
 
-const aiManifest = buildBaseManifest({
-  appId: AI_TEST_APP_ID,
-  roleId: AI_TEST_ROLE_ID,
-  overrides: {
-    roles: [
-      {
-        universalIdentifier: AI_TEST_ROLE_ID,
-        label: 'Test Role',
-        description: 'A test role',
-        canBeAssignedToAgents: true,
-      },
-    ],
-    agents: EXPORTED_AGENTS,
-    skills: EXPORTED_SKILLS,
-  },
-});
+type AiAgentStepManifest = Extract<WorkflowStepManifest, { type: 'AI_AGENT' }>;
 
-describe('Application export - agents and skills', () => {
+const GENERATE_STEP: AiAgentStepManifest = {
+  universalIdentifier: GENERATE_STEP_ID,
+  name: 'Rate the ticket',
+  type: 'AI_AGENT',
+  nextStepIds: [AGENT_STEP_ID],
+  input: {
+    prompt: 'Rate the priority of the new ticket',
+    instructions: 'You rate support tickets from low to urgent.',
+    modelId: TEST_AI_MODEL_ID,
+    modelConfiguration: { webSearch: { enabled: false } },
+    responseFormat: {
+      type: 'json',
+      schema: {
+        type: 'object',
+        properties: {
+          priority: { type: 'string', description: 'The rated priority' },
+        },
+        required: ['priority'],
+        additionalProperties: false,
+      },
+    },
+    scope: {
+      objectPermissions: [
+        {
+          objectUniversalIdentifier: AI_TICKET_OBJECT_ID,
+          canReadObjectRecords: true,
+          canUpdateObjectRecords: true,
+        },
+        {
+          objectUniversalIdentifier:
+            STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS.company,
+          canReadObjectRecords: true,
+        },
+      ],
+      fieldPermissions: [
+        {
+          objectUniversalIdentifier: AI_TICKET_OBJECT_ID,
+          fieldUniversalIdentifier: AI_TICKET_PRIORITY_FIELD_ID,
+          canReadFieldValue: true,
+          canUpdateFieldValue: false,
+        },
+      ],
+      permissionFlagUniversalIdentifiers: [
+        SystemPermissionFlag[PermissionFlagType.SEND_EMAIL_TOOL],
+      ],
+    },
+  },
+};
+
+const AGENT_STEP: AiAgentStepManifest = {
+  universalIdentifier: AGENT_STEP_ID,
+  name: 'Triage with the support lead',
+  type: 'AI_AGENT',
+  nextStepIds: [],
+  input: {
+    agentUniversalIdentifier: TRIAGE_AGENT_ID,
+    prompt: 'Assign the new ticket to the right team',
+    humanInputInstructions: 'Ask the support lead when no team fits',
+  },
+};
+
+const AI_STEPS_WORKFLOW: WorkflowManifest = {
+  universalIdentifier: AI_STEPS_WORKFLOW_ID,
+  name: 'Triage new tickets',
+  version: {
+    trigger: {
+      universalIdentifier: AI_STEPS_TRIGGER_ID,
+      type: 'MANUAL',
+      nextStepIds: [GENERATE_STEP_ID],
+    },
+    steps: [GENERATE_STEP, AGENT_STEP],
+  },
+};
+
+const buildAiManifest = (aiSteps: AiAgentStepManifest[]) =>
+  buildBaseManifest({
+    appId: AI_TEST_APP_ID,
+    roleId: AI_TEST_ROLE_ID,
+    overrides: {
+      roles: [
+        {
+          universalIdentifier: AI_TEST_ROLE_ID,
+          label: 'Test Role',
+          description: 'A test role',
+          canBeAssignedToAgents: true,
+        },
+      ],
+      objects: [
+        buildDefaultObjectManifest({
+          universalIdentifier: AI_TICKET_OBJECT_ID,
+          nameSingular: 'exportAiTicket',
+          namePlural: 'exportAiTickets',
+          labelSingular: 'Ticket',
+          labelPlural: 'Tickets',
+          applicationUniversalIdentifier: AI_TEST_APP_ID,
+          additionalFields: [
+            {
+              universalIdentifier: AI_TICKET_PRIORITY_FIELD_ID,
+              name: 'priority',
+              label: 'Priority',
+              type: FieldMetadataType.TEXT,
+            },
+          ],
+        }),
+      ],
+      agents: EXPORTED_AGENTS,
+      skills: EXPORTED_SKILLS,
+      workflows: [
+        {
+          ...AI_STEPS_WORKFLOW,
+          version: { ...AI_STEPS_WORKFLOW.version, steps: aiSteps },
+        },
+      ],
+    },
+  });
+
+const aiManifest = buildAiManifest([GENERATE_STEP, AGENT_STEP]);
+
+const findAiSyncDryRunError = async (aiSteps: AiAgentStepManifest[]) => {
+  const { errors } = await syncApplication({
+    manifest: buildAiManifest(aiSteps),
+    dryRun: true,
+    expectToFail: true,
+  });
+
+  return errors?.[0]?.message;
+};
+
+describe('Application export - agents, skills and AI workflow steps', () => {
   beforeAll(async () => {
     await cleanupApplicationAndAppRegistration({
       applicationUniversalIdentifier: AI_TEST_APP_ID,
@@ -1857,11 +2478,13 @@ describe('Application export - agents and skills', () => {
 
     expect(exportedManifest.agents).toEqual(EXPORTED_AGENTS);
     expect(exportedManifest.skills).toEqual(EXPORTED_SKILLS);
+    expect(exportedManifest.workflows).toEqual([AI_STEPS_WORKFLOW]);
 
     for (const universalIdentifier of [
       TRIAGE_AGENT_ID,
       DIGEST_AGENT_ID,
       TRIAGE_SKILL_ID,
+      AI_STEPS_WORKFLOW_ID,
       getRoleTargetUniversalIdentifier({
         applicationUniversalIdentifier: AI_TEST_APP_ID,
         agentUniversalIdentifier: TRIAGE_AGENT_ID,
@@ -1888,5 +2511,83 @@ describe('Application export - agents and skills', () => {
 
     expect(dryRun.errors).toBeUndefined();
     expect(dryRun.data.syncApplication.actions).toEqual([]);
+  }, 60000);
+
+  it('installs a step with its own config and a step on an agent of the same application', async () => {
+    const [{ steps }] = await globalThis.testDataSource.query(
+      `SELECT version.steps FROM core."workflowVersion" version
+       JOIN core."workflow" workflow ON workflow.id = version."coreWorkflowId"
+       WHERE workflow."workspaceId" = $1 AND workflow."universalIdentifier" = $2`,
+      [SEED_APPLE_WORKSPACE_ID, AI_STEPS_WORKFLOW_ID],
+    );
+    const [{ id: triageAgentId }] = await globalThis.testDataSource.query(
+      `SELECT agent.id FROM core."agent" agent
+       JOIN core."application" application ON application.id = agent."applicationId"
+       WHERE application."universalIdentifier" = $1 AND agent."universalIdentifier" = $2`,
+      [AI_TEST_APP_ID, TRIAGE_AGENT_ID],
+    );
+    const {
+      agentUniversalIdentifier: _agentUniversalIdentifier,
+      ...agentStepInput
+    } = AGENT_STEP.input;
+
+    expect(
+      steps.map(
+        ({ settings }: { settings: { input: object } }) => settings.input,
+      ),
+    ).toEqual([
+      GENERATE_STEP.input,
+      { ...agentStepInput, agentId: triageAgentId },
+    ]);
+  }, 60000);
+
+  it('refuses a step on an agent that also carries its own instructions', async () => {
+    expect(
+      await findAiSyncDryRunError([
+        GENERATE_STEP,
+        {
+          ...AGENT_STEP,
+          input: { ...AGENT_STEP.input, instructions: 'Route by product' },
+        },
+      ]),
+    ).toContain(
+      WORKFLOW_AI_AGENT_STEP_CONFIG_ISSUE_MESSAGES.AGENT_STEP_HAS_INLINE_CONFIG,
+    );
+  }, 60000);
+
+  it('refuses a step without an agent that keeps a conversation', async () => {
+    expect(
+      await findAiSyncDryRunError([
+        {
+          ...GENERATE_STEP,
+          input: { ...GENERATE_STEP.input, conversation: { scope: 'RUN' } },
+        },
+        AGENT_STEP,
+      ]),
+    ).toContain(
+      WORKFLOW_AI_AGENT_STEP_CONFIG_ISSUE_MESSAGES.GENERATE_STEP_HAS_CONVERSATION_CONFIG,
+    );
+  }, 60000);
+
+  it('refuses a step scope naming an object the workspace does not have', async () => {
+    expect(
+      await findAiSyncDryRunError([
+        {
+          ...GENERATE_STEP,
+          input: {
+            ...GENERATE_STEP.input,
+            scope: {
+              objectPermissions: [
+                {
+                  objectUniversalIdentifier: UNKNOWN_OBJECT_ID,
+                  canReadObjectRecords: true,
+                },
+              ],
+            },
+          },
+        },
+        AGENT_STEP,
+      ]),
+    ).toContain(`missing object ${UNKNOWN_OBJECT_ID}`);
   }, 60000);
 });

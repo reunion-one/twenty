@@ -8,7 +8,7 @@ msgstr ""
 "Language: cs\n"
 "Project-Id-Version: 05979aaf4e7789e4424376136c855f77\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: 2026-10-27 20:14\n"
+"PO-Revision-Date: 2026-11-03 14:14\n"
 "Last-Translator: \n"
 "Language-Team: Czech\n"
 "Plural-Forms: nplurals=4; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 3;\n"
@@ -545,6 +545,16 @@ msgstr ""
 "11 oprávnění\n"
 "skupin"
 
+#. js-lingui-id: J00CPN
+#: src/sections/affiliate-program/affiliate-program-terms.data.ts
+msgid "12 months"
+msgstr "12 měsíců"
+
+#. js-lingui-id: HeDrOu
+#: src/affiliate-application/affiliate-application-copy.ts
+msgid "12k newsletter subscribers"
+msgstr "12 tis. odběratelů newsletteru"
+
 #. js-lingui-id: 2szX5S
 #: src/partner-application/partner-application-copy.ts
 msgid "150"
@@ -604,6 +614,11 @@ msgstr "20 × Sales Enterprise (105 $)"
 msgid "20 × Sales Hub Enterprise ($150)"
 msgstr "20 × Sales Hub Enterprise (150 $)"
 
+#. js-lingui-id: ewzpPG
+#: src/sections/affiliate-program/affiliate-program-terms.data.ts
+msgid "20%"
+msgstr "20 %"
+
 #. js-lingui-id: FKcV/y
 #: src/case-studies/case-study-catalog.ts
 #: src/case-studies/case-study-catalog.ts
@@ -630,6 +645,16 @@ msgstr ""
 #: src/case-studies/case-study-catalog.ts
 msgid "3 product lines"
 msgstr "3 produktové řady"
+
+#. js-lingui-id: P9cEa2
+#: src/sections/affiliate-program/affiliate-program-terms.data.ts
+msgid "30 days"
+msgstr "30 dní"
+
+#. js-lingui-id: f8kF3P
+#: src/sections/faq/affiliate-program-faq.data.ts
+msgid "30 days after the click. If the visitor creates their workspace within that time and later becomes a paying Cloud Organization or Enterprise customer, the commission is yours. If they click another partner's link before creating their workspace, that partner gets the credit."
+msgstr "30 dní po kliknutí. Pokud návštěvník během této doby vytvoří svůj pracovní prostor a později se stane platícím zákazníkem Cloud Organization nebo Enterprise, provize náleží vám. Pokud před vytvořením pracovního prostoru klikne na odkaz jiného partnera, zásluha bude připsána tomuto partnerovi."
 
 #. js-lingui-id: MW3Qpb
 #: src/partners-marketplace/PartnerProfileCtas.tsx
@@ -695,6 +720,11 @@ msgstr "Byznys, který se nevejde do *šablony*"
 #: src/case-studies/case-study-stories.ts
 msgid "A business that does not fit a template"
 msgstr "Byznys, který se nevejde do šablony"
+
+#. js-lingui-id: I0Cpfd
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "A command menu in sections"
+msgstr "Nabídka příkazů v sekcích"
 
 #. js-lingui-id: SR9TmK
 #: src/sections/product-hero/ProductHero.tsx
@@ -772,6 +802,16 @@ msgstr "Moderní CRM s *intuitivním rozhraním*"
 msgid "A new breadcrumb navigation across the app, improved keyboard menu navigation, and a new focus state for table views."
 msgstr "Nová breadcrumb navigace napříč aplikací, vylepšená navigace v menu z klávesnice a nový focus stav pro tabulkové pohledy."
 
+#. js-lingui-id: tIDKH9
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "A new Classify step uses AI to answer questions you set about a record, like which category an email belongs to, and passes each answer to the next steps."
+msgstr "Nový krok Klasifikovat používá AI k odpovídání na otázky, které nastavíte pro záznam, například do které kategorie patří e-mail, a předává každou odpověď dalším krokům."
+
+#. js-lingui-id: i2bJp4
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "A new editor for notes and tasks"
+msgstr "Nový editor pro poznámky a úkoly"
+
 #. js-lingui-id: aYUQpm
 #: src/platform/releases/ReleaseNotes.tsx
 msgid "A new maintenance mode helps admins pause workspace changes during sensitive operations."
@@ -781,6 +821,11 @@ msgstr "Nový režim údržby umožňuje adminům pozastavit změny ve workspace
 #: src/platform/releases/ReleaseNotes.tsx
 msgid "A new onboarding experience"
 msgstr "Nové onboardingové prostředí"
+
+#. js-lingui-id: pj2AXy
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "A page for every attachment"
+msgstr "Stránka pro každou přílohu"
 
 #. js-lingui-id: P5BDuh
 #: src/case-studies/case-study-stories.ts
@@ -820,6 +865,11 @@ msgstr "Skutečné testovací prostředí"
 #: src/platform/releases/ReleaseNotes.tsx
 msgid "A rebuilt setup flow guides new teams through workspace creation, contact import, and teammate invitations."
 msgstr "Přepracovaný postup nastavení provede nové týmy vytvořením pracovního prostoru, importem kontaktů a pozváním spoluhráčů."
+
+#. js-lingui-id: ZpC2fq
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "A relation to a junction object can now skip it and show the records on the other side, like a many-to-many relation. Set it up in the relation field’s settings, in Advanced mode."
+msgstr "Vztah k propojovacímu objektu ho nyní může přeskočit a zobrazit záznamy na druhé straně, podobně jako vztah mnoho k mnoha. Nastavíte ho v nastavení pole vztahu v rozšířeném režimu."
 
 #. js-lingui-id: WjUlJr
 #: src/sections/pricing-salesfarce/salesfarce-data.ts
@@ -934,6 +984,11 @@ msgstr "Přidejte balíček kreditů k měsíčnímu nebo ročnímu tarifu. Nevy
 msgid "Add a Section"
 msgstr "Přidat sekci"
 
+#. js-lingui-id: HjFWMR
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Add context to a chat from the + menu"
+msgstr "Přidejte kontext do chatu z nabídky +"
+
 #. js-lingui-id: iNSn2+
 #: src/platform/releases/ReleaseNotes.tsx
 msgid "Add files directly to records so documents, screenshots, and other assets stay attached to the right work."
@@ -999,6 +1054,11 @@ msgstr "Doplňky"
 msgid "Added \"Group By\" in tables to better organize entries, like grouping companies by industry for clearer data visualization. This feature is available in the table Options menu."
 msgstr "Do tabulek byla přidána funkce \"Group By\" pro lepší organizaci záznamů, například seskupení firem podle odvětví pro přehlednější vizualizaci dat. Tato funkce je dostupná v nabídce Možnosti tabulky."
 
+#. js-lingui-id: 92+0S0
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Adding a menu item opens a searchable list right in the sidebar, and folders and links are edited in a small editor next to it."
+msgstr "Přidáním položky nabídky se přímo v postranním panelu otevře seznam s vyhledáváním a složky a odkazy se upravují v malém editoru vedle něj."
+
 #. js-lingui-id: 8i1KwT
 #: src/sections/product-stepper/LayoutVisual/data/layout-data.ts
 msgid "Additional"
@@ -1063,6 +1123,21 @@ msgstr "Pokročilá nastavení"
 msgid "Advisory & Discovery"
 msgstr "Poradenství & discovery"
 
+#. js-lingui-id: JChg3y
+#: src/sections/affiliate-program/AffiliateApply.tsx
+msgid "Affiliate program application"
+msgstr "Přihláška do partnerského programu"
+
+#. js-lingui-id: WsWBAA
+#: src/app/[locale]/(site)/affiliate-partners/terms/page.tsx
+msgid "Affiliate Program Terms"
+msgstr "Podmínky partnerského programu"
+
+#. js-lingui-id: KwiXVB
+#: src/platform/routing/static-website-routes.ts
+msgid "Affiliate Program Terms | Twenty"
+msgstr "Podmínky partnerského programu | Twenty"
+
 #. js-lingui-id: QjSFuI
 #: src/partner-application/data/partner-country-options.ts
 msgid "Afghanistan 🇦🇫"
@@ -1112,6 +1187,16 @@ msgstr "Agentní pracovní postupy"
 #: src/sections/compare/compare-data.ts
 msgid "Agents and Data Cloud bundled"
 msgstr "Agenti a Data Cloud v balíčku"
+
+#. js-lingui-id: 7uiZOn
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Agents get their own pages"
+msgstr "Agenti mají vlastní stránky"
+
+#. js-lingui-id: R8ADJv
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Agents now have a list and a page each, like workflows. Create and edit agents there instead of in settings."
+msgstr "Agenti nyní mají seznam a vlastní stránku, stejně jako pracovní postupy. Vytvářejte a upravujte agenty tam namísto v nastavení."
 
 #. js-lingui-id: vZKKhf
 #: src/sections/product-feature/data/feature-tiles.ts
@@ -1231,6 +1316,11 @@ msgstr "Algeria 🇩🇿"
 msgid "All"
 msgstr "Vše"
 
+#. js-lingui-id: lw6Fro
+#: src/sections/affiliate-program/AffiliateIntegratorStrip.tsx
+msgid "Already a Twenty *integration partner?*"
+msgstr "Jste již *integračním partnerem Twenty?*"
+
 #. js-lingui-id: LIGwFL
 #: src/sections/three-cards/three-cards.data.ts
 #: src/case-studies/case-study-stories.ts
@@ -1261,6 +1351,11 @@ msgstr "vždy"
 #: src/sections/testimonials/testimonials.data.ts
 msgid "Amrendra Pratap Singh"
 msgstr "Amrendra Pratap Singh"
+
+#. js-lingui-id: J0tGZf
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "An email sent from a record is now linked to that record, even when the recipient isn’t its point of contact."
+msgstr "E-mail odeslaný ze záznamu je nyní propojen s tímto záznamem, i když příjemce není jeho kontaktní osobou."
 
 #. js-lingui-id: t4V3jR
 #: src/sections/pricing-plans/plans-data.ts
@@ -1353,6 +1448,16 @@ msgstr "Protokoly aplikace"
 #: src/app/[locale]/(site)/apps/[slug]/page.tsx
 msgid "App not found — Twenty"
 msgstr "Aplikace nenalezena — Twenty"
+
+#. js-lingui-id: xHy9tF
+#: src/affiliate-application/affiliate-application-copy.ts
+msgid "Application received"
+msgstr "Přihláška přijata"
+
+#. js-lingui-id: 9Zcd7g
+#: src/sections/affiliate-program/AffiliateHero.tsx
+msgid "Apply now"
+msgstr "Přihlásit se nyní"
 
 #. js-lingui-id: k8I7/G
 #: src/partner-application/partner-application-copy.ts
@@ -1450,10 +1555,25 @@ msgstr "Připojujte soubory k záznamům pomocí AI"
 msgid "Attachment Visualizer"
 msgstr "Attachment Visualizer"
 
+#. js-lingui-id: DDl94x
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Attachments open on their own page with an inline preview, and the attachments table shows what each file belongs to in a single Attached to column."
+msgstr "Přílohy se otevírají na vlastní stránce s vloženým náhledem a tabulka příloh v jediném sloupci Připojeno k zobrazuje, k čemu jednotlivé soubory patří."
+
 #. js-lingui-id: fxL/Km
 #: src/sections/product-feature/data/feature-tiles.ts
 msgid "Attachments without the chaos."
 msgstr "Přílohy bez chaosu."
+
+#. js-lingui-id: qAjvYv
+#: src/affiliate-application/affiliate-application-copy.ts
+msgid "Audience size must be 200 characters or fewer."
+msgstr "Velikost publika musí mít maximálně 200 znaků."
+
+#. js-lingui-id: wfUKha
+#: src/affiliate-application/affiliate-application-copy.ts
+msgid "Audience size or clients"
+msgstr "Velikost publika nebo klienti"
 
 #. js-lingui-id: y2W2Hg
 #: src/sections/pricing-plan-table/plan-table-data.ts
@@ -1489,6 +1609,11 @@ msgstr "Automatizace"
 #: src/sections/pricing-salesfarce/salesfarce-data.ts
 msgid "Available on YouTube!"
 msgstr "Dostupné na YouTube!"
+
+#. js-lingui-id: Lj+SZB
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Average, min and max for ratings"
+msgstr "Průměr, minimum a maximum pro hodnocení"
 
 #. js-lingui-id: 4OP74a
 #: src/sections/product-feature/DashboardVisual/data/dashboard-visual-data.ts
@@ -1827,6 +1952,11 @@ msgstr "Odkaz na kalendář / rezervaci"
 msgid "Calendar View for Objects"
 msgstr "Kalendářní pohled pro objekty"
 
+#. js-lingui-id: XF6oYz
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Call recordings on record pages"
+msgstr "Záznamy hovorů na stránkách záznamů"
+
 #. js-lingui-id: RZgOeI
 #: src/platform/releases/ReleaseNotes.tsx
 msgid "Call recordings that have no video now come with an audio player, so click-to-seek and transcript highlighting work there too."
@@ -1861,6 +1991,11 @@ msgstr "Mohou vývojáři Twenty rozšířit pomocí kódu?"
 #: src/sections/faq/faq.data.ts
 msgid "Can I migrate from Salesforce or HubSpot?"
 msgstr "Mohu přejít ze Salesforce nebo HubSpotu?"
+
+#. js-lingui-id: jaiWEf
+#: src/sections/faq/affiliate-program-faq.data.ts
+msgid "Can I refer my own company?"
+msgstr "Mohu doporučit vlastní společnost?"
 
 #. js-lingui-id: wsjgUI
 #: src/sections/compare/compare-data.ts
@@ -1995,6 +2130,11 @@ msgstr "Zvolte, jak se má vaše AI chovat, pomocí jediného posuvníku, od Ext
 msgid "Choose where records open"
 msgstr "Zvolte, kde se záznamy otevírají"
 
+#. js-lingui-id: WZRyy5
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Choose whether to import private events"
+msgstr "Zvolte, zda importovat soukromé události"
+
 #. js-lingui-id: uOuvkn
 #: src/platform/releases/ReleaseNotes.tsx
 msgid "Choose which part of a name or address field a view should sort by directly from the sort chip."
@@ -2009,6 +2149,11 @@ msgstr "Město *"
 #: src/sections/pricing-salesfarce/salesfarce-data.ts
 msgid "Classic never dies. It just gets extended one more time."
 msgstr "Klasika nikdy neumírá. Jen se ještě jednou rozšíří."
+
+#. js-lingui-id: cJbhDP
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Classify records in workflows"
+msgstr "Klasifikujte záznamy v pracovních postupech"
 
 #. js-lingui-id: u8JHrO
 #: src/partners-marketplace/FilterBar.tsx
@@ -2025,6 +2170,11 @@ msgstr "Přehlednější čísla na dashboardu"
 #: src/sections/faq/become-partner-faq.data.ts
 msgid "Click Become a partner and complete the short application: who you are, what you cover, and one real Twenty project with proof. We review every application against real, shipped work — acceptance is selective."
 msgstr "Klikněte na Staňte se partnerem a vyplňte krátkou přihlášku: kdo jste, jaké služby poskytujete a jeden skutečný projekt Twenty s doklady. Každou přihlášku posuzujeme podle skutečně realizované práce — přijetí je výběrové."
+
+#. js-lingui-id: glfrZq
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Clicking a call in the Call recordings widget now opens its calendar event, with the summary, transcript and participants in one place."
+msgstr "Kliknutím na hovor ve widgetu Záznamy hovorů nyní otevřete jeho událost v kalendáři se souhrnem, přepisem a účastníky na jednom místě."
 
 #. js-lingui-id: yz7wBu
 #: src/partners-marketplace/CaseStudyModal.tsx
@@ -2093,6 +2243,11 @@ msgstr "Spoluzakladatel, NetZero"
 msgid "Colombia 🇨🇴"
 msgstr "Colombia 🇨🇴"
 
+#. js-lingui-id: WgI3ng
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Colored icons across the app"
+msgstr "Barevné ikony v celé aplikaci"
+
 #. js-lingui-id: b5bnuN
 #: src/sections/product-feature/data/feature-tiles.ts
 msgid "Column-to-field mapping (including relations)"
@@ -2104,6 +2259,11 @@ msgstr "Mapování sloupců na pole (včetně relací)"
 msgid "Coming soon!"
 msgstr "Již brzy!"
 
+#. js-lingui-id: 5B0hTq
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Commands are grouped into sections such as Pinned, Selection, the current object, and Create record, instead of one long list."
+msgstr "Příkazy jsou seskupeny do oddílů, jako jsou Připnuté, Výběr, aktuální objekt a Vytvořit záznam, namísto jednoho dlouhého seznamu."
+
 #. js-lingui-id: KGD9Kt
 #: src/sections/pricing-plan-table/plan-table-data.ts
 msgid "Commercial license (no AGPL obligations)"
@@ -2114,10 +2274,16 @@ msgstr "Komerční licence (bez povinností z AGPL)"
 msgid "Commercials"
 msgstr "Komerční podmínky"
 
+#. js-lingui-id: /XN91V
+#: src/sections/affiliate-program/affiliate-audiences.data.ts
+msgid "Communities"
+msgstr "Komunity"
+
 #. js-lingui-id: chL5IG
 #: src/sections/pricing-plan-table/plan-table-data.ts
 #: src/sections/pricing-plan-table/plan-table-data.ts
 #: src/sections/menu/components/MenuSocial.tsx
+#: src/affiliate-application/data/affiliate-partner-type-options.ts
 msgid "Community"
 msgstr "Komunita"
 
@@ -2216,6 +2382,16 @@ msgstr "Připojeno přes API"
 msgid "Connecting the rest of your stack"
 msgstr "Propojení zbytku vašeho stacku"
 
+#. js-lingui-id: 7eLE71
+#: src/affiliate-application/data/affiliate-partner-type-options.ts
+msgid "Consultant or agency"
+msgstr "Konzultant nebo agentura"
+
+#. js-lingui-id: m6jsHY
+#: src/sections/affiliate-program/affiliate-audiences.data.ts
+msgid "Consultants and agencies"
+msgstr "Konzultanti a agentury"
+
 #. js-lingui-id: cfAG43
 #: src/case-studies/case-study-catalog.ts
 msgid "Consulting"
@@ -2230,6 +2406,16 @@ msgstr "Kontakt"
 #: src/sections/product-feature/data/feature-tiles.ts
 msgid "Contacts & Companies"
 msgstr "Kontakty a společnosti"
+
+#. js-lingui-id: uwPOvg
+#: src/affiliate-application/data/affiliate-partner-type-options.ts
+msgid "Content creator"
+msgstr "Tvůrce obsahu"
+
+#. js-lingui-id: iTgJXO
+#: src/sections/affiliate-program/affiliate-audiences.data.ts
+msgid "Content creators"
+msgstr "Tvůrci obsahu"
 
 #. js-lingui-id: 24qVhV
 #: src/sections/product-feature/data/feature-tiles.ts
@@ -2316,6 +2502,11 @@ msgstr "Kopírovat"
 msgid "Copy a call recording's transcript or video link directly from the record page."
 msgstr "Zkopírujte přepis nahrávky hovoru nebo odkaz na video přímo ze stránky záznamu."
 
+#. js-lingui-id: +Sa0Ex
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Copy emails, phones and links on hover"
+msgstr "Kopírujte e-maily, telefonní čísla a odkazy po najetí myší"
+
 #. js-lingui-id: aJGQVy
 #: src/sections/enterprise-activate/EnterpriseActivateClient.tsx
 msgid "Copy the Organization key above."
@@ -2341,6 +2532,11 @@ msgstr "Costa Rica 🇨🇷"
 msgid "Costs down more than *90%*"
 msgstr "Náklady nižší o více než *90 %*"
 
+#. js-lingui-id: JNCzPW
+#: src/affiliate-application/affiliate-application-copy.ts
+msgid "Country"
+msgstr "Země"
+
 #. js-lingui-id: cRA2/z
 #: src/partner-application/partner-application-copy.ts
 msgid "Country *"
@@ -2350,6 +2546,11 @@ msgstr "Země *"
 #: src/client-brief/client-brief-copy.ts
 msgid "Country / region"
 msgstr "Země / oblast"
+
+#. js-lingui-id: kEAJQu
+#: src/affiliate-application/affiliate-application-copy.ts
+msgid "Country must be 100 characters or fewer."
+msgstr "Země musí mít maximálně 100 znaků."
 
 #. js-lingui-id: kCu+Rq
 #: src/platform/releases/ReleaseNotes.tsx
@@ -2718,6 +2919,11 @@ msgstr "Aplikace pro přizpůsobení"
 #: src/case-studies/case-study-catalog.ts
 msgid "Customizations"
 msgstr "Přizpůsobení"
+
+#. js-lingui-id: X/83bp
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Customize the sidebar in place"
+msgstr "Přizpůsobte postranní panel přímo na místě"
 
 #. js-lingui-id: dy0yuR
 #: src/platform/releases/ReleaseNotes.tsx
@@ -3166,6 +3372,25 @@ msgstr "Každý člen má vlastní limit AI, který se obnovuje každé ponděl�
 msgid "Each workspace now gets a dedicated sub-domain for a more secure experience. And soon you will be able to set your own domain."
 msgstr "Každý workspace teď získá vlastní sub‑doménu pro bezpečnější prostředí. A brzy si budete moci nastavit vlastní doménu."
 
+#. js-lingui-id: /JghV3
+#: src/platform/routing/static-website-routes.ts
+msgid "Earn 20% of seat revenue for 12 months on every team you bring to Twenty Cloud. Apply to the affiliate program for creators, communities, consultants and tech partners."
+msgstr "Získejte 20 % z příjmů za licence po dobu 12 měsíců za každý tým, který přivedete do Twenty Cloud. Přihlaste se do partnerského programu pro tvůrce, komunity, konzultanty a technologické partnery."
+
+#. js-lingui-id: 53K9UN
+#: src/sections/affiliate-program/AffiliateHero.tsx
+msgid ""
+"Earn 20% on every team\n"
+"*you bring to Twenty*"
+msgstr ""
+"Získejte 20 % za každý tým,\n"
+"*který přivedete do Twenty*"
+
+#. js-lingui-id: aFCF6n
+#: src/sections/faq/AffiliateProgramFaq.tsx
+msgid "Earning with *Twenty*"
+msgstr "Výdělky s *Twenty*"
+
 #. js-lingui-id: eBNtzO
 #: src/platform/releases/ReleaseNotes.tsx
 msgid "Easier favorites"
@@ -3201,6 +3426,11 @@ msgstr "Upravit akce"
 msgid "Edit deactivated objects"
 msgstr "Úprava deaktivovaných objektů"
 
+#. js-lingui-id: J27hBl
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Edit field values in place"
+msgstr "Upravujte hodnoty polí přímo na místě"
+
 #. js-lingui-id: 0cnnX+
 #: src/platform/releases/ReleaseNotes.tsx
 msgid "Edit long-form text directly inside record page widgets with automatic saving."
@@ -3210,6 +3440,11 @@ msgstr "Upravujte dlouhý text přímo ve widgetech stránky záznamu s automati
 #: src/platform/releases/ReleaseNotes.tsx
 msgid "Editable text widgets"
 msgstr "Upravitelné textové widgety"
+
+#. js-lingui-id: lofEfT
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Editing an email, phone, link or file now opens the input on that item’s row instead of below the list, and link labels can be edited from the cell. Full names take one input that splits into first and last name as you type."
+msgstr "Při úpravě e-mailu, telefonního čísla, odkazu nebo souboru se nyní vstupní pole otevře na řádku dané položky namísto pod seznamem a popisky odkazů lze upravovat přímo z buňky. Pro celá jména se používá jedno vstupní pole, které se při psaní rozdělí na jméno a příjmení."
 
 #. js-lingui-id: 4CJ4xV
 #: src/case-studies/case-study-catalog.ts
@@ -3245,6 +3480,11 @@ msgstr "Elevate Consulting používá Twenty jako API páteř, která propojuje 
 #: src/case-studies/case-study-stories.ts
 msgid "Elevate's CEO was so impressed with Twenty he started recommending it to clients before the internal setup was even complete. The team is exploring bringing Twenty to client projects as part of their consulting practice, including as the backend for custom-built products tailored to specific operational needs."
 msgstr "CEO Elevate byl z Twenty tak nadšený, že jej začal doporučovat klientům ještě před dokončením interní implementace. Tým zkoumá, jak Twenty zapojit do klientských projektů jako součást své konzultační praxe, včetně využití jako backendu pro vlastnoručně vyvinuté produkty šité na konkrétní provozní potřeby."
+
+#. js-lingui-id: O3oNi5
+#: src/affiliate-application/affiliate-application-copy.ts
+msgid "Email"
+msgstr "E-mail"
 
 #. js-lingui-id: jTgK6B
 #: src/platform/releases/ReleaseNotes.tsx
@@ -3306,6 +3546,11 @@ msgstr "E‑maily a události napojené na CRM záznamy"
 #: src/sections/pricing-plans/plans-data.ts
 msgid "Emails and meetings log themselves"
 msgstr "E-maily a schůzky se zaznamenávají automaticky"
+
+#. js-lingui-id: s4kwSO
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Emails stay on the record you sent them from"
+msgstr "E-maily zůstávají u záznamu, ze kterého jste je odeslali"
 
 #. js-lingui-id: gqv5ZL
 #: src/sections/product-stepper/LayoutVisual/data/layout-data.ts
@@ -3557,20 +3802,20 @@ msgstr "Prozkoumat příběhy zákazníků"
 msgid "Extend beyond the CRM screens"
 msgstr "Přesáhněte obrazovky samotného CRM"
 
-#. js-lingui-id: qu9kGK
+#. js-lingui-id: l8rr+n
 #: src/platform/routing/static-website-routes.ts
-msgid "Extend Twenty with vetted apps — call recording, enrichment, Slack, Discord, Linear and more. Install any app on your open source CRM workspace in one click."
-msgstr "Rozšiřte Twenty o prověřené aplikace – nahrávání hovorů, obohacování dat, Slack, Discord, Linear a další. Jakoukoli aplikaci nainstalujete do svého open-source CRM pracovního prostoru jedním kliknutím."
+msgid "Extend Twenty with apps — call recording, enrichment, Slack, Discord, Linear and more. Install any app on your open source CRM workspace in one click."
+msgstr "Rozšiřte Twenty o aplikace — nahrávání hovorů, obohacování dat, Slack, Discord, Linear a další. Jakoukoli aplikaci nainstalujete do svého open-source CRM pracovního prostoru jedním kliknutím."
 
 #. js-lingui-id: ZToPid
 #: src/sections/menu/data/menu.ts
 msgid "Extend your CRM"
 msgstr "Rozšiřte své CRM"
 
-#. js-lingui-id: wmJ4p4
+#. js-lingui-id: NJnspH
 #: src/apps-marketplace/AppsMarketplaceHeader.tsx
-msgid "Extend your CRM with apps built and maintained by Twenty. Every app here is vetted by our team — install one in a click and it's live in your workspace."
-msgstr "Rozšiřte své CRM aplikacemi, které vytváří a spravuje Twenty. Každá aplikace je naším týmem prověřená – nainstalujete ji jedním kliknutím a ihned běží ve vašem pracovním prostoru."
+msgid "Extend your CRM with apps from Twenty and its community. Every app here is reviewed by our team for security and quality — install one in a click and it's live in your workspace."
+msgstr "Rozšiřte své CRM o aplikace od Twenty a její komunity. Každá aplikace zde je naším týmem prověřena z hlediska zabezpečení a kvality — nainstalujte ji jedním kliknutím a ihned běží ve vašem pracovním prostoru."
 
 #. js-lingui-id: weFouS
 #: src/sections/pricing-salesfarce/salesfarce-data.ts
@@ -3601,6 +3846,11 @@ msgstr "Fair play"
 #: src/sections/feature-cards/feature-cards.data.ts
 msgid "Familiar, modern interface"
 msgstr "Známé, moderní rozhraní"
+
+#. js-lingui-id: /lDBHm
+#: src/sections/faq/AffiliateProgramFaq.tsx
+msgid "FAQ"
+msgstr "Časté dotazy"
 
 #. js-lingui-id: gKNP7S
 #: src/partners-marketplace/spoken-language-labels.ts
@@ -3701,6 +3951,11 @@ msgstr "pole"
 #: src/sections/product-stepper/LayoutVisual/LayoutVisual.tsx
 msgid "Fields"
 msgstr "Pole"
+
+#. js-lingui-id: tJtUhq
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Fields, views, widgets and records that come from an installed app show the app’s logo on their icon."
+msgstr "Pole, zobrazení, widgety a záznamy pocházející z nainstalované aplikace zobrazují na ikoně logo aplikace."
 
 #. js-lingui-id: z+q1Th
 #: src/partner-application/data/partner-country-options.ts
@@ -3956,6 +4211,11 @@ msgstr "Od dokumentů k *otevřeným API*"
 msgid "From documents to open APIs"
 msgstr "Od dokumentů k otevřeným API"
 
+#. js-lingui-id: rGsM2c
+#: src/sections/affiliate-program/AffiliateProgramTerms.tsx
+msgid "From link *to payout*"
+msgstr "Od odkazu *k výplatě*"
+
 #. js-lingui-id: 2CtZ6T
 #: src/case-studies/case-study-stories.ts
 msgid ""
@@ -4004,6 +4264,11 @@ msgstr "Úplné přizpůsobení a vlastní aplikace"
 #: src/sections/compare/compare-data.ts
 msgid "Full customization included"
 msgstr "Plné přizpůsobení v ceně"
+
+#. js-lingui-id: 0W0FHK
+#: src/affiliate-application/affiliate-application-copy.ts
+msgid "Full name"
+msgstr "Celé jméno"
 
 #. js-lingui-id: YZ7Q3Z
 #: src/case-studies/case-study-catalog.ts
@@ -4144,6 +4409,11 @@ msgstr "Synchronizace e-mailu a kalendáře Google a Microsoft"
 #: src/platform/releases/ReleaseNotes.tsx
 msgid "Google Calendar Integration"
 msgstr "Integrace Google Kalendáře"
+
+#. js-lingui-id: lW8GOS
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Granola meeting notes in Twenty"
+msgstr "Poznámky ze schůzek Granola v Twenty"
 
 #. js-lingui-id: 1W3PAd
 #: src/platform/releases/ReleaseNotes.tsx
@@ -4324,6 +4594,11 @@ msgstr "Hodinová sazba *"
 msgid "Hover a column header or a field label to read that field’s description, instead of opening settings to find it."
 msgstr "Najeďte myší na záhlaví sloupce nebo popisek pole, abyste si přečetli popis daného pole, místo otevírání nastavení, kde byste jej hledali."
 
+#. js-lingui-id: crYO+H
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Hover an email, phone or link in the side panel to copy it in one click, as you already could in tables."
+msgstr "Najeďte myší na e-mail, telefonní číslo nebo odkaz v bočním panelu a zkopírujte jej jedním kliknutím, stejně jako již můžete v tabulkách."
+
 #. js-lingui-id: XnFo3G
 #: src/case-studies/case-study-stories.ts
 msgid "How AC&T Education Migration and Flycoder replaced a shuttered vendor CRM with self-hosted Twenty, with 90%+ lower cost and full ownership."
@@ -4364,10 +4639,20 @@ msgstr "Jak funguje párování?"
 msgid "How Elevate Consulting moved off documents and spreadsheets to Twenty as the API-connected CRM at the center of their stack."
 msgstr "Jak Elevate Consulting přešel z dokumentů a tabulek na Twenty jako API‑propojené CRM v centru jejich stacku."
 
+#. js-lingui-id: 8AULTO
+#: src/sections/affiliate-program/AffiliateProgramTerms.tsx
+msgid "How it works"
+msgstr "Jak to funguje"
+
 #. js-lingui-id: OIwpKt
 #: src/sections/faq/faq.data.ts
 msgid "How long does it take to get started?"
 msgstr "Jak dlouho trvá začít?"
+
+#. js-lingui-id: ckYNoy
+#: src/sections/faq/affiliate-program-faq.data.ts
+msgid "How long does my link work?"
+msgstr "Jak dlouho můj odkaz funguje?"
 
 #. js-lingui-id: FopmmJ
 #: src/sections/compare/compare-data.ts
@@ -4403,6 +4688,21 @@ msgstr "Jak Twenty shromažďuje, používá a chrání vaše data — naše zá
 msgid "How W3villa Technologies shipped W3Grads, an AI mock interview platform for institutions, on Twenty as the operational backbone."
 msgstr "Jak W3villa Technologies spustila W3Grads, AI platformu pro mock pohovory pro instituce, na Twenty jako provozní páteř."
 
+#. js-lingui-id: 5DnZXR
+#: src/affiliate-application/affiliate-application-copy.ts
+msgid "How you plan to promote Twenty"
+msgstr "Jak plánujete propagovat Twenty"
+
+#. js-lingui-id: lCvjWk
+#: src/affiliate-application/affiliate-application-copy.ts
+msgid "How you plan to promote Twenty must be 2,000 characters or fewer."
+msgstr "Pole „Jak plánujete propagovat Twenty“ musí mít maximálně 2 000 znaků."
+
+#. js-lingui-id: slTOKD
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "HTML in workflow emails"
+msgstr "HTML v e-mailech pracovních postupů"
+
 #. js-lingui-id: vXtlks
 #: src/partner-application/wizard/steps/ExperienceStep.tsx
 msgid "https://"
@@ -4422,6 +4722,16 @@ msgstr "HubSpot uzamyká vlastní objekty za Enterprise tarifem za 150 $/místo.
 #: src/partner-application/data/partner-country-options.ts
 msgid "Hungary 🇭🇺"
 msgstr "Hungary 🇭🇺"
+
+#. js-lingui-id: L6C8J0
+#: src/affiliate-application/AffiliateApplicationForm.tsx
+msgid "I agree to the <0>affiliate program terms</0>"
+msgstr "Souhlasím s <0>podmínkami partnerského programu</0>"
+
+#. js-lingui-id: GghmRz
+#: src/affiliate-application/affiliate-application-copy.ts
+msgid "I'm already a Twenty integration partner"
+msgstr "Již jsem integračním partnerem Twenty"
 
 #. js-lingui-id: RYDa0v
 #: src/partner-application/data/partner-country-options.ts
@@ -4663,10 +4973,10 @@ msgstr "Kontrolujte volání AI, výstup kódu, požadavky HTTP a e-maily pro ka
 msgid "Install"
 msgstr "Nainstalovat"
 
-#. js-lingui-id: qq1x6K
+#. js-lingui-id: f0Q+8L
 #: src/sections/menu/data/menu.ts
-msgid "Install call recording, enrichment, Slack, Linear and more — every app built and maintained by Twenty."
-msgstr "Nainstalujte nahrávání hovorů, obohacování dat, Slack, Linear a další – všechny aplikace jsou vytvářeny a spravovány společností Twenty."
+msgid "Install call recording, enrichment, Slack, Linear and more — every app reviewed by Twenty."
+msgstr "Nainstalujte nahrávání hovorů, obohacování dat, Slack, Linear a další — každá aplikace je prověřena společností Twenty."
 
 #. js-lingui-id: R6HbUq
 #: src/apps-marketplace/AppDetail.tsx
@@ -4841,6 +5151,11 @@ msgstr "Přidejte se k našemu ekosystému a pomozte firmám převzít kontrolu 
 #: src/sections/testimonials/PartnerTestimonialsCarousel.tsx
 msgid "Join our growing partner ecosystem"
 msgstr "Připojte se k našemu rostoucímu ekosystému partnerů"
+
+#. js-lingui-id: 2OqRUN
+#: src/sections/affiliate-program/AffiliateIntegratorStrip.tsx
+msgid "Join the program"
+msgstr "Připojit se k programu"
 
 #. js-lingui-id: m/pXki
 #: src/sections/customers-catalog-signoff/CustomersCatalogSignoff.tsx
@@ -5077,6 +5392,11 @@ msgstr "Stejně jako u běžného objektu přidejte ke svým úkolům a společn
 msgid "Limited personal AI usage"
 msgstr "Omezené osobní využití AI"
 
+#. js-lingui-id: nlPPL5
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Link emails and meetings to a deal"
+msgstr "Propojte e-maily a schůzky s obchodní příležitostí"
+
 #. js-lingui-id: kvxPie
 #: src/platform/releases/ReleaseNotes.tsx
 msgid "Link field"
@@ -5230,6 +5550,11 @@ msgstr "Luxembourg 🇱🇺"
 msgid "Madagascar 🇲🇬"
 msgstr "Madagascar 🇲🇬"
 
+#. js-lingui-id: +bVhvT
+#: src/affiliate-application/affiliate-application-copy.ts
+msgid "Main channel (URL)"
+msgstr "Hlavní kanál (URL)"
+
 #. js-lingui-id: /hmUGb
 #: src/platform/releases/ReleaseNotes.tsx
 msgid "Maintenance mode"
@@ -5289,6 +5614,11 @@ msgstr "Workflows s ručním spouštěním nyní podporují hromadný výběr, t
 #: src/case-studies/case-study-catalog.ts
 msgid "Manual work at core"
 msgstr "Manuální práce v jádru"
+
+#. js-lingui-id: MzFWad
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Many-to-many relations"
+msgstr "Vztahy mnoho k mnoha"
 
 #. js-lingui-id: VJOKPB
 #: src/sections/pricing-salesfarce/salesfarce-data.ts
@@ -5380,6 +5710,11 @@ msgstr "Micronesia 🇫🇲"
 msgid "Microsoft o365 Integration"
 msgstr "Integrace Microsoft o365"
 
+#. js-lingui-id: 1+j2It
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Microsoft Teams transcripts in Twenty"
+msgstr "Přepisy z Microsoft Teams v Twenty"
+
 #. js-lingui-id: z1ceJ1
 #: src/sections/compare/compare-data.ts
 msgid "Middleware licensed separately"
@@ -5447,6 +5782,7 @@ msgstr "Montenegro 🇲🇪"
 
 #. js-lingui-id: +8Nek/
 #: src/sections/pricing-plans/BillingToggle.tsx
+#: src/sections/affiliate-program/affiliate-program-terms.data.ts
 msgid "Monthly"
 msgstr "Měsíčně"
 
@@ -5459,6 +5795,11 @@ msgstr "Měsíční kredity sdílené pracovním prostorem pro pracovní postupy
 #: src/sections/compare/compare-data.ts
 msgid "Monthly or yearly, cancel anytime"
 msgstr "Měsíčně nebo ročně, zrušení kdykoli"
+
+#. js-lingui-id: Gie65U
+#: src/sections/faq/affiliate-program-faq.data.ts
+msgid "Monthly, once your balance reaches $50. Each commission is released 30 days after the customer pays, to cover refunds. Once paid, it's yours."
+msgstr "Měsíčně, jakmile váš zůstatek dosáhne 50 $. Každá provize je uvolněna 30 dní poté, co zákazník zaplatí, aby byly pokryty refundace. Po vyplacení je vaše."
 
 #. js-lingui-id: W87SCX
 #: src/sections/pricing-plans/plans-data.ts
@@ -5646,6 +5987,11 @@ msgstr "Nové"
 msgid "New Array field type"
 msgstr "Nový typ pole Array"
 
+#. js-lingui-id: xTO27+
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "New chat and Open chat in the command menu start a chat or find a past one from any page, and the chat opens next to the page you’re on."
+msgstr "Položky Nový chat a Otevřít chat v nabídce příkazů zahájí chat nebo vyhledají předchozí chat z libovolné stránky a chat se otevře vedle stránky, na které se nacházíte."
+
 #. js-lingui-id: gy5v+A
 #: src/platform/releases/ReleaseNotes.tsx
 msgid "New emails and calendar events now appear on record pages without a manual refresh."
@@ -5793,6 +6139,11 @@ msgstr "Ne. Přihlášení i zařazení do seznamu jsou zdarma. Sazby si stanovu
 msgid "No. Build custom objects, fields, views, and no-code workflows straight from Settings. Unlimited, no extra charge."
 msgstr "Ne. Vytvářejte vlastní objekty, pole, pohledy a no‑code workflow přímo ze Settings. Neomezeně, bez příplatků."
 
+#. js-lingui-id: xLHsWO
+#: src/sections/faq/affiliate-program-faq.data.ts
+msgid "No. Self-referrals, your own workspace, and existing Twenty customers don't earn commission."
+msgstr "Ne. Za doporučení sebe sama, vlastní pracovní prostor a stávající zákazníky Twenty se provize nevyplácí."
+
 #. js-lingui-id: 4yg7QV
 #: src/sections/compare/compare-data.ts
 msgid ""
@@ -5842,6 +6193,11 @@ msgstr "Poznámky"
 msgid "Notes and Tasks standard objects"
 msgstr "Standardní objekty Notes a Tasks"
 
+#. js-lingui-id: guqxiL
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Notes, tasks, rich text fields and rich text widgets now use the same editor as emails and workflow forms. Existing content is converted automatically."
+msgstr "Poznámky, úkoly, pole formátovaného textu a widgety formátovaného textu nyní používají stejný editor jako e-maily a formuláře pracovních postupů. Stávající obsah se převede automaticky."
+
 #. js-lingui-id: iDNBZe
 #: src/platform/releases/ReleaseNotes.tsx
 msgid "Notifications"
@@ -5862,6 +6218,21 @@ msgstr "Číslo"
 msgid "Number of dashboards"
 msgstr "Počet dashboardů"
 
+#. js-lingui-id: 44KnZO
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Objects, folders, links and pages now have colored icons in the sidebar, headers and pickers."
+msgstr "Objekty, složky, odkazy a stránky mají nyní barevné ikony v postranním panelu, záhlavích a výběrech."
+
+#. js-lingui-id: 888xhe
+#: src/sections/affiliate-program/affiliate-program-terms.data.ts
+msgid "of credit after each click on your link"
+msgstr "kreditu po každém kliknutí na váš odkaz"
+
+#. js-lingui-id: AFCzcp
+#: src/sections/affiliate-program/affiliate-program-terms.data.ts
+msgid "of seat revenue on Cloud Organization and Enterprise"
+msgstr "z příjmů za licence u Cloud Organization a Enterprise"
+
 #. js-lingui-id: pkrZnO
 #: src/case-studies/case-study-stories.ts
 msgid "Olivier recognizes that NetZero's current use of Twenty is still relatively simple: workflows and integrations are not yet as deep as he eventually wants, because he prioritized getting foundations right first."
@@ -5881,6 +6252,11 @@ msgstr "Oman 🇴🇲"
 #: src/case-studies/case-study-catalog.ts
 msgid "On a single CRM"
 msgstr "Na jediném CRM"
+
+#. js-lingui-id: 3484qM
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "On an opportunity, the Emails and Calendar widgets have a Link action to add any of the company’s email threads and meetings, not only the ones with its point of contact."
+msgstr "Na obchodní příležitosti mají widgety E-maily a Kalendář akci Propojit, která umožňuje přidat libovolná e-mailová vlákna a schůzky společnosti, nejen ty s její kontaktní osobou."
 
 #. js-lingui-id: vSdM7d
 #: src/sections/compare/compare-data.ts
@@ -5963,10 +6339,20 @@ msgstr "Jednorázový povinný poplatek za onboarding"
 msgid "Only $5 for SSO. Practically a charity program."
 msgstr "Jen 5 $ za SSO. Prakticky charitativní program."
 
+#. js-lingui-id: 5BRQYd
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Open a chat from anywhere"
+msgstr "Otevřete chat odkudkoli"
+
 #. js-lingui-id: Av5T3E
 #: src/platform/releases/ReleaseNotes.tsx
 msgid "Open a deactivated object from Settings and change it, instead of deleting it and building it again."
 msgstr "Otevřete deaktivovaný objekt v Nastavení a upravte jej, místo abyste jej odstranili a znovu vytvořili."
+
+#. js-lingui-id: pC+y+1
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Open a meeting from its recording"
+msgstr "Otevřete schůzku z jejího záznamu"
 
 #. js-lingui-id: VWC0s5
 #. placeholder {0}: caseStudy.title
@@ -5978,6 +6364,11 @@ msgstr "Otevřít případovou studii: {0}"
 #: src/sections/menu/Menu.tsx
 msgid "Open menu"
 msgstr "Otevřít menu"
+
+#. js-lingui-id: BvalIr
+#: src/sections/affiliate-program/affiliate-audiences.data.ts
+msgid "Open source, Engineering and GTM communities."
+msgstr "Komunity zaměřené na open source, vývoj a GTM."
 
 #. js-lingui-id: ChnLgw
 #: src/sections/enterprise-activate/EnterpriseActivateClient.tsx
@@ -6024,6 +6415,11 @@ msgstr "*Aktivace* organizace"
 #: src/platform/routing/static-website-routes.ts
 msgid "Organization Activation | Twenty"
 msgstr "Aktivace organizace | Twenty"
+
+#. js-lingui-id: gedycB
+#: src/sections/faq/affiliate-program-faq.data.ts
+msgid "Organization and Enterprise plans on Twenty Cloud. Pro plans and AI credits are not included."
+msgstr "Tarify Organization a Enterprise v Twenty Cloud. Tarif Pro a kredity AI nejsou zahrnuty."
 
 #. js-lingui-id: 3Yz0mq
 #: src/sections/compare/compare-data.ts
@@ -6157,6 +6553,11 @@ msgstr "Partner nenalezen — Twenty Partners"
 msgid "Partner testimonials"
 msgstr "Reference partnerů"
 
+#. js-lingui-id: 7nUw36
+#: src/affiliate-application/affiliate-application-copy.ts
+msgid "Partner type"
+msgstr "Typ partnera"
+
 #. js-lingui-id: mPkInZ
 #: src/sections/menu/data/menu.ts
 #: src/sections/footer/footer.data.ts
@@ -6178,12 +6579,27 @@ msgstr "Vložte klíč a klikněte na Activate."
 msgid "Pause the recording bot"
 msgstr "Pozastavit bota pro nahrávání"
 
+#. js-lingui-id: kP9GPv
+#: src/sections/affiliate-program/affiliate-program-terms.data.ts
+msgid "Payouts from $50, after a 30-day hold"
+msgstr "Výplaty od 50 $ po 30denní lhůtě"
+
 #. js-lingui-id: 1wdjme
 #: src/sections/product-stepper/LayoutVisual/data/layout-data.ts
 #: src/sections/product-stepper/DataModelVisual/data/data-model-data.ts
 #: src/sections/product-stepper/DataModelVisual/data/data-model-data.ts
 msgid "People"
 msgstr "Lidé"
+
+#. js-lingui-id: R7/Gcc
+#: src/sections/affiliate-program/AffiliateAudiences.tsx
+msgid "People teams trust *to pick their tools*"
+msgstr "Týmy People důvěřují *při výběru svých nástrojů*"
+
+#. js-lingui-id: HdzEra
+#: src/sections/affiliate-program/affiliate-program-terms.data.ts
+msgid "per customer, from their first payment"
+msgstr "za zákazníka od jeho první platby"
 
 #. js-lingui-id: nU1kSZ
 #: src/sections/pricing-plan-table/plan-table-data.ts
@@ -6300,11 +6716,36 @@ msgstr "Základy tarifu"
 msgid "Play audio-only recordings"
 msgstr "Přehrávejte záznamy pouze se zvukem"
 
+#. js-lingui-id: 9FY7bP
+#: src/affiliate-application/affiliate-application-copy.ts
+msgid "Please agree to the program terms."
+msgstr "Souhlaste prosím s podmínkami programu."
+
 #. js-lingui-id: z7gnI9
 #: src/partner-application/partner-application-copy.ts
 #: src/client-brief/client-brief-copy.ts
 msgid "Please complete all required fields before continuing."
 msgstr "Před pokračováním prosím vyplňte všechna povinná pole."
+
+#. js-lingui-id: Wq6Wcm
+#: src/affiliate-application/affiliate-application-copy.ts
+msgid "Please enter a valid email address."
+msgstr "Zadejte prosím platnou e-mailovou adresu."
+
+#. js-lingui-id: 8srGrM
+#: src/affiliate-application/affiliate-application-copy.ts
+msgid "Please enter the link to your main channel, for example youtube.com/@yourname."
+msgstr ""
+
+#. js-lingui-id: O3Iqcx
+#: src/affiliate-application/affiliate-application-copy.ts
+msgid "Please enter your full name."
+msgstr "Zadejte prosím své celé jméno."
+
+#. js-lingui-id: 7oO0Fx
+#: src/affiliate-application/affiliate-application-copy.ts
+msgid "Please select a partner type."
+msgstr "Vyberte prosím typ partnera."
 
 #. js-lingui-id: LjJ5i7
 #: src/partner-application/partner-application-copy.ts
@@ -6439,6 +6880,11 @@ msgstr "Zásady ochrany osobních údajů"
 msgid "Privacy Policy | Twenty"
 msgstr "Zásady ochrany osobních údajů | Twenty"
 
+#. js-lingui-id: 8wTqgw
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Private calendar events are imported again by default. Turn on Exclude private events in calendar settings to leave them out; changing it resyncs your calendar."
+msgstr "Soukromé události kalendáře se ve výchozím nastavení znovu importují. Chcete-li je vynechat, zapněte v nastavení kalendáře možnost Vyloučit soukromé události; její změna znovu synchronizuje váš kalendář."
+
 #. js-lingui-id: 3fPjUY
 #: src/sections/pricing-plans/plans-data.ts
 #: src/sections/pricing-plans/plans-data.ts
@@ -6560,6 +7006,11 @@ msgstr "Sazby se liší podle partnera a rozsahu. V profilu každého partnera j
 msgid "Rating field"
 msgstr "Pole pro hodnocení"
 
+#. js-lingui-id: V6xqAX
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Rating fields can now show their average, minimum and maximum in views and charts, and bar charts can be grouped by Created by."
+msgstr "Pole hodnocení nyní mohou v zobrazeních a grafech zobrazovat průměr, minimum a maximum a sloupcové grafy lze seskupovat podle položky Vytvořil."
+
 #. js-lingui-id: DnWJal
 #: src/partners-marketplace/PartnerProfileCtas.tsx
 msgid "Reach out"
@@ -6579,6 +7030,11 @@ msgstr "Přečíst případovou studii"
 #: src/sections/pricing-plan-table/plan-table-data.ts
 msgid "Read/Edit/Delete permissions"
 msgstr "Oprávnění Číst/Upravit/Smazat"
+
+#. js-lingui-id: Ennaz3
+#: src/sections/affiliate-program/AffiliateApply.tsx
+msgid "Ready *to start?*"
+msgstr "Jste připraveni *začít?*"
 
 #. js-lingui-id: PvsAB9
 #: src/sections/pricing-plans/plans-data.ts
@@ -6633,6 +7089,16 @@ msgstr "Data v reálném čase"
 msgid "Real-time is a state of mind, not a feature."
 msgstr "Reálný čas je stav mysli, ne funkce."
 
+#. js-lingui-id: Tm/VGr
+#: src/sections/affiliate-program/AffiliateHero.tsx
+msgid "Recommend the CRM technical teams build at AI speed. Get paid every month, for a year, on each new customer."
+msgstr "Doporučte CRM, které technické týmy vytvářejí rychlostí AI. Získejte výplatu každý měsíc po dobu jednoho roku za každého nového zákazníka."
+
+#. js-lingui-id: rqSGSr
+#: src/sections/affiliate-program/affiliate-audiences.data.ts
+msgid "Recommend Twenty to clients, even on projects you don't implement."
+msgstr "Doporučte Twenty klientům, a to i u projektů, které nerealizujete."
+
 #. js-lingui-id: v5nqef
 #: src/sections/pricing-plan-table/plan-table-data.ts
 msgid "Record change logs"
@@ -6657,6 +7123,11 @@ msgstr "Rekordní čtvrtletí"
 #: src/sections/pricing-plan-table/plan-table-data.ts
 msgid "Records"
 msgstr "Záznamy"
+
+#. js-lingui-id: eCciTz
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Recovery codes for two-factor authentication"
+msgstr "Obnovovací kódy pro dvoufaktorové ověřování"
 
 #. js-lingui-id: duvxlo
 #: src/platform/releases/ReleaseNotes.tsx
@@ -6857,6 +7328,16 @@ msgstr "Tržby"
 #: src/sections/product-feature/DashboardVisual/data/dashboard-visual-data.ts
 msgid "Revenue (YTD)"
 msgstr "Tržby (YTD)"
+
+#. js-lingui-id: mO7Tm0
+#: src/sections/menu/data/menu.ts
+msgid "Reviewed apps for your workspace"
+msgstr "Prověřené aplikace pro váš pracovní prostor"
+
+#. js-lingui-id: s25Dl8
+#: src/affiliate-application/affiliate-application-copy.ts
+msgid "Reviews, tutorials, migration guides, client recommendations…"
+msgstr "Recenze, návody, průvodci migrací, doporučení klientům…"
 
 #. js-lingui-id: frqduN
 #: src/sections/product-feature/data/feature-tiles.ts
@@ -7176,6 +7657,11 @@ msgstr "Bezpečnostní kontroly a vlastní smlouvy"
 msgid "Security tailored to your IT"
 msgstr "Zabezpečení přizpůsobené vašemu IT"
 
+#. js-lingui-id: fi/gek
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "See context and credits in AI chat"
+msgstr "Zobrazte kontext a kredity v chatu AI"
+
 #. js-lingui-id: nmVU/t
 #: src/sections/customers-hero/CustomersHero.tsx
 msgid ""
@@ -7221,11 +7707,21 @@ msgstr "Zjistěte, kolik model stojí a kde běží"
 msgid "See what shipped in {0}"
 msgstr "Podívejte se, co se dostalo do releasu {0}"
 
+#. js-lingui-id: lPsNq3
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "See which app added a field"
+msgstr "Zjistěte, která aplikace přidala pole"
+
 #. js-lingui-id: 02ePaq
 #. placeholder {0}: company.name
 #: src/sections/product-feature/ContactsVisual/ContactsVisual.tsx
 msgid "Select {0}"
 msgstr "Vybrat {0}"
+
+#. js-lingui-id: OEFzA8
+#: src/affiliate-application/affiliate-application-copy.ts
+msgid "Select a partner type"
+msgstr "Vyberte typ partnera"
 
 #. js-lingui-id: wgNoIs
 #: src/sections/pricing-salesfarce/SalesfarceWindow.tsx
@@ -7236,6 +7732,11 @@ msgstr "Vybrat vše"
 #: src/partner-application/partner-application-copy.ts
 msgid "Select every area you used in a real project — not what you offer, what you actually did."
 msgstr "Vyberte každou oblast, kterou jste použili ve skutečném projektu — ne to, co nabízíte, ale co jste skutečně dělali."
+
+#. js-lingui-id: oOXqnr
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Select records with Cmd and Shift"
+msgstr "Vyberte záznamy pomocí Cmd a Shift"
 
 #. js-lingui-id: 6p/m5q
 #: src/partner-application/partner-application-copy.ts
@@ -7319,6 +7820,11 @@ msgstr "Self‑service, partneři volitelní"
 msgid "Send Email"
 msgstr "Odeslat e-mail"
 
+#. js-lingui-id: yHrgF3
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Send Email and Draft Email steps accept raw HTML. Type <0>/html</0> in the body to paste a template, with variables shown as chips."
+msgstr "Kroky Odeslat e-mail a Koncept e-mailu přijímají nezpracované HTML. Chcete-li vložit šablonu s proměnnými zobrazenými jako štítky, zadejte do těla <0>/html</0>."
+
 #. js-lingui-id: ig4Kg0
 #: src/platform/releases/ReleaseNotes.tsx
 msgid "Send email from aliases"
@@ -7401,6 +7907,11 @@ msgstr "Sdílení poznatků z hovorů"
 msgid "Share your CRM project brief and our team will match you with a certified Twenty partner."
 msgstr "Sdílejte stručný popis svého CRM projektu a náš tým vás spáruje s certifikovaným partnerem Twenty."
 
+#. js-lingui-id: 7A75Sv
+#: src/sections/affiliate-program/AffiliateProgramTerms.tsx
+msgid "Share your link, we credit the signups it brings, and you get paid every month the customer stays."
+msgstr "Sdílejte svůj odkaz, připíšeme vám registrace, které přivede, a budete dostávat výplatu každý měsíc, po který zákazník zůstane."
+
 #. js-lingui-id: /beeoq
 #: src/partners-marketplace/MarketplaceMatchCard.tsx
 msgid "Share your project in a few minutes. We pair you with a certified partner who fits."
@@ -7410,6 +7921,11 @@ msgstr "Sdílejte svůj projekt během pár minut. Spárujeme vás s certifikova
 #: src/sections/compare/compare-data.ts
 msgid "Shared limit below Ultimate"
 msgstr "Sdílený limit pod tarifem Ultimate"
+
+#. js-lingui-id: yZrICd
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Shift-click selects a range of records in tables, boards and lists, and Cmd-click (Ctrl-click on Windows) adds or removes a single record."
+msgstr "Kliknutím se Shift vyberete rozsah záznamů v tabulkách, nástěnkách a seznamech a kliknutím s Cmd (na Windows Ctrl) přidáte nebo odeberete jeden záznam."
 
 #. js-lingui-id: 3VFzsh
 #: src/sections/helped/helped.data.ts
@@ -7551,6 +8067,11 @@ msgstr "Soft Delete"
 msgid "Soft delete feature added: Deleted records are now hidden from view but recoverable from the \"Deleted record\" option in any object options menu. No more drama!"
 msgstr "Přidána funkce soft delete: Smazané záznamy jsou nyní skryté, ale lze je obnovit pomocí volby \"Deleted record\" v menu možností každého objektu. Už žádné drama!"
 
+#. js-lingui-id: mOUTs1
+#: src/sections/affiliate-program/affiliate-audiences.data.ts
+msgid "Software companies whose customers need a CRM."
+msgstr "Softwarové společnosti, jejichž zákazníci potřebují CRM."
+
 #. js-lingui-id: 6sKjjx
 #: src/partner-application/data/partner-team-type-options.ts
 msgid "Solo"
@@ -7581,6 +8102,11 @@ msgstr "Somalia 🇸🇴"
 #: src/platform/releases/ReleaseNotes.tsx
 msgid "Some teammate changes now appear right away, so collaboration feels faster and more up to date."
 msgstr "Některé změny od kolegů se nyní zobrazují okamžitě, takže spolupráce působí rychleji a aktuálněji."
+
+#. js-lingui-id: fWsBTs
+#: src/affiliate-application/affiliate-application-copy.ts
+msgid "Something went wrong. Please try again."
+msgstr "Něco se pokazilo. Zkuste to prosím znovu."
 
 #. js-lingui-id: tzdMJX
 #: src/platform/releases/ReleaseNotes.tsx
@@ -7763,6 +8289,7 @@ msgstr "Odešlete zadání projektu a nechte se spárovat s certifikovaným part
 
 #. js-lingui-id: H5/rZQ
 #: src/partner-application/partner-application-copy.ts
+#: src/affiliate-application/affiliate-application-copy.ts
 msgid "Submit application"
 msgstr "Odeslat přihlášku"
 
@@ -7774,6 +8301,7 @@ msgstr "Odeslat zadání"
 #. js-lingui-id: MDqQmP
 #: src/partner-application/partner-application-copy.ts
 #: src/client-brief/client-brief-copy.ts
+#: src/affiliate-application/affiliate-application-copy.ts
 msgid "Submitting…"
 msgstr "Odesílání…"
 
@@ -7929,6 +8457,16 @@ msgstr "Spojte síly s expertem na Twenty"
 msgid "Teams & permission sets"
 msgstr "Týmy a sady oprávnění"
 
+#. js-lingui-id: 7zxYuu
+#: src/affiliate-application/data/affiliate-partner-type-options.ts
+msgid "Tech partner"
+msgstr "Technologický partner"
+
+#. js-lingui-id: 8UHeD8
+#: src/sections/affiliate-program/affiliate-audiences.data.ts
+msgid "Tech partners"
+msgstr "Technologičtí partneři"
+
 #. js-lingui-id: vsdUaL
 #: src/sections/releases-hero/ReleasesHero.tsx
 msgid "Technical notes"
@@ -8075,6 +8613,16 @@ msgstr "Tým business developmentu konečně dostal CRM, o které žádal. Adopc
 msgid "The CEO had resisted bringing in a CRM for years. The business development team had no experience using one, and the licensing costs of well-known CRMs like Salesforce or HubSpot were hard to justify without any guarantee of adoption: CRMs are only as good as the maintenance of the data inside them."
 msgstr "CEO se roky bránil zavedení CRM. Tým business developmentu neměl s CRM žádnou zkušenost a licenční náklady známých CRM jako Salesforce nebo HubSpot se těžko ospravedlňovaly bez záruky adopce: CRM je jen tak dobré, jak dobrá je údržba dat uvnitř."
 
+#. js-lingui-id: MAi4hK
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "The chat composer shows how much of the context window you’ve used. Open it to see your AI credit usage, when it resets, and a breakdown for the last message and the whole conversation."
+msgstr "Editor chatu zobrazuje, jakou část kontextového okna jste využili. Otevřete jej, abyste viděli využití kreditů AI, kdy se obnoví, a rozpis pro poslední zprávu a celou konverzaci."
+
+#. js-lingui-id: D21WDI
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "The chat composer’s + menu attaches files and adds records or skills, the same way typing <0>@</0> or <1>/</1> does."
+msgstr "Nabídka + v editoru chatu připojuje soubory a přidává záznamy nebo dovednosti, stejně jako zadání <0>@</0> nebo <1>/</1>."
+
 #. js-lingui-id: 93BQde
 #: src/sections/compare/compare-data.ts
 #: src/sections/compare/compare-data.ts
@@ -8138,6 +8686,11 @@ msgstr "Obří monolit"
 msgid "The In-house Burden"
 msgstr "Interní břemeno"
 
+#. js-lingui-id: N8bBZ8
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "The interface is now available in Persian, laid out right to left."
+msgstr "Rozhraní je nyní dostupné v perštině s rozvržením zprava doleva."
+
 #. js-lingui-id: 6U7fek
 #: src/platform/releases/ReleaseNotes.tsx
 msgid "The interface now mirrors for right-to-left languages, so Arabic and Hebrew workspaces read in their own direction."
@@ -8185,6 +8738,16 @@ msgstr "Navigační nabídka je nyní samostatnou stránkou se skutečnou adreso
 #: src/platform/releases/ReleaseNotes.tsx
 msgid "The new <0>Address Field</0> Type enables entry of a full address in one field, while structurally storing each address part - such as street name and number - in separate subfields."
 msgstr "Nový typ <0>Address Field</0> umožňuje zadat celou adresu do jednoho pole, zatímco jednotlivé části adresy – jako název ulice a číslo – jsou strukturálně ukládány v separátních subpoličkách."
+
+#. js-lingui-id: jPuON+
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "The new Granola app saves your Granola summaries and speaker transcripts to call recordings, links them to the matching calendar event, and keeps them in sync as notes change. It needs a Granola Business or Enterprise plan."
+msgstr "Nová aplikace Granola ukládá vaše souhrny Granola a přepisy mluvčích do záznamů hovorů, propojuje je s odpovídající událostí kalendáře a při změnách poznámek je udržuje synchronizované. Vyžaduje tarif Granola Business nebo Enterprise."
+
+#. js-lingui-id: SngW9d
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "The new Microsoft Teams app saves your Teams meeting transcripts to call recordings and can write an AI summary of each call."
+msgstr "Nová aplikace Microsoft Teams ukládá přepisy vašich schůzek Teams do záznamů hovorů a umí vytvořit souhrn každého hovoru pomocí AI."
 
 #. js-lingui-id: tADBQB
 #: src/platform/releases/ReleaseNotes.tsx
@@ -8276,10 +8839,20 @@ msgstr "Příběh za Twenty"
 msgid "The terms governing your use of Twenty and its open source CRM services."
 msgstr "Podmínky, které upravují vaše používání Twenty a jeho open source CRM služeb."
 
+#. js-lingui-id: GbDTo3
+#: src/platform/routing/static-website-routes.ts
+msgid "The terms of the Twenty Affiliate Program: qualified referrals, commissions, payouts and how you may promote Twenty."
+msgstr "Podmínky partnerského programu Twenty: kvalifikovaná doporučení, provize, výplaty a způsob, jakým můžete propagovat Twenty."
+
 #. js-lingui-id: xCAT8U
 #: src/platform/releases/ReleaseNotes.tsx
 msgid "The timeline on every record page has been significantly improved. It now provides detailed updates for: Record creations Field updates Received emails Created calendar events"
 msgstr "Timeline na každé stránce záznamu byla výrazně vylepšena. Nyní poskytuje detailní updaty pro: Vytvoření záznamů Aktualizace polí Přijaté e‑maily Vytvořené události v kalendáři"
+
+#. js-lingui-id: pHA+ow
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "The Update Record step can now fill custom fields on emails and calendar events, such as a category picked by a Classify step."
+msgstr "Krok Aktualizovat záznam nyní může vyplnit vlastní pole u e-mailů a událostí kalendáře, například kategorii vybranou krokem Klasifikovat."
 
 #. js-lingui-id: u0uFxg
 #: src/sections/testimonials/TestimonialsCarousel.tsx
@@ -8316,6 +8889,11 @@ msgstr "Přemýšlení"
 msgid "This feature gives you the ability to merge two records into one. This combines their information and keeps linked data, helping you remove duplicates and keep records accurate."
 msgstr "Tato funkce vám umožní sloučit dva záznamy do jednoho. Spojí jejich informace a zachová navázaná data, čímž pomáhá odstraňovat duplicity a udržovat záznamy přesné."
 
+#. js-lingui-id: NJwNVi
+#: src/sections/affiliate-program/AffiliateIntegratorStrip.tsx
+msgid "Tick the box in the form and we link your application to your existing partner record, so you can be in both programs."
+msgstr "Zaškrtněte políčko ve formuláři a propojíme vaši přihlášku s vaším stávajícím záznamem partnera, takže můžete být v obou programech."
+
 #. js-lingui-id: cklVjM
 #: src/client-brief/client-brief-copy.ts
 msgid "Timeline"
@@ -8340,6 +8918,16 @@ msgstr "Abychom zachovali jednoduchost Twenty, zavádíme \"Advanced Settings\".
 #: src/sections/product-feature/TasksVisual/TasksVisual.tsx
 msgid "TODO"
 msgstr "K VYŘÍZENÍ"
+
+#. js-lingui-id: DKijYW
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Toggle lists and toggle headings fold again, Tab indents blocks, and headings 4 to 6 return to the slash menu. Tables get row and column handles again to add, delete, merge and split cells."
+msgstr "Sbalovací seznamy a sbalovací nadpisy lze opět sbalit, Tab odsazuje bloky a nadpisy 4 až 6 se vracejí do nabídky s lomítkem. Tabulky opět získávají ovládací prvky řádků a sloupců pro přidávání, mazání, slučování a rozdělování buněk."
+
+#. js-lingui-id: vNHNy7
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Toggles and table controls are back in notes"
+msgstr "Přepínače a ovládací prvky tabulek jsou zpět v poznámkách"
 
 #. js-lingui-id: DeTupk
 #: src/partner-application/data/partner-country-options.ts
@@ -8472,10 +9060,20 @@ msgstr "Tuvalu 🇹🇻"
 msgid "Twenty | #1 Open Source CRM"
 msgstr "Twenty | #1 open source CRM"
 
-#. js-lingui-id: XxKVz4
+#. js-lingui-id: DlOfZZ
+#: src/sections/affiliate-program/AffiliateHero.tsx
+msgid "Twenty affiliate program"
+msgstr "Partnerský program Twenty"
+
+#. js-lingui-id: CjjMxd
 #: src/platform/routing/static-website-routes.ts
-msgid "Twenty Apps — Vetted Apps for the Open Source CRM"
-msgstr "Twenty Apps – prověřené aplikace pro open-source CRM"
+msgid "Twenty Affiliate Program — Earn 20% on Every Referral"
+msgstr "Partnerský program Twenty — získejte 20 % za každé doporučení"
+
+#. js-lingui-id: yTS4CJ
+#: src/platform/routing/static-website-routes.ts
+msgid "Twenty Apps — Reviewed Apps for the Open Source CRM"
+msgstr "Twenty Apps — prověřené aplikace pro open-source CRM"
 
 #. js-lingui-id: jwNPEV
 #: src/sections/menu/data/menu.ts
@@ -8545,6 +9143,11 @@ msgstr "Twenty dává technickým týmům stavební bloky pro custom CRM, které
 #: src/sections/testimonials/partner-testimonials.data.ts
 msgid "Twenty gives you the kind of flexibility that actually changes what you can offer your clients. The dev experience is clean, the APIs are open, and when something needs to be customized, you can just do it. There's no fighting the platform."
 msgstr "Twenty vám dává takovou flexibilitu, která skutečně mění to, co můžete klientům nabídnout. Dev experience je čistá, API jsou otevřená a když je potřeba něco přizpůsobit, prostě to uděláte. Žádný boj s platformou."
+
+#. js-lingui-id: lcDb/Z
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Twenty in Persian"
+msgstr "Twenty v perštině"
 
 #. js-lingui-id: x/I85y
 #: src/case-studies/case-study-stories.ts
@@ -8863,16 +9466,6 @@ msgstr "Venezuela 🇻🇪"
 msgid "Version control"
 msgstr "Správa verzí"
 
-#. js-lingui-id: vNIHYX
-#: src/sections/menu/data/menu.ts
-msgid "Vetted apps for your workspace"
-msgstr "Prověřené aplikace pro váš pracovní prostor"
-
-#. js-lingui-id: k5HTQK
-#: src/apps-marketplace/AppDetail.tsx
-msgid "Vetted by Twenty"
-msgstr "Prověřeno společností Twenty"
-
 #. js-lingui-id: FlQ1vR
 #: src/partner-application/data/partner-country-options.ts
 msgid "Vietnam 🇻🇳"
@@ -9009,6 +9602,11 @@ msgstr "Zlepšili jsme výkon aplikace, zkrátili jsme načítání na každé s
 #: src/platform/releases/ReleaseNotes.tsx
 msgid "We have significantly enhanced our search performance, making it feel instantaneous when searching for records such as people, companies, or tasks."
 msgstr "Výrazně jsme vylepšili výkon vyhledávání, takže při hledání záznamů, jako jsou lidé, firmy nebo úkoly, působí prakticky okamžitě."
+
+#. js-lingui-id: 7YB68b
+#: src/sections/affiliate-program/AffiliateApply.tsx
+msgid "We review every application within 5 business days and send your link once you're approved."
+msgstr "Každou přihlášku posoudíme do 5 pracovních dnů a po schválení vám zašleme odkaz."
 
 #. js-lingui-id: d4cXeX
 #: src/sections/faq/become-partner-faq.data.ts
@@ -9198,6 +9796,11 @@ msgstr "Co jste v Twenty vytvořili *"
 msgid "Whatever came next had to be something they could own."
 msgstr "Cokoli mělo přijít dál, muselo to být něco, co budou sami vlastnit."
 
+#. js-lingui-id: tQV2Gz
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "When a member loses their authenticator, an admin can issue a one-time recovery code from the member’s page in settings. The member signs in with it and their old authenticator is removed."
+msgstr "Když člen ztratí svůj autentizátor, správce může na stránce člena v nastavení vydat jednorázový obnovovací kód. Člen se s ním přihlásí a jeho starý autentizátor se odebere."
+
 #. js-lingui-id: cs6VpJ
 #: src/case-studies/case-study-stories.ts
 msgid "When a student registers via QR at a campus event, the system assigns a plan, generates an interview session, and sends a link. The AI conducts the interview, scores the candidate, and classifies the result. Faculty see where each student stands without manually reviewing every session. Building and iterating on these workflows was faster with AI in the loop."
@@ -9207,6 +9810,11 @@ msgstr "Když se student zaregistruje přes QR na akci v kampusu, systém mu př
 #: src/sections/compare/compare-data.ts
 msgid "When customers talk to your AI"
 msgstr "Když zákazníci mluví s vaší AI"
+
+#. js-lingui-id: ZU1OEV
+#: src/sections/faq/affiliate-program-faq.data.ts
+msgid "When do I get paid?"
+msgstr "Kdy dostanu výplatu?"
 
 #. js-lingui-id: chISDP
 #: src/platform/releases/ReleaseNotes.tsx
@@ -9257,6 +9865,11 @@ msgstr "Když je vaše CRM produktem: W3Grads na Twenty | W3villa Technologies"
 msgid "Where the caps and gates are"
 msgstr "Kde jsou omezení a bariéry"
 
+#. js-lingui-id: hFwtrZ
+#: src/sections/faq/affiliate-program-faq.data.ts
+msgid "Which plans count?"
+msgstr "Které tarify se započítávají?"
+
 #. js-lingui-id: bGN8u+
 #: src/case-studies/case-study-stories.ts
 msgid "While NetZero still runs a second CRM in parallel for WhatsApp-heavy operations with farmers in Brazil, they expect to migrate all of it to Twenty as features and the ecosystem grow. Already, their structured, multinational pipeline is powered by Twenty."
@@ -9266,6 +9879,11 @@ msgstr "I když NetZero stále provozuje druhé CRM paralelně pro operace s far
 #: src/partner-application/partner-application-copy.ts
 msgid "Who it was for, what you built, which of the four areas you used…"
 msgstr "Pro koho to bylo, co jste vytvořili, které ze čtyř oblastí jste použili…"
+
+#. js-lingui-id: G3PhW3
+#: src/sections/affiliate-program/AffiliateAudiences.tsx
+msgid "Who it's for"
+msgstr "Pro koho je určen"
 
 #. js-lingui-id: DJlSwA
 #: src/sections/menu/data/menu.ts
@@ -9311,6 +9929,11 @@ msgstr "S integrací Google Kalendáře můžete sledovat všechny týmové udá
 #: src/platform/releases/ReleaseNotes.tsx
 msgid "With the <0>Datetime Field</0>, you can effectively track events, deadlines, and activities with enhanced accuracy, improving time management and scheduling. <1>Example Use Case</1>: Precisely track and set reminders for project milestones and deadlines."
 msgstr "S <0>Datetime Field</0> můžete efektivně sledovat události, deadliny a aktivity s vyšší přesností, což zlepšuje time management a plánování. <1>Příklad use case</1>: Přesně sledujte a nastavujte připomínky pro milníky a deadliny projektů."
+
+#. js-lingui-id: mNuV02
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "With the call recorder app, add a Call recordings widget to person, company and opportunity pages to list the recent recorded meetings linked to that record."
+msgstr "Pomocí aplikace pro nahrávání hovorů přidejte na stránky osob, společností a obchodních příležitostí widget Záznamy hovorů, který zobrazí nedávné nahrané schůzky propojené s daným záznamem."
 
 #. js-lingui-id: OKVlnc
 #: src/case-studies/case-study-stories.ts
@@ -9381,6 +10004,11 @@ msgstr "Workflow"
 #: src/platform/releases/ReleaseNotes.tsx
 msgid "Workflows can pick records randomly, in round-robin order, or by choosing the least-loaded assignee."
 msgstr "Pracovní postupy mohou vybírat záznamy náhodně, metodou round-robin nebo výběrem nejméně vytíženého přiřazeného uživatele."
+
+#. js-lingui-id: vCENh4
+#: src/platform/releases/ReleaseNotes.tsx
+msgid "Workflows can update emails and meetings"
+msgstr "Pracovní postupy mohou aktualizovat e-maily a schůzky"
 
 #. js-lingui-id: OteDxj
 #: src/case-studies/case-study-stories.ts
@@ -9667,6 +10295,16 @@ msgstr "Licence vaší organizace byla úspěšně aktivována."
 #: src/platform/releases/ReleaseNotes.tsx
 msgid "Your workspace is backed by a git repo, so you can branch, review in pull requests, and roll back changes the same way you ship code."
 msgstr "Váš workspace je podpořen git repozitářem, takže můžete branchovat, dělat review v pull requestech a rollbackovat změny stejným způsobem, jakým nasazujete kód."
+
+#. js-lingui-id: MWF4pS
+#: src/sections/affiliate-program/affiliate-audiences.data.ts
+msgid "YouTube, newsletters, LinkedIn, TikTok: anyone covering GTM tools."
+msgstr "YouTube, newslettery, LinkedIn, TikTok: kdokoli, kdo se věnuje nástrojům GTM."
+
+#. js-lingui-id: Lkub4e
+#: src/affiliate-application/affiliate-application-copy.ts
+msgid "youtube.com/@yourname"
+msgstr ""
 
 #. js-lingui-id: CgGN5T
 #: src/partner-application/data/partner-country-options.ts

@@ -1,6 +1,6 @@
 {
   "name": "@twentyhq/call-recorder",
-  "version": "1.19.0",
+  "version": "1.20.1",
   "license": "MIT",
   "engines": {
     "node": "^24.5.0",
@@ -37,7 +37,7 @@
     "react-dom": "^19.0.0",
     "twenty-client-sdk": "2.49.0",
     "twenty-sdk": "2.49.0",
-    "twenty-ui": "^1.0.0-alpha.1",
+    "twenty-ui": "^2.51.3",
     "typescript": "^5.9.3",
     "use-debounce": "^10.0.0",
     "vite-tsconfig-paths": "^4.2.1",

@@ -441,7 +441,8 @@
                 "developers/extend/apps/data/extending-objects",
                 "developers/extend/apps/data/system-fields",
                 "developers/extend/apps/data/relations",
-                "developers/extend/apps/data/timeline-activity-types"
+                "developers/extend/apps/data/timeline-activity-types",
+                "developers/extend/apps/data/validation-rules"
               ]
             },
             {
@@ -456,6 +457,7 @@
                 "developers/extend/apps/logic/workflows",
                 "developers/extend/apps/logic/connections",
                 "developers/extend/apps/logic/messaging-channels",
+                "developers/extend/apps/logic/inbox",
                 "developers/extend/apps/logic/credits"
               ]
             },
@@ -481,7 +483,7 @@
                 "developers/extend/apps/operations/testing",
                 "developers/extend/apps/operations/translations",
                 "developers/extend/apps/operations/publishing",
-                "developers/extend/apps/operations/marketplace-vetting",
+                "developers/extend/apps/operations/marketplace-review",
                 "developers/extend/apps/operations/monitoring"
               ]
             }

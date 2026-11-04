@@ -4,6 +4,7 @@ import { type ExtendedUIMessagePart } from 'twenty-shared/ai';
 import { type SendInboxMessageInput } from 'twenty-shared/application';
 import { isDefined } from 'twenty-shared/utils';
 
+import { IS_PRIVATE_COLUMN_NAME } from 'src/engine/permissions/private-record/constants/is-private-column-name.constant';
 import { AgentMessageRole } from 'src/engine/metadata-modules/ai/ai-history/enums/agent-message-role.enum';
 import { AgentChatSharingService } from 'src/engine/metadata-modules/ai/ai-chat/services/agent-chat-sharing.service';
 import { AgentChatThreadService } from 'src/engine/metadata-modules/ai/ai-chat/services/agent-chat-thread.service';
@@ -323,7 +324,7 @@ export class AgentInboxService {
     }
 
     const participantWorkspaceMemberIds =
-      await this.threadService.addParticipants({
+      await this.threadService.deliverToParticipants({
         workspaceId,
         threadId: thread.id,
         workspaceMemberId: thread.workspaceMemberId,
@@ -416,7 +417,12 @@ export class AgentInboxService {
     threadId: string;
     title: string;
   }): Promise<AgentChatThreadWorkspaceEntity> {
-    await this.threadRepository.insert(workspaceId, { id: threadId, title });
+    await this.threadRepository.query(workspaceId, ({ manager, table }) =>
+      manager.query(
+        `INSERT INTO ${table('agentChatThread')} (id, title, "${IS_PRIVATE_COLUMN_NAME}") VALUES ($1, $2, true)`,
+        [threadId, title],
+      ),
+    );
 
     return this.threadRepository.findOneOrFail(workspaceId, {
       where: { id: threadId },

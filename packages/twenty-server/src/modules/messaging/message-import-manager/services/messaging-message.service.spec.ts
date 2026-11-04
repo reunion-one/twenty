@@ -67,7 +67,7 @@ const buildService = (
     messageThread: messageThreadRepository,
   };
   const transactionScope = {
-    getRepository: jest.fn(
+    getRepositoryWithoutPermissionChecks: jest.fn(
       (objectMetadataName: keyof typeof repositories) =>
         repositories[objectMetadataName],
     ),

@@ -6,6 +6,7 @@ import { isDefined } from 'twenty-shared/utils';
 
 import { ComputeApplicationManifestAllUniversalFlatEntityMapsService } from 'src/engine/core-modules/application/application-manifest/services/compute-application-manifest-all-universal-flat-entity-maps.service';
 import { buildApplicationWorkflowCronTriggerCacheEntries } from 'src/engine/core-modules/application/application-manifest/utils/build-application-workflow-cron-trigger-cache-entries.util';
+import { addValidationRuleManifestsToFlatEntityMapsOrThrow } from 'src/engine/core-modules/application/application-manifest/utils/add-validation-rule-manifests-to-flat-entity-maps-or-throw.util';
 import { addWorkflowManifestsToFlatEntityMapsOrThrow } from 'src/engine/core-modules/application/application-manifest/utils/add-workflow-manifests-to-flat-entity-maps-or-throw.util';
 import { preallocateWorkflowReferenceIds } from 'src/engine/core-modules/application/application-manifest/utils/preallocate-workflow-reference-ids.util';
 import { buildAllFlatEntityOperationRecordByMetadataNameFromFromTo } from 'src/engine/core-modules/application/application-manifest/utils/build-all-flat-entity-operation-record-by-metadata-name-from-from-to.util';
@@ -175,12 +176,14 @@ export class ApplicationManifestMigrationService {
     ownerFlatApplication,
     dryRun = false,
     inferDeletionFromMissingEntities = true,
+    shouldDeferActions,
   }: {
     manifest: Manifest;
     workspaceId: string;
     ownerFlatApplication: FlatApplication;
     dryRun?: boolean;
     inferDeletionFromMissingEntities?: boolean;
+    shouldDeferActions?: boolean;
   }): Promise<{
     workspaceMigration: WorkspaceMigration;
     hasSchemaMetadataChanged: boolean;
@@ -238,6 +241,12 @@ export class ApplicationManifestMigrationService {
         })
       : {};
 
+    const connectedAccounts = hasWorkflows
+      ? await this.connectedAccountMetadataService.findAllForWorkflowStepResolution(
+          { workspaceId },
+        )
+      : [];
+
     const applicationWorkflows = addWorkflowManifestsToFlatEntityMapsOrThrow({
       workflows: manifest.workflows ?? [],
       ownerFlatApplication,
@@ -245,9 +254,18 @@ export class ApplicationManifestMigrationService {
       toAllUniversalFlatEntityMaps,
       existingAllFlatEntityMaps,
       idByUniversalIdentifierByMetadataName,
-      // Its workflows run as workspace workflows, which may already call any app's actions
-      canReferenceOtherApplicationsWorkflowActions:
+      isWorkspaceCustomApplication:
         ownerFlatApplication.id === workspaceCustomFlatApplication?.id,
+      connectedAccounts,
+      now,
+    });
+
+    addValidationRuleManifestsToFlatEntityMapsOrThrow({
+      validationRules: manifest.validationRules ?? [],
+      ownerFlatApplication,
+      inferDeletionFromMissingEntities,
+      existingAllFlatEntityMaps,
+      toAllUniversalFlatEntityMaps,
       now,
     });
 
@@ -288,8 +306,11 @@ export class ApplicationManifestMigrationService {
         isSystemBuild: false,
         applicationUniversalIdentifier:
           ownerFlatApplication.universalIdentifier,
+        applicationDefaultRoleUniversalIdentifier:
+          manifest.application.defaultRoleUniversalIdentifier,
         idByUniversalIdentifierByMetadataName,
         dryRun: isDryRun,
+        shouldDeferActions,
       });
 
     const validateBuildRunStart = performance.now();
@@ -454,7 +475,12 @@ export class ApplicationManifestMigrationService {
         : {}),
       ...(isDefined(healthCheckLogicFunctionId) ||
       inferDeletionFromMissingEntities
-        ? { healthCheckLogicFunctionId }
+        ? {
+            healthCheckLogicFunctionId,
+            isUserHealthCheckEnabled:
+              manifest.application.healthCheckLogicFunction
+                ?.runOnUserPreferences ?? false,
+          }
         : {}),
       ...(isDefined(defaultRoleId) ? { defaultRoleId } : {}),
     });

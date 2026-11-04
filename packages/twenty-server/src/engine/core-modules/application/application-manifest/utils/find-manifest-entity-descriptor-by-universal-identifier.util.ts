@@ -277,7 +277,8 @@ export const MANIFEST_ENTITY_REGISTRY: Record<
   },
   mcpServer: {
     entityKind: 'MCP server',
-    getCandidates: () => NO_MANIFEST_CANDIDATES,
+    getCandidates: (manifest) =>
+      toCandidates(manifest.mcpServers, (mcpServer) => mcpServer.label),
   },
   applicationVariable: {
     entityKind: 'application variable',
@@ -295,9 +296,15 @@ export const MANIFEST_ENTITY_REGISTRY: Record<
     entityKind: 'workflow version',
     getCandidates: () => NO_MANIFEST_CANDIDATES,
   },
+  relatedRecordPath: {
+    entityKind: 'related record path',
+    getCandidates: (manifest) =>
+      toCandidates(manifest.relatedRecordPaths, () => undefined),
+  },
   validationRule: {
     entityKind: 'validation rule',
-    getCandidates: () => NO_MANIFEST_CANDIDATES,
+    getCandidates: (manifest) =>
+      toCandidates(manifest.validationRules, (rule) => rule.name),
   },
   agentChatChannel: {
     entityKind: 'chat channel',

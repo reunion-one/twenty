@@ -15,6 +15,7 @@ exports[`CLI manifest fixtures and worker transport > matches the manifest, file
     "logicFunctions": [
       "src/logic-functions/add-numbers.function.ts",
     ],
+    "mcpServers": [],
     "messagingProviders": [],
     "navigationMenuItems": [],
     "objects": [],
@@ -23,12 +24,14 @@ exports[`CLI manifest fixtures and worker transport > matches the manifest, file
     "pageLayouts": [],
     "permissionFlags": [],
     "publicAssets": [],
+    "relatedRecordPaths": [],
     "roles": [
       "my.role.ts",
     ],
     "settingsMenuItems": [],
     "skills": [],
     "timelineActivityTypes": [],
+    "validationRules": [],
     "viewFields": [],
     "views": [],
     "workflows": [],
@@ -78,6 +81,7 @@ The scripts invoke that local build directly, so the SDK binary cannot shadow it
         "universalIdentifier": "f9e5589c-e951-4d99-85db-0a305ab53502",
       },
     ],
+    "mcpServers": [],
     "messagingProviders": [],
     "navigationMenuItems": [],
     "objects": [],
@@ -86,6 +90,7 @@ The scripts invoke that local build directly, so the SDK binary cannot shadow it
     "pageLayouts": [],
     "permissionFlags": [],
     "publicAssets": [],
+    "relatedRecordPaths": [],
     "roles": [
       {
         "canBeAssignedToAgents": false,
@@ -109,6 +114,7 @@ The scripts invoke that local build directly, so the SDK binary cannot shadow it
     "settingsMenuItems": [],
     "skills": [],
     "timelineActivityTypes": [],
+    "validationRules": [],
     "viewFields": [],
     "views": [],
     "workflows": [],
@@ -148,6 +154,7 @@ exports[`CLI manifest fixtures and worker transport > matches the manifest, file
     "logicFunctions": [
       "my.function.ts",
     ],
+    "mcpServers": [],
     "messagingProviders": [],
     "navigationMenuItems": [],
     "objects": [
@@ -158,12 +165,14 @@ exports[`CLI manifest fixtures and worker transport > matches the manifest, file
     "pageLayouts": [],
     "permissionFlags": [],
     "publicAssets": [],
+    "relatedRecordPaths": [],
     "roles": [
       "my.role.ts",
     ],
     "settingsMenuItems": [],
     "skills": [],
     "timelineActivityTypes": [],
+    "validationRules": [],
     "viewFields": [],
     "views": [],
     "workflows": [],
@@ -212,6 +221,7 @@ exports[`CLI manifest fixtures and worker transport > matches the manifest, file
         "universalIdentifier": "e1e2e3e4-e5e6-4000-8000-000000000010",
       },
     ],
+    "mcpServers": [],
     "messagingProviders": [],
     "navigationMenuItems": [],
     "objects": [
@@ -249,6 +259,7 @@ exports[`CLI manifest fixtures and worker transport > matches the manifest, file
     "pageLayouts": [],
     "permissionFlags": [],
     "publicAssets": [],
+    "relatedRecordPaths": [],
     "roles": [
       {
         "canBeAssignedToAgents": false,
@@ -272,6 +283,7 @@ exports[`CLI manifest fixtures and worker transport > matches the manifest, file
     "settingsMenuItems": [],
     "skills": [],
     "timelineActivityTypes": [],
+    "validationRules": [],
     "viewFields": [],
     "views": [],
     "workflows": [],
@@ -322,6 +334,7 @@ exports[`CLI manifest fixtures and worker transport > matches the manifest, file
       "src/logic-functions/test-function.function.ts",
       "src/root.function.ts",
     ],
+    "mcpServers": [],
     "messagingProviders": [],
     "navigationMenuItems": [
       "src/navigation-menu-items/post-card-recipients.navigation-menu-item.ts",
@@ -345,6 +358,7 @@ exports[`CLI manifest fixtures and worker transport > matches the manifest, file
     "publicAssets": [
       "public/favicon.png",
     ],
+    "relatedRecordPaths": [],
     "roles": [
       "src/roles/default-function.role.ts",
       "src/root.role.ts",
@@ -355,6 +369,7 @@ exports[`CLI manifest fixtures and worker transport > matches the manifest, file
       "src/timeline-activity-types/post-card-created.timeline-activity-type.ts",
       "src/timeline-activity-types/post-card-linked.timeline-activity-type.ts",
     ],
+    "validationRules": [],
     "viewFields": [
       "src/viewFields/post-card-number-view-field.ts",
     ],
@@ -880,6 +895,7 @@ exports[`CLI manifest fixtures and worker transport > matches the manifest, file
         "universalIdentifier": "f0f1f2f3-f4f5-4000-8000-000000000001",
       },
     ],
+    "mcpServers": [],
     "messagingProviders": [],
     "navigationMenuItems": [
       {
@@ -1161,6 +1177,7 @@ exports[`CLI manifest fixtures and worker transport > matches the manifest, file
         "fileType": "png",
       },
     ],
+    "relatedRecordPaths": [],
     "roles": [
       {
         "canBeAssignedToAgents": false,
@@ -1251,6 +1268,7 @@ exports[`CLI manifest fixtures and worker transport > matches the manifest, file
         "universalIdentifier": "f4fa646c-6e11-4d8f-a6be-c3b7a2fc7501",
       },
     ],
+    "validationRules": [],
     "viewFields": [
       {
         "fieldMetadataUniversalIdentifier": "7b57bd63-5a4c-46ca-9d52-42c8f02d1df6",
@@ -1424,6 +1442,7 @@ exports[`CLI manifest fixtures and worker transport > matches the manifest, file
     ],
     "indexes": [],
     "logicFunctions": [],
+    "mcpServers": [],
     "messagingProviders": [],
     "navigationMenuItems": [],
     "objects": [],
@@ -1432,12 +1451,14 @@ exports[`CLI manifest fixtures and worker transport > matches the manifest, file
     "pageLayouts": [],
     "permissionFlags": [],
     "publicAssets": [],
+    "relatedRecordPaths": [],
     "roles": [
       "my.role.ts",
     ],
     "settingsMenuItems": [],
     "skills": [],
     "timelineActivityTypes": [],
+    "validationRules": [],
     "viewFields": [],
     "views": [],
     "workflows": [],
@@ -1480,6 +1501,7 @@ exports[`CLI manifest fixtures and worker transport > matches the manifest, file
     ],
     "indexes": [],
     "logicFunctions": [],
+    "mcpServers": [],
     "messagingProviders": [],
     "navigationMenuItems": [],
     "objects": [],
@@ -1488,6 +1510,7 @@ exports[`CLI manifest fixtures and worker transport > matches the manifest, file
     "pageLayouts": [],
     "permissionFlags": [],
     "publicAssets": [],
+    "relatedRecordPaths": [],
     "roles": [
       {
         "canBeAssignedToAgents": false,
@@ -1511,6 +1534,7 @@ exports[`CLI manifest fixtures and worker transport > matches the manifest, file
     "settingsMenuItems": [],
     "skills": [],
     "timelineActivityTypes": [],
+    "validationRules": [],
     "viewFields": [],
     "views": [],
     "workflows": [],

@@ -1,6 +1,5 @@
 import { FilePreviewDialog } from '@/ui/field/display/components/FilePreviewDialog';
 import { styled } from '@linaria/react';
-import { t } from '@lingui/core/macro';
 import { useState } from 'react';
 
 import { DropZone } from '@/activities/files/components/DropZone';
@@ -21,6 +20,7 @@ import { isDefined } from 'twenty-shared/utils';
 import { themeCssVariables } from 'twenty-ui/theme';
 import { PermissionFlagType } from '~/generated-metadata/graphql';
 import { AttachmentRow } from './AttachmentRow';
+import { useLingui } from '@lingui/react/macro';
 
 type AttachmentListProps = {
   attachments: Attachment[];
@@ -68,6 +68,7 @@ export const AttachmentList = ({
   canUploadFiles,
   onUploadFiles,
 }: AttachmentListProps) => {
+  const { t } = useLingui();
   const [isDraggingFile, setIsDraggingFile] = useState(false);
   const [previewedAttachment, setPreviewedAttachment] =
     useState<AttachmentWithFile | null>(null);

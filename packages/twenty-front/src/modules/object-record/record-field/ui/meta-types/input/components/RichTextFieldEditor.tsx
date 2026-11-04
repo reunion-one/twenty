@@ -31,19 +31,17 @@ import { useRemoveFocusItemFromFocusStackById } from '@/ui/utilities/focus/hooks
 import { FocusComponentType } from '@/ui/utilities/focus/types/FocusComponentType';
 import { useHotkeysOnFocusedElement } from '@/ui/utilities/hotkey/hooks/useHotkeysOnFocusedElement';
 import { styled } from '@linaria/react';
-import { t } from '@lingui/core/macro';
 import { type Editor } from '@tiptap/core';
 import { Key } from 'ts-key-enum';
 import { isDefined } from 'twenty-shared/utils';
 import { useToast } from 'twenty-ui/components/feedback';
-import { themeCssVariables } from 'twenty-ui/theme';
 import { useDebouncedCallback } from 'use-debounce';
+import { useLingui } from '@lingui/react/macro';
 
 const StyledEditorContainer = styled.div`
   box-sizing: border-box;
   max-width: 100%;
   min-width: 0;
-  padding-left: ${themeCssVariables.spacing[8]};
   position: relative;
   width: 100%;
 `;
@@ -67,6 +65,7 @@ export const RichTextFieldEditor = ({
   onBlur: onBlurOverride,
   editorRef,
 }: RichTextFieldEditorProps) => {
+  const { t } = useLingui();
   const store = useStore();
   const [recordInStore] = useAtom(recordStoreFamilyState.atomFamily(recordId));
 

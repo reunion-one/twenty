@@ -18,6 +18,7 @@ export const DEFINE_ENTITY_KEYS = {
   defineWorkflow: 'workflows',
   defineConnectionProvider: 'connectionProviders',
   defineMessagingProvider: 'messagingProviders',
+  defineMcpServer: 'mcpServers',
   defineFrontComponent: 'frontComponents',
   defineSettingsFrontComponent: 'frontComponents',
   defineView: 'views',
@@ -29,6 +30,8 @@ export const DEFINE_ENTITY_KEYS = {
   defineCommandMenuItem: 'commandMenuItems',
   defineTimelineActivityType: 'timelineActivityTypes',
   defineSettingsMenuItem: 'settingsMenuItems',
+  defineValidationRule: 'validationRules',
+  defineRelatedRecordPath: 'relatedRecordPaths',
 } as const;
 
 export type TargetFunction = keyof typeof DEFINE_ENTITY_KEYS;

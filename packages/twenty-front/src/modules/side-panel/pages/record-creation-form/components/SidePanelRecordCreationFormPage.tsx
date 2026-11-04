@@ -36,7 +36,6 @@ import { useStore } from 'jotai';
 import { useId, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { styled } from '@linaria/react';
-import { t } from '@lingui/core/macro';
 import { Key } from 'ts-key-enum';
 import { type JsonValue } from 'type-fest';
 import { PermissionFlagType } from 'twenty-shared/constants';
@@ -52,6 +51,7 @@ import {
 } from 'twenty-ui/icon';
 import { Button } from 'twenty-ui/primitives/input';
 import { useTheme, themeCssVariables } from 'twenty-ui/theme';
+import { useLingui } from '@lingui/react/macro';
 
 const StyledContainer = styled.div`
   display: flex;
@@ -98,6 +98,7 @@ export const SidePanelRecordCreationFormPage = () => {
       requestId={recordCreationFormRequest.requestId}
       objectMetadataId={recordCreationFormRequest.objectMetadataId}
       initialDraftRecord={recordCreationFormRequest.initialDraftRecord}
+      canCreateAnother={recordCreationFormRequest.canCreateAnother}
     />
   );
 };
@@ -106,11 +107,14 @@ const SidePanelRecordCreationForm = ({
   requestId,
   objectMetadataId,
   initialDraftRecord,
+  canCreateAnother,
 }: {
   requestId: string;
   objectMetadataId: string;
   initialDraftRecord: Partial<ObjectRecord>;
+  canCreateAnother: boolean;
 }) => {
+  const { t } = useLingui();
   const { objectMetadataItem } = useObjectMetadataItemById({
     objectId: objectMetadataId,
   });
@@ -363,13 +367,20 @@ const SidePanelRecordCreationForm = ({
     keys: [
       `${Key.Meta}+${Key.Enter}`,
       `${Key.Control}+${Key.Enter}`,
-      `${Key.Alt}+${Key.Enter}`,
+      ...(canCreateAnother ? [`${Key.Alt}+${Key.Enter}`] : []),
     ],
     focusId: currentFocusId ?? SIDE_PANEL_FOCUS_ID,
     callback: (keyboardEvent) =>
       keyboardEvent.altKey ? handleCreateAnotherClick() : handleCreateClick(),
-    dependencies: [currentFocusId, handleCreateClick, handleCreateAnotherClick],
+    dependencies: [
+      canCreateAnother,
+      currentFocusId,
+      handleCreateClick,
+      handleCreateAnotherClick,
+    ],
   });
+
+  const isOptionsDropdownShown = canCreateAnother || hasLayoutsPermission;
 
   return (
     <StyledContainer ref={containerRef} tabIndex={-1}>
@@ -442,25 +453,31 @@ const SidePanelRecordCreationForm = ({
       )}
       <SidePanelFooter
         actions={[
-          <SidePanelOptionsDropdown
-            key="options"
-            dropdownId={optionsDropdownId}
-          >
-            <Dropdown.ActionItem
-              startIcon={<IconPlus />}
-              shortcut={['Alt', 'Enter']}
-              disabled={isSubmitting}
-              onClick={handleCreateAnotherClick}
-            >{t`Create another`}</Dropdown.ActionItem>
-            {hasLayoutsPermission && (
-              <Dropdown.ActionItem
-                startIcon={<IconEdit />}
-                onClick={() =>
-                  openRecordCreationFormSettingsInSidePanel(objectMetadataItem)
-                }
-              >{t`Edit form`}</Dropdown.ActionItem>
-            )}
-          </SidePanelOptionsDropdown>,
+          isOptionsDropdownShown && (
+            <SidePanelOptionsDropdown
+              key="options"
+              dropdownId={optionsDropdownId}
+            >
+              {canCreateAnother && (
+                <Dropdown.ActionItem
+                  startIcon={<IconPlus />}
+                  shortcut={['Alt', 'Enter']}
+                  disabled={isSubmitting}
+                  onClick={handleCreateAnotherClick}
+                >{t`Create another`}</Dropdown.ActionItem>
+              )}
+              {hasLayoutsPermission && (
+                <Dropdown.ActionItem
+                  startIcon={<IconEdit />}
+                  onClick={() =>
+                    openRecordCreationFormSettingsInSidePanel(
+                      objectMetadataItem,
+                    )
+                  }
+                >{t`Edit form`}</Dropdown.ActionItem>
+              )}
+            </SidePanelOptionsDropdown>
+          ),
           <Button
             key="create-record"
             startIcon={<IconPlus />}

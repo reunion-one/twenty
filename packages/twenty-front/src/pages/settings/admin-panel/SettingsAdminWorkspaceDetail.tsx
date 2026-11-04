@@ -31,9 +31,10 @@ import { TableRow } from '@/ui/layout/table/components/TableRow';
 import { DEFAULT_WORKSPACE_LOGO } from '@/ui/navigation/navigation-drawer/constants/DefaultWorkspaceLogo';
 import { useAtomComponentStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomComponentStateValue';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
+import { getAdminWorkspaceLabel } from '@/settings/admin-panel/utils/getAdminWorkspaceLabel';
+import { getWorkspaceAvatarColorSeed } from '@/workspace/utils/getWorkspaceAvatarColorSeed';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { styled } from '@linaria/react';
-import { t } from '@lingui/core/macro';
 import { isNonEmptyString } from '@sniptt/guards';
 import { useParams } from 'react-router-dom';
 import { SettingsPath } from 'twenty-shared/types';
@@ -62,6 +63,7 @@ import {
   type WorkspaceLookupAdminPanelQuery,
 } from '~/generated-admin/graphql';
 import { getAbsoluteImageUrl } from '~/utils/image/getAbsoluteImageUrl';
+import { useLingui } from '@lingui/react/macro';
 
 const StyledFeatureFlagName = styled(OverflowingTextWithTooltip)`
   min-width: 0;
@@ -78,6 +80,7 @@ const WORKSPACE_DETAIL_TAB_IDS = {
 };
 
 export const SettingsAdminWorkspaceDetail = () => {
+  const { t } = useLingui();
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const apolloAdminClient = useApolloAdminClient();
 
@@ -210,7 +213,10 @@ export const SettingsAdminWorkspaceDetail = () => {
       : []),
   ];
 
-  const workspaceName = workspace?.name || workspaceId || '';
+  const workspaceName = getAdminWorkspaceLabel({
+    id: workspaceId ?? '',
+    name: workspace?.name,
+  });
   const workspaceLogo = isNonEmptyString(workspace?.logo)
     ? workspace.logo
     : DEFAULT_WORKSPACE_LOGO;
@@ -302,8 +308,8 @@ export const SettingsAdminWorkspaceDetail = () => {
         icon={
           <Avatar
             src={getAbsoluteImageUrl(workspaceLogo)}
-            name={workspaceName}
-            colorSeed={workspace?.id}
+            name={workspace?.name ?? ''}
+            colorSeed={getWorkspaceAvatarColorSeed(workspace?.name)}
             size="md"
           />
         }

@@ -31,6 +31,7 @@ export type CurrentWorkspace = Pick<
   | 'isPasswordAuthEnabled'
   | 'isPasswordAuthBypassEnabled'
   | 'isCustomDomainEnabled'
+  | 'iframeMediaPermissions'
   | 'hasValidSignedEnterpriseKey'
   | 'hasValidEnterpriseValidityToken'
   | 'subdomain'
@@ -40,6 +41,8 @@ export type CurrentWorkspace = Pick<
   | 'trashRetentionDays'
   | 'eventLogRetentionDays'
   | 'aiChatModelTier'
+  | 'aiChatDirectMessageAssistantMode'
+  | 'aiChatInboxAssistantMode'
   | 'aiAgentModelTier'
   | 'isAutoModelSelectionEnabled'
   | 'aiModelIdByTier'
@@ -51,7 +54,12 @@ export type CurrentWorkspace = Pick<
   workspaceCustomApplication: Pick<Application, 'id'> | null;
   installedApplications: Pick<
     Application,
-    'id' | 'name' | 'universalIdentifier' | 'logoUrl' | 'createdAt'
+    | 'id'
+    | 'name'
+    | 'description'
+    | 'universalIdentifier'
+    | 'logoUrl'
+    | 'createdAt'
   >[];
 };
 

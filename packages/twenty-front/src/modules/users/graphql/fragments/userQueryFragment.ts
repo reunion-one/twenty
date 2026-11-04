@@ -82,11 +82,17 @@ export const USER_QUERY_FRAGMENT = gql`
       installedApplications {
         id
         name
+        description
         universalIdentifier
         logoUrl
         createdAt
       }
       isCustomDomainEnabled
+      iframeMediaPermissions {
+        origin
+        microphone
+        camera
+      }
       workspaceUrls {
         ...WorkspaceUrlsFragment
       }
@@ -115,6 +121,8 @@ export const USER_QUERY_FRAGMENT = gql`
         ...RoleFragment
       }
       aiChatModelTier
+      aiChatDirectMessageAssistantMode
+      aiChatInboxAssistantMode
       aiAgentModelTier
       isAutoModelSelectionEnabled
       aiModelIdByTier

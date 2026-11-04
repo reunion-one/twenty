@@ -1,11 +1,11 @@
 import { styled } from '@linaria/react';
-import { t } from '@lingui/core/macro';
 import { Section } from 'twenty-ui/components/layout';
 import { themeCssVariables } from 'twenty-ui/theme';
 
 import { getPositionNumberIcon } from '@/object-record/record-merge/utils/getPositionNumberIcon';
 import { getPositionWordLabel } from '@/object-record/record-merge/utils/getPositionWordLabel';
 import { Select } from '@/ui/input/components/Select';
+import { useLingui } from '@lingui/react/macro';
 
 const MISSING_PRIORITY_RECORD_INDEX = -1;
 
@@ -29,6 +29,7 @@ export const MergePrioritySettings = ({
   dropdownId,
   disabled = false,
 }: MergePrioritySettingsProps) => {
+  const { t } = useLingui();
   const priorityOptions = Array.from(
     { length: selectedRecordCount },
     (_, index) => {
@@ -46,6 +47,11 @@ export const MergePrioritySettings = ({
     return null;
   }
 
+  // The server rejects an out-of-range index, so "no priority" is only shown, never offered
+  const isPriorityRecordMissing = !priorityOptions.some(
+    (option) => option.value === priorityRecordIndex,
+  );
+
   return (
     <StyledSectionContainer>
       <Section.Root>
@@ -53,10 +59,14 @@ export const MergePrioritySettings = ({
           dropdownId={dropdownId}
           options={priorityOptions}
           value={priorityRecordIndex}
-          emptyOption={{
-            value: MISSING_PRIORITY_RECORD_INDEX,
-            label: t`No record holds priority`,
-          }}
+          emptyOption={
+            isPriorityRecordMissing
+              ? {
+                  value: MISSING_PRIORITY_RECORD_INDEX,
+                  label: t`No record holds priority`,
+                }
+              : undefined
+          }
           onChange={onPriorityRecordIndexChange}
           label={t`Fields conflicts`}
           disabled={disabled}

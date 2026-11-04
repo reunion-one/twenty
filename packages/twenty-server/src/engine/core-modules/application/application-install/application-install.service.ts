@@ -8,12 +8,16 @@ import {
   type ApplicationCapability,
   Manifest,
 } from 'twenty-shared/application';
-import { FileFolder } from 'twenty-shared/types';
-import { isDefined } from 'twenty-shared/utils';
+import { FileFolder, type IframeMediaPermission } from 'twenty-shared/types';
+import {
+  intersectIframeMediaPermissions,
+  isDefined,
+} from 'twenty-shared/utils';
 import { Repository } from 'typeorm';
 
 import { buildApplicationFileList } from 'src/engine/core-modules/application/application-install/utils/build-application-file-list.util';
 import { toApplicationCapabilities } from 'src/engine/core-modules/application/utils/to-application-capabilities.util';
+import { toRequestedIframeMediaPermissionsOrThrow } from 'src/engine/core-modules/application/utils/to-requested-iframe-media-permissions-or-throw.util';
 import { ApplicationManifestApplyService } from 'src/engine/core-modules/application/application-manifest/application-manifest-apply.service';
 import { ApplicationSyncService } from 'src/engine/core-modules/application/application-manifest/application-sync.service';
 import {
@@ -102,6 +106,7 @@ export class ApplicationInstallService {
     skipWorkspaceCompatibilityCheck?: boolean;
     hasUserApprovedCapabilities?: boolean;
     updateProgress?: MessageQueueJobProgressContext['updateProgress'];
+    shouldDeferActions?: boolean;
   }): Promise<boolean> {
     const appRegistration = await this.appRegistrationRepository.findOne({
       where: { id: params.appRegistrationId },
@@ -150,6 +155,7 @@ export class ApplicationInstallService {
             skipWorkspaceCompatibilityCheck:
               params.skipWorkspaceCompatibilityCheck,
             hasUserApprovedCapabilities: params.hasUserApprovedCapabilities,
+            shouldDeferActions: params.shouldDeferActions,
           },
           progressReporter,
         ),
@@ -168,6 +174,7 @@ export class ApplicationInstallService {
       workspaceId: string;
       skipWorkspaceCompatibilityCheck?: boolean;
       hasUserApprovedCapabilities?: boolean;
+      shouldDeferActions?: boolean;
     },
     progressReporter: ApplicationLifecycleProgressReporter<ApplicationInstallStep>,
   ): Promise<boolean> {
@@ -268,6 +275,7 @@ export class ApplicationInstallService {
       workspaceId: string;
       skipWorkspaceCompatibilityCheck?: boolean;
       hasUserApprovedCapabilities?: boolean;
+      shouldDeferActions?: boolean;
     };
     resolvedPackage: ResolvedPackage;
     existingApplication: ApplicationEntity | null;
@@ -353,6 +361,7 @@ export class ApplicationInstallService {
       workspaceId: string;
       skipWorkspaceCompatibilityCheck?: boolean;
       hasUserApprovedCapabilities?: boolean;
+      shouldDeferActions?: boolean;
     };
     resolvedPackage: ResolvedPackage;
     existingApplication: ApplicationEntity | null;
@@ -404,6 +413,14 @@ export class ApplicationInstallService {
     const grantedCapabilities = toApplicationCapabilities(
       resolvedPackage.manifest.application.requestedCapabilities,
     ).filter((capability) => approvedCapabilities.includes(capability));
+    const grantedIframeMediaPermissions = intersectIframeMediaPermissions({
+      permissions: toRequestedIframeMediaPermissionsOrThrow(
+        resolvedPackage.manifest.application.requestedIframeMediaPermissions,
+      ),
+      allowedPermissions: toRequestedIframeMediaPermissionsOrThrow(
+        appRegistration.manifest?.application?.requestedIframeMediaPermissions,
+      ),
+    });
     const shouldApplyApprovedCapabilities =
       params.hasUserApprovedCapabilities && isDefined(appRegistration.manifest);
 
@@ -412,10 +429,11 @@ export class ApplicationInstallService {
       universalIdentifier,
       name: resolvedPackage.manifest.application.displayName,
       grantedCapabilities,
+      grantedIframeMediaPermissions,
       workspaceId: params.workspaceId,
       applicationRegistrationId: appRegistration.id,
       sourceType: appRegistration.sourceType,
-      autoUpgrade: appRegistration.isVetted,
+      autoUpgrade: appRegistration.isListed,
     });
 
     await progressReporter.reportStepCompleted('CREATE_APPLICATION');
@@ -464,6 +482,7 @@ export class ApplicationInstallService {
       if (isVersionUpgrade && shouldApplyApprovedCapabilities) {
         await this.applicationService.update(application.id, {
           grantedCapabilities,
+          grantedIframeMediaPermissions,
           workspaceId: params.workspaceId,
         });
       }
@@ -517,6 +536,7 @@ export class ApplicationInstallService {
           application,
           forceSdkClientGeneration: true,
           persistVersion: false,
+          shouldDeferActions: params.shouldDeferActions,
         });
 
       await progressReporter.reportStepCompleted('APPLY_MANIFEST');
@@ -539,7 +559,7 @@ export class ApplicationInstallService {
         previousVersion,
         newVersion,
         isVersionUpgrade,
-        universalIdentifier,
+        applicationUniversalIdentifier: application.universalIdentifier,
       });
 
       if (isPostInstallHookSynchronous) {
@@ -564,6 +584,7 @@ export class ApplicationInstallService {
       await this.enqueueLogicFunctionWarmUp({
         workspaceId: params.workspaceId,
         applicationId: application.id,
+        applicationUniversalIdentifier: application.universalIdentifier,
         logicFunctionUniversalIdentifiers:
           findLogicFunctionUniversalIdentifiersToWarmUp(workspaceMigration),
       });
@@ -684,10 +705,12 @@ export class ApplicationInstallService {
   private async enqueueLogicFunctionWarmUp({
     workspaceId,
     applicationId,
+    applicationUniversalIdentifier,
     logicFunctionUniversalIdentifiers,
   }: {
     workspaceId: string;
     applicationId: string;
+    applicationUniversalIdentifier: string;
     logicFunctionUniversalIdentifiers: string[];
   }): Promise<void> {
     if (logicFunctionUniversalIdentifiers.length === 0) {
@@ -704,6 +727,8 @@ export class ApplicationInstallService {
               applicationId,
               logicFunctionUniversalIdentifier,
             },
+            workspaceId,
+            applicationUniversalIdentifier,
           }),
         ),
         WARM_UP_LOGIC_FUNCTION_JOB_OPTIONS,
@@ -738,7 +763,7 @@ export class ApplicationInstallService {
     previousVersion?: string;
     newVersion: string;
     isVersionUpgrade: boolean;
-    universalIdentifier: string;
+    applicationUniversalIdentifier: string;
   }): Promise<void> {
     const {
       manifest,
@@ -746,7 +771,7 @@ export class ApplicationInstallService {
       previousVersion,
       newVersion,
       isVersionUpgrade,
-      universalIdentifier,
+      applicationUniversalIdentifier,
     } = params;
 
     if (!isDefined(manifest.application.postInstallLogicFunction)) {
@@ -761,7 +786,7 @@ export class ApplicationInstallService {
 
     if (isVersionUpgrade && !shouldRunOnVersionUpgrade) {
       this.logger.log(
-        `Skipping post-install hook for app ${universalIdentifier}: version upgrade and shouldRunOnVersionUpgrade is false`,
+        `Skipping post-install hook for app ${applicationUniversalIdentifier}: version upgrade and shouldRunOnVersionUpgrade is false`,
       );
 
       return;
@@ -779,7 +804,7 @@ export class ApplicationInstallService {
 
     if (!isDefined(flatLogicFunction)) {
       throw new ApplicationException(
-        `Post-install logic function "${postInstallLogicFunctionUniversalIdentifier}" not found for application "${universalIdentifier}" after sync. Manifest may reference a stale identifier.`,
+        `Post-install logic function "${postInstallLogicFunctionUniversalIdentifier}" not found for application "${applicationUniversalIdentifier}" after sync. Manifest may reference a stale identifier.`,
         ApplicationExceptionCode.ENTITY_NOT_FOUND,
       );
     }
@@ -787,7 +812,7 @@ export class ApplicationInstallService {
     const payload = { previousVersion, newVersion };
 
     this.logger.log(
-      `Enqueuing post-install hook for app ${universalIdentifier} with payload:`,
+      `Enqueuing post-install hook for app ${applicationUniversalIdentifier} with payload:`,
       JSON.stringify(payload),
     );
 
@@ -800,6 +825,8 @@ export class ApplicationInstallService {
           payload,
         },
         {
+          workspaceId,
+          applicationUniversalIdentifier,
           retryLimit: 3,
           backoff: LOGIC_FUNCTION_QUEUE_RETRY_BACKOFF,
         },
@@ -950,6 +977,7 @@ export class ApplicationInstallService {
     universalIdentifier,
     name,
     grantedCapabilities,
+    grantedIframeMediaPermissions,
     workspaceId,
     applicationRegistrationId,
     sourceType,
@@ -959,6 +987,7 @@ export class ApplicationInstallService {
     universalIdentifier: string;
     name: string;
     grantedCapabilities: ApplicationCapability[];
+    grantedIframeMediaPermissions: IframeMediaPermission[];
     workspaceId: string;
     applicationRegistrationId: string;
     sourceType: ApplicationRegistrationSourceType;
@@ -972,6 +1001,7 @@ export class ApplicationInstallService {
       universalIdentifier,
       name,
       grantedCapabilities,
+      grantedIframeMediaPermissions,
       sourcePath: universalIdentifier,
       sourceType,
       applicationRegistrationId,

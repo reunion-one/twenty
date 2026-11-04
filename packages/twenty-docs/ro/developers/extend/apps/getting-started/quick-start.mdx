@@ -8,7 +8,7 @@ import { CardTitle } from "/snippets/card-title.mdx"
 
 ## Înainte de a începe
 
-Utilizați Node.js 24.5+ și Yarn 4. Instalați CLI-ul la nivel global; aplicația dvs. își păstrează propriile dependențe SDK.
+Folosește Node.js 24 (24.5+) sau 26 (26.5.1+) și Yarn 4 (prin Corepack: `corepack enable`; pe Node 26, instalează-l mai întâi cu `npm install -g corepack`). Instalați CLI-ul la nivel global; aplicația dvs. își păstrează propriile dependențe SDK.
 
 <Note>
 Construirea aplicațiilor Twenty este acceptată oficial numai pe sistemele Unix (macOS și Linux). Pe Windows, lucrați în WSL 2.
@@ -30,8 +30,11 @@ yarn install
 Folosiți un spațiu de lucru existent sau porniți un [server local](/ro/developers/extend/apps/getting-started/local-server), apoi autentificați-vă:
 
 ```bash
-twenty auth login --url https://your-workspace.twenty.com --name dev
+twenty auth login --url https://your-workspace.twenty.com --name dev --use
+twenty auth status --remote dev
 ```
+
+`--name dev` salvează conexiunea ca `dev`; `--use` o setează ca implicită pentru comenzile de mai jos. Pentru a o viza în mod explicit, adaugă `--remote dev`. Variabilele de mediu pot suprascrie opțiunea implicită; consultă [selectarea spațiului de lucru](/ro/developers/extend/apps/operations/cli#connecting-to-a-workspace).
 
 ## Sincronizați modificările
 
@@ -54,7 +57,7 @@ twenty app plan
 twenty app apply
 ```
 
-`plan` previzualizează modificările. `apply` încarcă și sincronizează o singură dată. Folosiți `--no-delete` pentru a păstra entitățile la distanță absente din sursă sau `--yes` pentru a permite ștergerea obiectelor și câmpurilor fără solicitare. Toate cele trei comenzi necesită o conexiune la distanță autentificată și drepturi de proprietate asupra înregistrării.
+`plan` previzualizează modificările. `apply` încarcă și sincronizează o singură dată. Folosește `--no-prune` pentru a păstra entitățile la distanță care lipsesc din sursă sau `--yes` pentru a permite ștergerea obiectelor și a câmpurilor fără o solicitare de confirmare. Toate cele trei comenzi necesită o conexiune la distanță autentificată și drepturi de proprietate asupra înregistrării.
 
 ## Ce puteți construi
 

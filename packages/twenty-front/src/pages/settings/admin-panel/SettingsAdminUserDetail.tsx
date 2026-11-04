@@ -3,7 +3,6 @@ import { Tabs } from 'twenty-ui/primitives/navigation';
 import { useParams } from 'react-router-dom';
 
 import { useQuery } from '@apollo/client/react';
-import { t } from '@lingui/core/macro';
 import { isNonEmptyString } from '@sniptt/guards';
 import { SettingsPath } from 'twenty-shared/types';
 import {
@@ -28,6 +27,8 @@ import { activeTabIdComponentState } from '@/ui/layout/tab-list/states/activeTab
 import { DEFAULT_WORKSPACE_LOGO } from '@/ui/navigation/navigation-drawer/constants/DefaultWorkspaceLogo';
 import { useAtomComponentStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomComponentStateValue';
 import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomStateValue';
+import { getAdminWorkspaceLabel } from '@/settings/admin-panel/utils/getAdminWorkspaceLabel';
+import { getWorkspaceAvatarColorSeed } from '@/workspace/utils/getWorkspaceAvatarColorSeed';
 import { Section } from 'twenty-ui/components/layout';
 import {
   IconCalendar,
@@ -42,8 +43,10 @@ import {
   type UserLookupAdminPanelQuery,
   UserLookupAdminPanelDocument,
 } from '~/generated-admin/graphql';
+import { useLingui } from '@lingui/react/macro';
 
 export const SettingsAdminUserDetail = () => {
+  const { t } = useLingui();
   const { userId } = useParams<{ userId: string }>();
   const apolloAdminClient = useApolloAdminClient();
 
@@ -77,7 +80,8 @@ export const SettingsAdminUserDetail = () => {
   const tabs =
     userLookupResult?.workspaces.map((workspace) => ({
       id: workspace.id,
-      title: workspace.name,
+      title: getAdminWorkspaceLabel(workspace),
+      colorSeed: getWorkspaceAvatarColorSeed(workspace.name),
       logo:
         getImageAbsoluteURI({
           imageUrl: isNonEmptyString(workspace.logo)

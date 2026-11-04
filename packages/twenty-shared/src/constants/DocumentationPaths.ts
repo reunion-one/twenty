@@ -36,6 +36,8 @@ export const DOCUMENTATION_PATHS = {
     '/developers/extend/apps/data/system-fields',
   DEVELOPERS_EXTEND_APPS_DATA_TIMELINE_ACTIVITY_TYPES:
     '/developers/extend/apps/data/timeline-activity-types',
+  DEVELOPERS_EXTEND_APPS_DATA_VALIDATION_RULES:
+    '/developers/extend/apps/data/validation-rules',
   DEVELOPERS_EXTEND_APPS_GETTING_STARTED_CONCEPTS:
     '/developers/extend/apps/getting-started/concepts',
   DEVELOPERS_EXTEND_APPS_GETTING_STARTED_GOOD_PRACTICES:
@@ -66,6 +68,7 @@ export const DOCUMENTATION_PATHS = {
   DEVELOPERS_EXTEND_APPS_LOGIC_CONNECTIONS:
     '/developers/extend/apps/logic/connections',
   DEVELOPERS_EXTEND_APPS_LOGIC_CREDITS: '/developers/extend/apps/logic/credits',
+  DEVELOPERS_EXTEND_APPS_LOGIC_INBOX: '/developers/extend/apps/logic/inbox',
   DEVELOPERS_EXTEND_APPS_LOGIC_KEY_VALUE_STORE:
     '/developers/extend/apps/logic/key-value-store',
   DEVELOPERS_EXTEND_APPS_LOGIC_LOGIC_FUNCTIONS:
@@ -80,8 +83,8 @@ export const DOCUMENTATION_PATHS = {
     '/developers/extend/apps/logic/workflows',
   DEVELOPERS_EXTEND_APPS_OPERATIONS_CLI:
     '/developers/extend/apps/operations/cli',
-  DEVELOPERS_EXTEND_APPS_OPERATIONS_MARKETPLACE_VETTING:
-    '/developers/extend/apps/operations/marketplace-vetting',
+  DEVELOPERS_EXTEND_APPS_OPERATIONS_MARKETPLACE_REVIEW:
+    '/developers/extend/apps/operations/marketplace-review',
   DEVELOPERS_EXTEND_APPS_OPERATIONS_MONITORING:
     '/developers/extend/apps/operations/monitoring',
   DEVELOPERS_EXTEND_APPS_OPERATIONS_OVERVIEW:
