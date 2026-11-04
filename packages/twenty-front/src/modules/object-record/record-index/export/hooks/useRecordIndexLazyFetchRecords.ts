@@ -156,7 +156,7 @@ export const useRecordIndexLazyFetchRecords = ({
       limit: pageSize,
       delayMs,
       maximumRequests,
-      fetchPolicy: isDefined(onMoreRecords) ? 'network-only' : undefined,
+      fetchPolicy: 'network-only',
     });
 
   const getTableData = async () => {

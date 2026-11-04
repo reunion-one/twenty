@@ -36,6 +36,7 @@ export const TriggerWorkflowVersionEngineCommand = () => {
       CoreObjectNameSingular.Person,
     filter: mountedCommandState.graphqlFilter ?? noMatchFilter,
     limit: DEFAULT_QUERY_PAGE_SIZE,
+    fetchPolicy: 'network-only',
   });
 
   const { runWorkflowVersion } = useRunWorkflowVersion();

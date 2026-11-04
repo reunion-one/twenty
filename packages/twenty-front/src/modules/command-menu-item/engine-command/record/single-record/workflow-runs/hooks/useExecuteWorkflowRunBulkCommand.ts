@@ -14,6 +14,7 @@ export const useExecuteWorkflowRunBulkCommand = (
     filter: isDefined(graphqlFilter) ? graphqlFilter : undefined,
     limit: DEFAULT_QUERY_PAGE_SIZE,
     recordGqlFields: { id: true },
+    fetchPolicy: 'network-only',
   });
 
   const execute = async () => {

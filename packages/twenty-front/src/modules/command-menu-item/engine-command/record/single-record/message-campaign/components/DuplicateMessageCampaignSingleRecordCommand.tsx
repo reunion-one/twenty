@@ -17,7 +17,10 @@ export const DuplicateMessageCampaignSingleRecordCommand = () => {
   const navigateApp = useNavigateApp();
 
   const { findOneRecord: findCampaign } = useLazyFindOneRecord<MessageCampaign>(
-    { objectNameSingular: CoreObjectNameSingular.MessageCampaign },
+    {
+      objectNameSingular: CoreObjectNameSingular.MessageCampaign,
+      fetchPolicy: 'network-only',
+    },
   );
 
   const { createOneRecord: createMessageCampaign } = useCreateOneRecord({

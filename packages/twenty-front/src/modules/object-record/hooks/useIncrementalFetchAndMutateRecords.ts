@@ -39,6 +39,7 @@ export const useIncrementalFetchAndMutateRecords = <T>({
     orderBy,
     limit,
     recordGqlFields,
+    fetchPolicy: 'network-only',
   });
 
   const { objectMetadataItem } = useObjectMetadataItem({
