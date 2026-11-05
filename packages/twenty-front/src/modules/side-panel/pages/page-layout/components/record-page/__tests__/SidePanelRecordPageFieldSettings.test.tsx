@@ -75,6 +75,7 @@ mockObjectMetadataItems[targetIndex] = {
 const mockSnapshot = buildRecordTableWidgetViewSnapshot(
   mockObjectMetadataItems[targetIndex],
 );
+mockSnapshot.view.mainGroupByFieldMetadataId = groupingFields[0].id;
 const mockWidget: PageLayoutWidget = {
   ...makeWidget(WIDGET_ID, 0),
   type: WidgetType.FIELD,
@@ -221,7 +222,7 @@ jest.mock(
 );
 
 describe('junction field widget native grouping @custom', () => {
-  it('offers readable far-side SELECT fields and shows the selected label', async () => {
+  it('reselects a readable far-side field to restore missing preview groups', async () => {
     const store = createStore();
     store.set(
       recordTableWidgetViewDraftComponentState.atomFamily({
@@ -238,7 +239,9 @@ describe('junction field widget native grouping @custom', () => {
       </Provider>,
     );
 
-    await user.click(screen.getByRole('button', { name: 'Group by: None' }));
+    await user.click(
+      screen.getByRole('button', { name: 'Group by: Fetch status' }),
+    );
     for (const field of groupingFields) {
       expect(
         screen.getByRole('option', { name: field.label }),

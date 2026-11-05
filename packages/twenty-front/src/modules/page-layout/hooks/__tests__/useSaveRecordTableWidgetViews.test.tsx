@@ -193,7 +193,7 @@ describe('useSaveRecordTableWidgetViews', () => {
   });
 });
 
-it('saves and reloads FIELD widget grouping with its current-record junction filter @custom', async () => {
+it('repairs missing groups and reloads FIELD widget grouping with its junction filter @custom', async () => {
   const store = createStore();
   const objectMetadataItem = getMockObjectMetadataItemOrThrow('opportunity');
   const selectField = objectMetadataItem.readableFields.find(
@@ -208,6 +208,7 @@ it('saves and reloads FIELD widget grouping with its current-record junction fil
     ...buildRecordTableWidgetViewSnapshot(objectMetadataItem),
     viewFilters: [relationTraversalViewFilter],
   };
+  initialSnapshot.view.mainGroupByFieldMetadataId = selectField.id;
   initialSnapshot.viewFilters = initialSnapshot.viewFilters.map((filter) => ({
     ...filter,
     viewId: initialSnapshot.view.id,

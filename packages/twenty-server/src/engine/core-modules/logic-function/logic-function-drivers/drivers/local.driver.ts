@@ -293,7 +293,6 @@ export class LocalDriver implements LogicFunctionDriver {
           await this.childProcessRunner.runChildWithEnv({
             runnerPath,
             executionDirectory: sourceTemporaryDir,
-            flatApplication,
             env: env ?? {},
             payload,
             context,
