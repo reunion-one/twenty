@@ -55,10 +55,6 @@ export const reconstructAgentsManifest = ({
     flatAgent: FlatAgent;
     flatRoleTargets: FlatRoleTarget[];
   }): { manifest: AgentManifest } | { reason: string } => {
-    if (flatAgent.isCustom) {
-      return { reason: 'agent created in the workspace' };
-    }
-
     if (flatRoleTargets.length > 1) {
       return { reason: 'agent with more than one role' };
     }
@@ -134,11 +130,6 @@ export const reconstructAgentsManifest = ({
   for (const flatAgent of sortFlatEntitiesByUniversalIdentifier(
     applicationAllFlatEntityMaps.flatAgentMaps,
   )) {
-    // Left to the classifier, which reports soft-deleted entities as excluded
-    if (isDefined(flatAgent.deletedAt)) {
-      continue;
-    }
-
     const conversion = convertFlatAgent({
       flatAgent,
       flatRoleTargets:

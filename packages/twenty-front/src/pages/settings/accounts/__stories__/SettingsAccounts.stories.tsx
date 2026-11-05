@@ -22,10 +22,12 @@ import {
   CONNECTED_ACCOUNTS,
   FATHOM_ACCOUNT_ID,
   FATHOM_APPLICATION_ID,
+  FATHOM_ONLY_ACCOUNT_ID,
   GOOGLE_ACCOUNT_ID,
   GOOGLE_MESSAGE_CHANNEL_ID,
   MESSAGE_CHANNELS,
   MICROSOFT_ACCOUNT_ID,
+  USER_SETTINGS_APPLICATION_PREFERENCES_GRAPHQL_HANDLER,
   deleteConnectedAccount,
   disconnectConnectedAccount,
   seedAccountGroupsStory,
@@ -34,9 +36,18 @@ import {
 import {
   APPLICATION_PREFERENCES_DETAIL_GRAPHQL_HANDLERS,
   APPLICATION_PREFERENCES_GRAPHQL_HANDLERS,
+  CONNECTED_GRANOLA_GRAPHQL_HANDLERS,
   failNextApplicationPreferencesRequest,
+  failNextConnectedAccountsRequest,
+  findApplicationsGatedQuery,
   seedApplicationPreferencesStory,
 } from '~/pages/settings/accounts/__stories__/mockedApplicationPreferences';
+import {
+  LINEAR_APPLICATION_ID,
+  LINEAR_GENERAL_TAB_REDIRECT_LOCATION,
+  MOCKED_TRANSIENT_TOKEN,
+} from '~/pages/settings/accounts/__stories__/mockedLinearApplicationPreferences';
+import { clickAndCaptureOAuthRedirect } from '~/pages/settings/accounts/__stories__/clickAndCaptureOAuthRedirect';
 import { withinTableRowOrThrow } from '~/testing/utils/withinTableRowOrThrow';
 
 const meta: Meta<PageDecoratorArgs> = {
@@ -103,7 +114,9 @@ const openRowMenu = async ({
 
 const accountGroupsStory: Story = {
   args: {
-    additionalRoutes: ['/settings/accounts/detail/:connectedAccountId'],
+    additionalRoutes: [
+      '/settings/app-preferences/accounts/:connectedAccountId',
+    ],
   },
   beforeEach: seedAccountGroupsStory,
   parameters: {
@@ -175,7 +188,7 @@ export const AccountsGroupedByEmail: Story = {
     ).not.toBeInTheDocument();
     expect(canvas.getByRole('link', { name: 'tim@apple.dev' })).toHaveAttribute(
       'href',
-      `/settings/accounts/detail/${GOOGLE_ACCOUNT_ID}`,
+      `/settings/app-preferences/accounts/${GOOGLE_ACCOUNT_ID}`,
     );
     expect(canvas.queryByText('Tim@Apple.dev')).not.toBeInTheDocument();
 
@@ -194,6 +207,26 @@ export const AccountsGroupedByEmail: Story = {
     ).not.toBeInTheDocument();
 
     expect(canvas.queryByText('support@apple.dev')).not.toBeInTheDocument();
+  },
+};
+
+export const AccountsTabKeepsUsedByOnMobile: Story = {
+  ...accountsTabStory,
+  parameters: {
+    ...accountsTabStory.parameters,
+    viewport: { defaultViewport: 'mobile1' },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await canvas.findByText('tim@apple.dev', undefined, { timeout: 3000 });
+
+    expect(canvas.getByText('Used by')).toBeVisible();
+    expect(
+      getTableRow(canvasElement, 'tim@apple.dev').getByRole('img', {
+        name: 'Fathom',
+      }),
+    ).toBeVisible();
   },
 };
 
@@ -268,15 +301,16 @@ export const AccountsSectionHeaderStaysWhileLoading: Story = {
   },
 };
 
-export const AccountsTabWithoutAccountsSaysNoAccountsYet: Story = {
+export const AccountsTabWithoutAccountsOffersConnectCards: Story = {
   ...accountsTabStory,
+  beforeEach: seedApplicationPreferencesStory,
   parameters: {
     msw: {
       handlers: [
         graphql.query('MyConnectedAccounts', () =>
           HttpResponse.json({ data: { myConnectedAccounts: [] } }),
         ),
-        ...ACCOUNT_GROUPS_GRAPHQL_HANDLERS,
+        ...APPLICATION_PREFERENCES_GRAPHQL_HANDLERS,
       ],
     },
   },
@@ -284,9 +318,32 @@ export const AccountsTabWithoutAccountsSaysNoAccountsYet: Story = {
     const canvas = within(canvasElement);
 
     expect(
-      await canvas.findByText('No accounts yet', undefined, { timeout: 3000 }),
+      await canvas.findByText('Connect with Gmail and Calendar', undefined, {
+        timeout: 3000,
+      }),
     ).toBeVisible();
-    expect(canvas.queryByText('Connect with Google')).not.toBeInTheDocument();
+    expect(canvas.getByText('Connect with Outlook')).toBeVisible();
+    const linearCard = await canvas.findByText(
+      'Connect with Linear',
+      undefined,
+      {
+        timeout: 3000,
+      },
+    );
+    expect(canvas.getByText('Connect with Fathom')).toBeVisible();
+    expect(canvas.queryByText('Connect with Granola')).not.toBeInTheDocument();
+
+    const redirectUrl = await clickAndCaptureOAuthRedirect(linearCard);
+
+    expect(`${redirectUrl.origin}${redirectUrl.pathname}`).toBe(
+      `${REACT_APP_SERVER_BASE_URL}/auth/apps/authorize`,
+    );
+    expect(Object.fromEntries(redirectUrl.searchParams)).toEqual({
+      applicationId: LINEAR_APPLICATION_ID,
+      providerName: 'linear',
+      transientToken: MOCKED_TRANSIENT_TOKEN,
+      redirectLocation: LINEAR_GENERAL_TAB_REDIRECT_LOCATION,
+    });
   },
 };
 
@@ -294,7 +351,7 @@ export const AppPreferencesListEnabledApps: Story = {
   ...accountsTabStory,
   args: {
     ...accountsTabStory.args,
-    additionalRoutes: ['/settings/accounts/apps/outlook'],
+    additionalRoutes: ['/settings/app-preferences/outlook'],
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -304,14 +361,14 @@ export const AppPreferencesListEnabledApps: Story = {
     await userEvent.click(getTab({ canvasElement, tabId: 'apps' }));
 
     expect(
-      await canvas.findByRole('link', { name: 'Gmail and Calendar' }),
+      await canvas.findByRole('link', { name: /Gmail and Calendar/ }),
     ).toBeVisible();
     expect(canvas.queryByText('IMAP')).not.toBeInTheDocument();
 
-    await userEvent.click(canvas.getByRole('link', { name: 'Outlook' }));
+    await userEvent.click(canvas.getByRole('link', { name: /Outlook/ }));
 
     expect(
-      await canvas.findByText('Navigated to /settings/accounts/apps/outlook'),
+      await canvas.findByText('Navigated to /settings/app-preferences/outlook'),
     ).toBeVisible();
   },
 };
@@ -330,9 +387,35 @@ export const RowOpensAccountPage: Story = {
 
     expect(
       await canvas.findByText(
-        'Navigated to /settings/accounts/detail/:connectedAccountId',
+        'Navigated to /settings/app-preferences/accounts/:connectedAccountId',
       ),
     ).toBeVisible();
+  },
+};
+
+export const AppOnlyAccountWithAppSettingsOpensAccountPage: Story = {
+  ...accountsTabStory,
+  parameters: {
+    msw: {
+      handlers: [
+        USER_SETTINGS_APPLICATION_PREFERENCES_GRAPHQL_HANDLER,
+        ...ACCOUNT_GROUPS_GRAPHQL_HANDLERS,
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    expect(
+      await canvas.findByRole(
+        'link',
+        { name: 'notes@apple.dev' },
+        { timeout: 3000 },
+      ),
+    ).toHaveAttribute(
+      'href',
+      `/settings/app-preferences/accounts/${FATHOM_ONLY_ACCOUNT_ID}`,
+    );
   },
 };
 
@@ -483,7 +566,10 @@ export const AccountsTabMenuOpensAccountSettingsWithoutReconnect: Story = {
 
     expect(
       await body.findByRole('menuitem', { name: 'Account settings' }),
-    ).toHaveAttribute('href', `/settings/accounts/detail/${GOOGLE_ACCOUNT_ID}`);
+    ).toHaveAttribute(
+      'href',
+      `/settings/app-preferences/accounts/${GOOGLE_ACCOUNT_ID}`,
+    );
     expect(
       body.queryByRole('menuitem', { name: 'Reconnect' }),
     ).not.toBeInTheDocument();
@@ -556,7 +642,7 @@ export const AppsFlagOnlyBrokenAccounts: Story = {
       getStatusCell({ canvasElement, text: 'Outlook' }),
     ).toBeEmptyDOMElement();
     expect(
-      getStatusCell({ canvasElement, text: 'Linear' }),
+      getStatusCell({ canvasElement, text: 'Granola' }),
     ).toBeEmptyDOMElement();
   },
 };
@@ -564,7 +650,7 @@ export const AppsFlagOnlyBrokenAccounts: Story = {
 export const AppPreferencesListInstalledApps: Story = {
   ...accountGroupsStory,
   args: {
-    additionalRoutes: ['/settings/accounts/applications/:applicationId'],
+    additionalRoutes: ['/settings/app-preferences/:applicationId'],
   },
   beforeEach: seedApplicationPreferencesStory,
   parameters: {
@@ -579,10 +665,13 @@ export const AppPreferencesListInstalledApps: Story = {
 
     expect(fathomName.closest('a')).toHaveAttribute(
       'href',
-      `/settings/accounts/applications/${FATHOM_APPLICATION_ID}`,
+      `/settings/app-preferences/${FATHOM_APPLICATION_ID}`,
     );
     expect(canvas.getByText('Granola')).toBeVisible();
     expect(canvas.getByText('Linear')).toBeVisible();
+    expect(
+      canvas.getByText('Records, transcribes and summarizes your meetings.'),
+    ).toBeVisible();
     expect(canvas.queryByText('Blocklist')).not.toBeInTheDocument();
 
     const outlookRow = canvas
@@ -613,9 +702,10 @@ export const AppPreferencesListInstalledApps: Story = {
 
     expect(
       await canvas.findByText(
-        'Navigated to /settings/accounts/applications/:applicationId',
+        'Navigated to /settings/app-preferences/:applicationId',
       ),
     ).toBeVisible();
+    expect(findApplicationsGatedQuery).not.toHaveBeenCalled();
   },
 };
 
@@ -631,13 +721,36 @@ export const InstalledAppsFlagReconnectAndMissingConfiguration: Story = {
     await canvas.findByText('Fathom', undefined, { timeout: 3000 });
 
     expect(
-      await getTableRow(canvasElement, 'Fathom').findByText(
-        'Missing configuration',
-      ),
+      await getTableRow(canvasElement, 'Fathom').findByText('Setup incomplete'),
     ).toBeVisible();
     expect(
-      await getTableRow(canvasElement, 'Linear').findByText('Reconnect needed'),
+      await getTableRow(canvasElement, 'Linear').findByText('Sync failed'),
     ).toBeVisible();
+    expect(
+      getStatusCell({ canvasElement, text: 'Granola' }),
+    ).toBeEmptyDOMElement();
+  },
+};
+
+export const InstalledAppWithoutMyConnectionShowsNotConnectedHint: Story = {
+  ...accountGroupsStory,
+  beforeEach: seedApplicationPreferencesStory,
+  parameters: {
+    msw: { handlers: CONNECTED_GRANOLA_GRAPHQL_HANDLERS },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await canvas.findByText('Linear', undefined, { timeout: 3000 });
+
+    expect(
+      await getTableRow(canvasElement, 'Linear').findByText('Not connected'),
+    ).toBeVisible();
+
+    const fathomRow = getTableRow(canvasElement, 'Fathom');
+
+    expect(fathomRow.getByText('Setup incomplete')).toBeVisible();
+    expect(fathomRow.queryByText('Not connected')).not.toBeInTheDocument();
     expect(
       getStatusCell({ canvasElement, text: 'Granola' }),
     ).toBeEmptyDOMElement();
@@ -664,7 +777,7 @@ export const AppPreferencesListLoadErrorOffersRetry: Story = {
       ),
     ).toBeVisible();
     expect(
-      canvas.getByRole('link', { name: 'Gmail and Calendar' }),
+      canvas.getByRole('link', { name: /Gmail and Calendar/ }),
     ).toBeVisible();
     expect(canvas.queryByText('Fathom')).not.toBeInTheDocument();
 
@@ -676,6 +789,46 @@ export const AppPreferencesListLoadErrorOffersRetry: Story = {
     expect(
       canvas.queryByText(
         'Your installed apps could not be loaded. Check your connection and try again.',
+      ),
+    ).not.toBeInTheDocument();
+  },
+};
+
+export const ConnectionsLoadErrorHidesStatusesUntilRetry: Story = {
+  ...accountGroupsStory,
+  beforeEach: async () => {
+    await seedApplicationPreferencesStory();
+    failNextConnectedAccountsRequest();
+  },
+  parameters: {
+    msw: { handlers: CONNECTED_GRANOLA_GRAPHQL_HANDLERS },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    expect(
+      await canvas.findByText(
+        'Your connections could not be loaded. Check your connection and try again.',
+        undefined,
+        { timeout: 3000 },
+      ),
+    ).toBeVisible();
+    expect(canvas.getByText('Linear')).toBeVisible();
+    expect(canvas.queryByText('Not connected')).not.toBeInTheDocument();
+    expect(canvas.queryByText('Setup incomplete')).not.toBeInTheDocument();
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Retry' }));
+
+    expect(
+      await getTableRow(canvasElement, 'Linear').findByText(
+        'Not connected',
+        undefined,
+        { timeout: 3000 },
+      ),
+    ).toBeVisible();
+    expect(
+      canvas.queryByText(
+        'Your connections could not be loaded. Check your connection and try again.',
       ),
     ).not.toBeInTheDocument();
   },
@@ -718,7 +871,7 @@ export const BlocklistFallsBackToAccountsTabWithoutBuiltInAccountApp: Story = {
 
     expect(await canvas.findByText('Fathom')).toBeVisible();
     expect(
-      canvas.queryByRole('link', { name: 'Gmail and Calendar' }),
+      canvas.queryByRole('link', { name: /Gmail and Calendar/ }),
     ).not.toBeInTheDocument();
     expect(canvas.queryByText('Blocklist')).not.toBeInTheDocument();
   },

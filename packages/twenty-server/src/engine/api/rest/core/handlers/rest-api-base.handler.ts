@@ -34,11 +34,14 @@ import {
   PermissionsException,
   PermissionsExceptionCode,
   PermissionsExceptionMessage,
-} from 'src/engine/metadata-modules/permissions/permissions.exception';
-import { UserRoleService } from 'src/engine/metadata-modules/user-role/user-role.service';
+} from 'src/engine/permissions/permissions.exception';
+import { UserRoleService } from 'src/engine/permissions/role-assignment/user-role.service';
 import { WorkspaceCacheStorageService } from 'src/engine/workspace-cache-storage/workspace-cache-storage.service';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 import { isApplicationAuthContext } from 'src/engine/core-modules/auth/guards/is-application-auth-context.guard';
+import { type RoleIdsBySource } from 'src/engine/permissions/principal/types/role-permission-config.type';
+import { getPermissionsPrincipalsFromAuthContext } from 'src/engine/permissions/principal/utils/get-permissions-principals-from-auth-context.util';
+import { getObjectsPermissionsFromRolePermissionConfig } from 'src/engine/permissions/role/utils/get-objects-permissions-from-role-permission-config.util';
 
 export interface PageInfo {
   hasNextPage?: boolean;
@@ -83,14 +86,16 @@ export abstract class RestApiBaseHandler {
     FormatResult | { data: FormatResult[] } | CommonGroupByOutputItem[]
   >;
 
-  private getObjectsPermissions = async (authContext: WorkspaceAuthContext) => {
-    let roleId: string;
+  private getPermissionsContext = async (authContext: WorkspaceAuthContext) => {
+    let intersectionOf: RoleIdsBySource;
 
     if (isApiKeyAuthContext(authContext)) {
-      roleId = await this.apiKeyRoleService.getRoleIdForApiKeyId(
-        authContext.apiKey.id,
-        authContext.workspace.id,
-      );
+      intersectionOf = {
+        apiKeyRoleId: await this.apiKeyRoleService.getRoleIdForApiKeyId(
+          authContext.apiKey.id,
+          authContext.workspace.id,
+        ),
+      };
     } else if (isUserAuthContext(authContext)) {
       const userWorkspaceRoleId =
         await this.userRoleService.getRoleIdForUserWorkspace({
@@ -105,12 +110,14 @@ export abstract class RestApiBaseHandler {
         );
       }
 
-      roleId = userWorkspaceRoleId;
+      intersectionOf = { userWorkspaceRoleId };
     } else if (
       isApplicationAuthContext(authContext) &&
       isDefined(authContext.application.defaultRoleId)
     ) {
-      roleId = authContext.application.defaultRoleId;
+      intersectionOf = {
+        applicationRoleId: authContext.application.defaultRoleId,
+      };
     } else {
       throw new PermissionsException(
         'Authentication context is invalid',
@@ -118,13 +125,42 @@ export abstract class RestApiBaseHandler {
       );
     }
 
-    const { rolesPermissions } =
-      await this.workspaceCacheService.getOrRecompute(
-        authContext.workspace.id,
-        ['rolesPermissions'],
-      );
+    const {
+      rolesPermissions,
+      flatObjectMetadataMaps,
+      flatFieldMetadataMaps,
+      flatApplicationMaps,
+    } = await this.workspaceCacheService.getOrRecompute(
+      authContext.workspace.id,
+      [
+        'rolesPermissions',
+        'flatObjectMetadataMaps',
+        'flatFieldMetadataMaps',
+        'flatApplicationMaps',
+      ],
+    );
 
-    return { objectsPermissions: rolesPermissions[roleId] };
+    const rolePermissionConfig = { intersectionOf };
+    const principals = getPermissionsPrincipalsFromAuthContext(authContext);
+
+    if (!isDefined(principals)) {
+      throw new PermissionsException(
+        PermissionsExceptionMessage.PERMISSION_DENIED,
+        PermissionsExceptionCode.PERMISSION_DENIED,
+      );
+    }
+
+    return {
+      principals,
+      objectsPermissions: getObjectsPermissionsFromRolePermissionConfig({
+        rolesPermissions,
+        rolePermissionConfig,
+        principals,
+        flatObjectMetadataMaps,
+        flatFieldMetadataMaps,
+        flatApplicationMaps,
+      }),
+    };
   };
 
   async computeSelectedFields({
@@ -140,11 +176,17 @@ export abstract class RestApiBaseHandler {
     flatObjectMetadataMaps: FlatEntityMaps<FlatObjectMetadata>;
     flatFieldMetadataMaps: FlatEntityMaps<OrmFlatFieldMetadata>;
   }): Promise<CommonSelectedFields> {
-    const { objectsPermissions } =
-      await this.getObjectsPermissions(authContext);
+    const { principals, objectsPermissions } =
+      await this.getPermissionsContext(authContext);
 
     const { selectedFields } = this.commonSelectFieldsBuilder.buildFromDepth({
       objectsPermissions,
+      readableObjectMetadataIds:
+        await this.findRelationReadableObjectMetadataIds({
+          principals,
+          flatObjectMetadataMaps,
+          depth,
+        }),
       flatObjectMetadataMaps,
       flatFieldMetadataMaps,
       flatObjectMetadata,
@@ -171,17 +213,42 @@ export abstract class RestApiBaseHandler {
   }): Promise<{
     selectedFields: CommonSelectedFields;
   }> {
-    const { objectsPermissions } =
-      await this.getObjectsPermissions(authContext);
+    const { principals, objectsPermissions } =
+      await this.getPermissionsContext(authContext);
 
     return this.commonSelectFieldsBuilder.buildFromDepth({
       objectsPermissions,
+      readableObjectMetadataIds:
+        await this.findRelationReadableObjectMetadataIds({
+          principals,
+          flatObjectMetadataMaps,
+          depth,
+        }),
       flatObjectMetadataMaps,
       flatFieldMetadataMaps,
       flatObjectMetadata,
       depth,
       requestedFields,
       maximumDefaultFieldCount: REST_API_DEFAULT_MAX_FIELDS,
+    });
+  }
+
+  private async findRelationReadableObjectMetadataIds({
+    principals,
+    flatObjectMetadataMaps,
+    depth,
+  }: Parameters<
+    CommonSelectFieldsBuilder['findReadableObjectMetadataIds']
+  >[0] & {
+    depth: SelectionDepth | undefined;
+  }): Promise<ReadonlySet<string>> {
+    if (!isDefined(depth) || depth === 0) {
+      return new Set();
+    }
+
+    return this.commonSelectFieldsBuilder.findReadableObjectMetadataIds({
+      principals,
+      flatObjectMetadataMaps,
     });
   }
 

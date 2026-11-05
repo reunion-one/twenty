@@ -31,7 +31,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": false,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:56.200Z",
           "updatedAt": "2026-04-10T08:55:56.200Z",
           "labelIdentifierFieldMetadataId": "63d7dfdd-ccca-410b-9686-f2ad8428496a",
@@ -708,7 +707,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": false,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:56.200Z",
           "updatedAt": "2026-04-10T08:55:56.200Z",
           "labelIdentifierFieldMetadataId": "126456b1-0206-479b-a362-7cf99b727614",
@@ -1093,7 +1091,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -1114,7 +1113,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -1143,7 +1143,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": true,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:56.200Z",
           "updatedAt": "2026-04-10T08:55:56.200Z",
           "labelIdentifierFieldMetadataId": "447dbffe-f0f5-47c3-8d2c-ac448a452a1e",
@@ -1553,7 +1552,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "GIN",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -1582,7 +1582,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": true,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:56.200Z",
           "updatedAt": "2026-04-10T08:55:56.200Z",
           "labelIdentifierFieldMetadataId": "ba2f93fe-248e-47f7-83b4-00189ca53e24",
@@ -2351,7 +2350,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -2372,7 +2372,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -2393,7 +2394,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -2414,7 +2416,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "GIN",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -2443,7 +2446,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": false,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:56.200Z",
           "updatedAt": "2026-04-10T08:55:56.200Z",
           "labelIdentifierFieldMetadataId": "453d499a-47bf-4ea0-be5e-9c2acbf7a464",
@@ -2834,7 +2836,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": false,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:56.200Z",
           "updatedAt": "2026-04-10T08:55:56.200Z",
           "labelIdentifierFieldMetadataId": "d09704f0-057d-48ed-8278-3d673d5eb467",
@@ -3692,7 +3693,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -3713,7 +3715,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -3734,7 +3737,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -3755,7 +3759,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -3776,7 +3781,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -3797,7 +3803,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -3818,7 +3825,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -3839,7 +3847,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -3860,7 +3869,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -3881,7 +3891,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -3910,7 +3921,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": true,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:56.200Z",
           "updatedAt": "2026-04-10T08:55:56.200Z",
           "labelIdentifierFieldMetadataId": "83ab1b71-c43f-4e6e-bc58-5bdaa93d6525",
@@ -4527,7 +4537,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "GIN",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -4556,7 +4567,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": true,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:58.471Z",
           "updatedAt": "2026-04-10T08:55:58.471Z",
           "labelIdentifierFieldMetadataId": "a2b70b10-ab44-428e-b1f7-631d78536469",
@@ -5348,7 +5358,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "GIN",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "029204a9-b419-41d8-a483-57690c3d1a18",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -5369,7 +5380,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": true,
+              "applicationId": "029204a9-b419-41d8-a483-57690c3d1a18",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -5398,7 +5410,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": true,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:56.200Z",
           "updatedAt": "2026-04-10T08:55:56.200Z",
           "labelIdentifierFieldMetadataId": "5a75ae6c-c4f8-4bd6-9676-259f1bbed07c",
@@ -5944,7 +5955,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -5965,7 +5977,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -5986,7 +5999,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -6007,7 +6021,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -6036,7 +6051,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": false,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:56.200Z",
           "updatedAt": "2026-04-10T08:55:56.200Z",
           "labelIdentifierFieldMetadataId": "ef9a5003-2e21-459e-804a-5b27afa9cb6a",
@@ -6560,7 +6574,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -6581,7 +6596,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -6602,7 +6618,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -6631,7 +6648,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": true,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:56.200Z",
           "updatedAt": "2026-04-10T08:55:56.200Z",
           "labelIdentifierFieldMetadataId": "b127a5d9-2bd4-480f-bb9a-6eca0dbf250e",
@@ -7389,7 +7405,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -7410,7 +7427,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -7431,7 +7449,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -7452,7 +7471,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -7473,7 +7493,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -7494,7 +7515,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -7515,7 +7537,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -7544,7 +7567,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": true,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:56.200Z",
           "updatedAt": "2026-04-10T08:55:56.200Z",
           "labelIdentifierFieldMetadataId": "c4a2e871-0f4e-445e-a43b-b2399e046b54",
@@ -7918,7 +7940,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -7947,7 +7970,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": false,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:56.200Z",
           "updatedAt": "2026-04-10T08:55:56.200Z",
           "labelIdentifierFieldMetadataId": "e0a6eefc-a74b-40fa-9ca6-eac3c67455a3",
@@ -8497,7 +8519,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -8518,7 +8541,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -8539,7 +8563,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -8568,7 +8593,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": false,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:56.200Z",
           "updatedAt": "2026-04-10T08:55:56.200Z",
           "labelIdentifierFieldMetadataId": "4a3b7558-0562-405a-802f-f148cbc7d745",
@@ -9102,7 +9126,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -9123,7 +9148,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -9144,7 +9170,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": "\"deletedAt\" IS NULL",
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -9181,7 +9208,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": true,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:57.800Z",
           "updatedAt": "2026-04-10T08:55:57.800Z",
           "labelIdentifierFieldMetadataId": "f0ffa796-6575-4ec0-a56e-ed35144704a4",
@@ -9771,7 +9797,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "GIN",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "029204a9-b419-41d8-a483-57690c3d1a18",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -9792,7 +9819,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": true,
+              "applicationId": "029204a9-b419-41d8-a483-57690c3d1a18",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -9821,7 +9849,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": false,
           "isUIEditable": true,
           "isUICreatable": false,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:56.200Z",
           "updatedAt": "2026-04-10T08:55:56.200Z",
           "labelIdentifierFieldMetadataId": "5ae70c32-669a-4346-b8d0-660e858e26df",
@@ -10442,7 +10469,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -10463,7 +10491,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -10484,7 +10513,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "GIN",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -10513,7 +10543,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": true,
           "isUIEditable": true,
           "isUICreatable": false,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:56.200Z",
           "updatedAt": "2026-04-10T08:55:56.200Z",
           "labelIdentifierFieldMetadataId": "d8ff93be-5b55-4e4b-af50-20eb2f38320c",
@@ -11511,7 +11540,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": true,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -11532,7 +11562,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "GIN",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -11561,7 +11592,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": true,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:58.075Z",
           "updatedAt": "2026-04-10T08:55:58.075Z",
           "labelIdentifierFieldMetadataId": "6182038f-196f-4f37-95c8-d4aee7118b7a",
@@ -12794,7 +12824,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "GIN",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "029204a9-b419-41d8-a483-57690c3d1a18",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -12815,7 +12846,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": true,
+              "applicationId": "029204a9-b419-41d8-a483-57690c3d1a18",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -12836,7 +12868,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": true,
+              "applicationId": "029204a9-b419-41d8-a483-57690c3d1a18",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -12865,7 +12898,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": true,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:59.195Z",
           "updatedAt": "2026-04-10T08:55:59.195Z",
           "labelIdentifierFieldMetadataId": "455256a6-d7ec-4bac-bf0c-d296b74a59d5",
@@ -13459,7 +13491,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "GIN",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "029204a9-b419-41d8-a483-57690c3d1a18",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -13480,7 +13513,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": true,
+              "applicationId": "029204a9-b419-41d8-a483-57690c3d1a18",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -13501,7 +13535,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": true,
+              "applicationId": "029204a9-b419-41d8-a483-57690c3d1a18",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -13522,7 +13557,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": true,
+              "applicationId": "029204a9-b419-41d8-a483-57690c3d1a18",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -13551,7 +13587,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": false,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:56.200Z",
           "updatedAt": "2026-04-10T08:55:56.200Z",
           "labelIdentifierFieldMetadataId": "55124b9b-08ba-48a3-b34b-76d8f616d805",
@@ -13884,7 +13919,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -13905,7 +13941,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -13926,7 +13963,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": "\"deletedAt\" IS NULL",
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -13963,7 +14001,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": true,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:56.200Z",
           "updatedAt": "2026-04-10T08:55:56.200Z",
           "labelIdentifierFieldMetadataId": "eee1262f-7a1a-45d0-b957-9ed79862383c",
@@ -14556,7 +14593,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -14577,7 +14615,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "GIN",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -14606,7 +14645,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": true,
           "isUIEditable": true,
           "isUICreatable": false,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:56.200Z",
           "updatedAt": "2026-04-10T08:55:56.200Z",
           "labelIdentifierFieldMetadataId": "9b0a0e4e-e140-4cf8-9217-6a4667365c0e",
@@ -15152,7 +15190,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -15173,7 +15212,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "GIN",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -15202,7 +15242,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": true,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:56.200Z",
           "updatedAt": "2026-04-10T08:55:56.200Z",
           "labelIdentifierFieldMetadataId": "1b86fb74-25cf-4228-af97-b6a479643407",
@@ -16401,7 +16440,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -16422,7 +16462,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": true,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -16443,7 +16484,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "GIN",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -16472,7 +16514,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": true,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:56.200Z",
           "updatedAt": "2026-04-10T08:55:56.200Z",
           "labelIdentifierFieldMetadataId": "3c551b83-e8c0-4fd0-b43e-a51f0d3a408c",
@@ -17018,7 +17059,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -17039,7 +17081,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -17060,7 +17103,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -17081,7 +17125,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -17110,7 +17155,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": true,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:56.200Z",
           "updatedAt": "2026-04-10T08:55:56.200Z",
           "labelIdentifierFieldMetadataId": "50c85704-9c8e-4e30-8a86-dc6adb756999",
@@ -18186,7 +18230,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -18207,7 +18252,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": true,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -18228,7 +18274,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "GIN",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -18257,7 +18304,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": true,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:56.200Z",
           "updatedAt": "2026-04-10T08:55:56.200Z",
           "labelIdentifierFieldMetadataId": "a5f99b30-3b36-4fbb-935c-bcdf28183247",
@@ -18721,7 +18767,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "GIN",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -18750,7 +18797,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": false,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:56.200Z",
           "updatedAt": "2026-04-10T08:55:56.200Z",
           "labelIdentifierFieldMetadataId": "d87675ee-1d19-4658-8037-daec3e00b718",
@@ -19267,7 +19313,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -19296,7 +19343,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": true,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:56.200Z",
           "updatedAt": "2026-04-10T08:55:56.200Z",
           "labelIdentifierFieldMetadataId": "dfea27f1-41e8-431e-a78b-5f4960df5600",
@@ -19629,7 +19675,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "dd6a5463-023d-4a10-855f-a4abaf32c1ec",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -19658,7 +19705,6 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
           "isAuditLogged": true,
           "isUIEditable": true,
           "isUICreatable": true,
-          "writability": "OPEN",
           "createdAt": "2026-04-10T08:55:58.898Z",
           "updatedAt": "2026-04-10T08:55:58.898Z",
           "labelIdentifierFieldMetadataId": "d635bcd1-14b8-4224-9617-ca7049448c02",
@@ -20224,7 +20270,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "GIN",
               "isUnique": false,
-              "isCustom": false,
+              "applicationId": "029204a9-b419-41d8-a483-57690c3d1a18",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -20245,7 +20292,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": true,
+              "applicationId": "029204a9-b419-41d8-a483-57690c3d1a18",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
@@ -20266,7 +20314,8 @@ export const mockedStandardObjectMetadataQueryResult: ObjectMetadataItemsQuery =
               "indexWhereClause": null,
               "indexType": "BTREE",
               "isUnique": false,
-              "isCustom": true,
+              "applicationId": "029204a9-b419-41d8-a483-57690c3d1a18",
+              "isSystemSideEffect": true,
               "indexFieldMetadataList": [
                 {
                   "__typename": "IndexField",
