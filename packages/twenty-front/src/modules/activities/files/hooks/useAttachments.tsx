@@ -1,7 +1,10 @@
 import { type Attachment } from '@/activities/files/types/Attachment';
 import { type ActivityTargetableObject } from '@/activities/types/ActivityTargetableEntity';
 import { getActivityTargetObjectFieldIdName } from '@/activities/utils/getActivityTargetObjectFieldIdName';
-import { CoreObjectNameSingular } from 'twenty-shared/types';
+import {
+  CoreObjectNameSingular,
+  type RecordGqlOperationSignature,
+} from 'twenty-shared/types';
 import { useFindManyRecords } from '@/object-record/hooks/useFindManyRecords';
 import { useListenToEventsForQuery } from '@/sse-db-event/hooks/useListenToEventsForQuery';
 import { useMemo } from 'react';
@@ -18,7 +21,7 @@ export const useAttachments = (targetableObject: ActivityTargetableObject) => {
     }),
     [targetableObject.id, targetableObjectFieldIdName],
   );
-  const operationSignature = useMemo(
+  const operationSignature = useMemo<RecordGqlOperationSignature>(
     () => ({
       objectNameSingular: CoreObjectNameSingular.Attachment,
       variables: { filter },

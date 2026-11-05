@@ -6,6 +6,9 @@ import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadat
 import { type FieldConfiguration } from '@/page-layout/types/FieldConfiguration';
 import { getWidgetConfigurationViewId } from '@/page-layout/utils/getWidgetConfigurationViewId';
 import { getFieldWidgetEffectiveDisplayMode } from '@/page-layout/widgets/field/utils/getFieldWidgetEffectiveDisplayMode';
+import { resolveFieldWidgetJunctionConfig } from '@/page-layout/widgets/field/utils/resolveFieldWidgetJunctionConfig';
+import { resolveFieldWidgetRelationTableObjectMetadataId } from '@/page-layout/widgets/field/utils/resolveFieldWidgetRelationTableObjectMetadataId';
+import { useViewById } from '@/views/hooks/useViewById';
 import { resolveFieldWidgetNestedRelation } from '@/page-layout/widgets/field/utils/resolveFieldWidgetNestedRelation';
 import { useRecordTableWidgetViewFieldItems } from '@/page-layout/widgets/record-table/hooks/useRecordTableWidgetViewFieldItems';
 import { useRecordTableWidgetViewForDisplay } from '@/page-layout/widgets/record-table/hooks/useRecordTableWidgetViewForDisplay';
@@ -101,10 +104,25 @@ export const SidePanelRecordPageFieldSettings = () => {
     nestedRelationFieldMetadataId: currentNestedRelationFieldMetadataId,
   });
 
-  // The embedded view lists the relation target, not the page's object; an unresolvable nested hop stays undefined to hide its settings
-  const targetObjectMetadataId = isDefined(currentNestedRelationFieldMetadataId)
-    ? resolvedNestedRelation?.nestedRelationTargetObjectMetadataItem.id
-    : currentFieldMetadataItem?.relation?.targetObjectMetadata.id;
+  const { view: persistedView } = useViewById(currentViewId ?? null);
+
+  const junctionConfig = isDefined(currentFieldMetadataItem)
+    ? resolveFieldWidgetJunctionConfig({
+        fieldMetadataItem: currentFieldMetadataItem,
+        objectMetadataItems,
+      })
+    : null;
+
+  const targetObjectMetadataId =
+    resolveFieldWidgetRelationTableObjectMetadataId({
+      relationObjectMetadataId:
+        currentFieldMetadataItem?.relation?.targetObjectMetadata.id,
+      junctionConfig,
+      viewObjectMetadataId: persistedView?.objectMetadataId,
+      nestedRelationFieldMetadataId: currentNestedRelationFieldMetadataId,
+      nestedRelationTargetObjectMetadataId:
+        resolvedNestedRelation?.nestedRelationTargetObjectMetadataItem.id,
+    });
 
   const { updateCurrentWidgetConfig } =
     useUpdateCurrentWidgetConfig(pageLayoutId);

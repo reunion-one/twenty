@@ -177,7 +177,6 @@ export class LocalChildProcessRunnerService {
         executionDirectory,
         ...Object.values(this.getLayerDirectories(flatApplication)),
       ],
-      writableDirectory: temporaryDirectory,
       // Node 25+ denies network access under --permission unless --allow-net is passed.
       shouldAllowNetwork:
         process.allowedNodeEnvironmentFlags.has('--allow-net'),

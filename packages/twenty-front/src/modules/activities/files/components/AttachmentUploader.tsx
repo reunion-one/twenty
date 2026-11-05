@@ -110,7 +110,7 @@ export const AttachmentUploader = ({
 
   const showUnclassifiedUploadToast = () => {
     enqueueToast({
-      variant: 'info',
+      status: 'info',
       children: t({
         id: 'Files were uploaded without {fieldLabel}.',
         message: `Files were uploaded without ${{ fieldLabel: documentType.label ?? 'a type' }}.`,
