@@ -29,6 +29,10 @@ describe('buildMcpServerCard', () => {
     expect(card.version).toBe('0.42.0');
     expect(card.websiteUrl).toBe('https://web3p.in');
     expect(card.title).toBe('Web3 CRM');
+    expect(card.repository).toEqual({
+      url: 'https://github.com/twentyhq/twenty',
+      source: 'github',
+    });
   });
 
   it('marks the Authorization header optional and secret (OAuth or API key)', () => {

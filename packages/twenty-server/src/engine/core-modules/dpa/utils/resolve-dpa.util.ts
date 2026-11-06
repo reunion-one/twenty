@@ -35,7 +35,7 @@ const SUBPROCESSOR_BLOCKS: ResolvedDpaBlock[] = (
 }));
 
 const SELF_HOSTED_NOTICE =
-  'NOT A VALID AGREEMENT — PRIVATE DEPLOYMENT. Web3 CRM is privately hosted. No provider agreement is configured. Legal and contact information: #';
+  'NOT A VALID AGREEMENT — SELF-HOSTED DEPLOYMENT. This Twenty instance is self-hosted. For self-hosted deployments Twenty does not host or process Customer Personal Data and is not the Processor, so this Data Processing Agreement does not apply. This copy is generated for reference only and does not constitute an executed agreement with Twenty.';
 
 // Unknown fields are left untouched so they surface in the unresolved-merge-field test instead of vanishing silently.
 const fillMergeFields = (
@@ -94,23 +94,6 @@ const buildExecutionBlocks = (
 export const resolveDpa = (context: DpaResolveContext): ResolvedDpa => {
   const config = getDpaRegionConfig(context.region);
 
-  if (context.isSelfHosted === true && context.mode !== 'signed') {
-    const values = { ...config.values };
-    for (const field of Object.keys(values) as (keyof typeof values)[]) {
-      values[field] = '#';
-    }
-    return {
-      region: config.region,
-      templateVersion: DPA_TEMPLATE_VERSION,
-      lastUpdatedLabel: DPA_LAST_UPDATED_LABEL,
-      title: 'Web3 CRM Data Processing Agreement',
-      sccSectionActive: false,
-      values,
-      blocks: [],
-      notice: SELF_HOSTED_NOTICE,
-    };
-  }
-
   const bodyBlocks: ResolvedDpaBlock[] = DPA_TEMPLATE_BLOCKS.filter(
     (block) =>
       block.includeWhen === undefined ||
@@ -139,7 +122,11 @@ export const resolveDpa = (context: DpaResolveContext): ResolvedDpa => {
     sccSectionActive: config.sccSectionActive,
     values: { ...config.values },
     blocks: [...bodyBlocks, ...executionBlocks],
-    notice: undefined,
+    // Banner only in preview: an executed/signed copy must never also say the DPA does not apply.
+    notice:
+      context.isSelfHosted === true && context.mode !== 'signed'
+        ? SELF_HOSTED_NOTICE
+        : undefined,
   };
 };
 

@@ -17,6 +17,10 @@ export const buildMcpServerCard = ({
   description:
     'Read and write your Web3 CRM data - companies, people, opportunities, tasks, notes and any custom objects - from AI assistants. Tools are discovered at runtime and scoped to the authenticated workspace.',
   websiteUrl: 'https://web3p.in',
+  repository: {
+    url: 'https://github.com/twentyhq/twenty',
+    source: 'github',
+  },
   remotes: [
     {
       type: 'streamable-http',
