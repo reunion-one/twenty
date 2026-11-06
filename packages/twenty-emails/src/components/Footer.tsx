@@ -22,7 +22,7 @@ export const Footer = ({ i18n }: FooterProps) => {
             aria-label={i18n._("Visit Web3 CRM's website")}
           />
           <br />
-          {'#'}
+          {'Mumbai, India 400064'}
         </>
       </ShadowText>
     </Container>
