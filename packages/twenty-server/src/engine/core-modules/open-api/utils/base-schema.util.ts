@@ -12,7 +12,7 @@ export const baseSchema = (
   return {
     openapi: '3.1.1',
     info: {
-      title: 'Twenty Api',
+      title: 'Web3 CRM API',
       description: `Use this page to explore and call the **REST API**.
 
 ## Authentication
@@ -159,8 +159,8 @@ curl -H 'Authorization: Bearer <token>' \\
       },
     ],
     externalDocs: {
-      description: 'Find out more about **Twenty**',
-      url: 'https://twenty.com',
+      description: 'Find out more about **Web3 CRM**',
+      url: 'https://web3p.in',
     },
     paths: { [`/open-api/${schemaName}`]: computeOpenApiPath(serverUrl) },
   };

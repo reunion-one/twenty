@@ -11,10 +11,16 @@ import { type APP_LOCALES } from 'twenty-shared/translations';
 type BaseEmailProps = {
   children: JSX.Element | JSX.Element[] | string;
   width?: number;
+  serverUrl?: string;
   locale: keyof typeof APP_LOCALES;
 };
 
-export const BaseEmail = ({ children, width, locale }: BaseEmailProps) => {
+export const BaseEmail = ({
+  children,
+  width,
+  locale,
+  serverUrl,
+}: BaseEmailProps) => {
   const i18nInstance = createI18nInstance(locale);
 
   return (
@@ -22,7 +28,7 @@ export const BaseEmail = ({ children, width, locale }: BaseEmailProps) => {
       <Html lang={locale}>
         <BaseHead i18n={i18nInstance} />
         <Container width={width || 290}>
-          <Logo i18n={i18nInstance} />
+          <Logo i18n={i18nInstance} serverUrl={serverUrl} />
           {children}
           <Footer i18n={i18nInstance} />
         </Container>

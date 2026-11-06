@@ -26,13 +26,13 @@ export const SendEmailVerificationLinkEmail = ({
     : i18n._('Verify Email');
 
   return (
-    <BaseEmail width={333} locale={locale}>
+    <BaseEmail width={333} locale={locale} serverUrl={new URL(link).origin}>
       <Title value={title} />
       <MainText>
         {isEmailUpdate ? (
-          <Trans id="We received a request to change the email address associated with your Twenty account. Click below to confirm this change." />
+          <Trans id="We received a request to change the email address associated with your Web3 CRM account. Click below to confirm this change." />
         ) : (
-          <Trans id="Thanks for registering for an account on Twenty! Before we get started, we just need to confirm that this is you. Click below to verify your email address." />
+          <Trans id="Thanks for registering for an account on Web3 CRM! Before we get started, we just need to confirm that this is you. Click below to verify your email address." />
         )}
       </MainText>
       <br />
@@ -44,7 +44,7 @@ export const SendEmailVerificationLinkEmail = ({
 };
 
 SendEmailVerificationLinkEmail.PreviewProps = {
-  link: 'https://app.twenty.com/verify-email/123',
+  link: 'https://web3p.in/verify-email/123',
   locale: 'en',
   isEmailUpdate: false,
 };

@@ -6,13 +6,7 @@ import { SettingsPageLayout } from '@/settings/components/layout/SettingsPageLay
 import { styled } from '@linaria/react';
 import { t } from '@lingui/core/macro';
 import { Section } from 'twenty-ui/components/layout';
-import {
-  IconBrandX,
-  IconBriefcase,
-  IconTransform,
-  type IconComponent,
-} from 'twenty-ui/icon';
-import { useIcons } from 'twenty-ui/icon/provider';
+import { IconLink, type IconComponent } from 'twenty-ui/icon';
 import { SettingsPath } from 'twenty-shared/types';
 import { getSettingsPath } from 'twenty-shared/utils';
 import { MOBILE_VIEWPORT, useTheme, themeCssVariables } from 'twenty-ui/theme';
@@ -45,21 +39,13 @@ type SettingsCommunityLink = {
 
 export const SettingsCommunity = () => {
   const theme = useTheme();
-  const { getIcon } = useIcons();
-  const IconBrandDiscord = getIcon('IconBrandDiscord');
 
   const socialLinks: SettingsCommunityLink[] = [
     {
-      href: 'https://discord.com/invite/cx5n4Jzs57',
-      Icon: IconBrandDiscord,
-      iconColor: themeCssVariables.color.blue9,
-      cardTitle: t`Join our Discord`,
-    },
-    {
-      href: 'https://x.com/twentycrm',
-      Icon: IconBrandX,
+      href: 'https://web3p.in',
+      Icon: IconLink,
       iconColor: themeCssVariables.font.color.primary,
-      cardTitle: t`Follow us on X`,
+      cardTitle: t`Visit Web3 CRM`,
     },
   ];
 
@@ -86,8 +72,8 @@ export const SettingsCommunity = () => {
 
         <Section.Root>
           <Section.Header
-            title={t`Join the community`}
-            description={t`Stay up to date with product news and community updates.`}
+            title={t`Web3 CRM`}
+            description={t`Visit our website for more information.`}
           />
           <StyledCardsGrid>
             {socialLinks.map(({ href, Icon, iconColor, cardTitle }) => (
@@ -109,38 +95,11 @@ export const SettingsCommunity = () => {
 
         <Section.Root>
           <Section.Header
-            title={t`Partners`}
-            description={t`Hire a partner to help you implement and customize Twenty.`}
-          />
-          <SettingsCard
-            href="https://twenty.com/partners/list"
-            Icon={
-              <IconBriefcase
-                size={theme.icon.size.md}
-                stroke={theme.icon.stroke.sm}
-              />
-            }
-            title={t`Browse partners`}
-          />
-        </Section.Root>
-
-        <Section.Root>
-          <Section.Header
             title={t`Features`}
             description={t`Try our upcoming features. Note they are still in beta. Please bear with us and report any issues you find.`}
           />
           <StyledFeaturesContent>
             <SettingsLabContent />
-            <SettingsCard
-              href="https://twenty.com/releases"
-              Icon={
-                <IconTransform
-                  size={theme.icon.size.md}
-                  stroke={theme.icon.stroke.sm}
-                />
-              }
-              title={t`Read changelog`}
-            />
           </StyledFeaturesContent>
         </Section.Root>
       </SettingsPageContainer>

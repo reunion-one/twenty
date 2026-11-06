@@ -44,8 +44,8 @@ export const SendInviteLinkEmail = ({
   const workspaceName = workspace.name;
 
   return (
-    <BaseEmail width={333} locale={locale}>
-      <Title value={i18n._('Join your team on Twenty')} />
+    <BaseEmail width={333} locale={locale} serverUrl={new URL(link).origin}>
+      <Title value={i18n._('Join your team on Web3 CRM')} />
       <MainText>
         <Trans
           id="{senderName} (<0>{senderEmail}</0>) has invited you to join a workspace called <1>{workspaceName}</1>."
@@ -83,13 +83,13 @@ export const SendInviteLinkEmail = ({
 };
 
 SendInviteLinkEmail.PreviewProps = {
-  link: 'https://app.twenty.com/invite/123',
+  link: 'https://web3p.in/invite/123',
   workspace: {
     name: 'Acme Inc.',
     logo: 'https://fakeimg.pl/200x200/?text=ACME&font=lobster',
   },
   sender: { email: 'john.doe@example.com', firstName: 'John', lastName: 'Doe' },
-  serverUrl: 'https://app.twenty.com',
+  serverUrl: 'https://web3p.in',
   locale: 'en',
 } as SendInviteLinkEmailProps;
 

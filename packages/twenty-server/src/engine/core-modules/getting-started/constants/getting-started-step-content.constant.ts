@@ -43,7 +43,7 @@ export const GETTING_STARTED_STEP_CONTENT: Record<
   [GettingStartedStepActionKey.INVITE_TEAM]: {
     title: msg`Invite your team`,
     doneTitle: msg`Invitations sent`,
-    description: msg`Bring your team into Twenty.`,
+    description: msg`Bring your team into Web3 CRM.`,
     icon: 'IconUsers',
     iconColor: 'orange',
   },

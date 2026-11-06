@@ -1,3 +1,4 @@
+import { DEFAULT_WORKSPACE_LOGO } from 'src/constants/DefaultWorkspaceLogo';
 import { Trans } from '@lingui/react';
 import { Img } from 'react-email';
 import { canvasTheme } from 'src/common-style';
@@ -9,7 +10,6 @@ import { HighlightedText } from 'src/components/HighlightedText';
 import { Link } from 'src/components/Link';
 import { MainText } from 'src/components/MainText';
 import { Title } from 'src/components/Title';
-import { DEFAULT_WORKSPACE_LOGO } from 'src/constants/DefaultWorkspaceLogo';
 import { capitalize } from 'src/utils/capitalize';
 import { createI18nInstance } from 'src/utils/i18n.utils';
 import { type APP_LOCALES } from 'twenty-shared/translations';
@@ -45,7 +45,7 @@ export const SendApprovedAccessDomainValidation = ({
   const senderEmail = sender.email;
 
   return (
-    <BaseEmail width={333} locale={locale}>
+    <BaseEmail width={333} locale={locale} serverUrl={new URL(link).origin}>
       <Title value={i18n._('Validate domain')} />
       <MainText>
         <Trans
@@ -66,7 +66,9 @@ export const SendApprovedAccessDomainValidation = ({
       </MainText>
       <HighlightedContainer>
         <Img
-          src={workspaceLogo ?? DEFAULT_WORKSPACE_LOGO}
+          src={
+            workspaceLogo ?? `${new URL(link).origin}${DEFAULT_WORKSPACE_LOGO}`
+          }
           width={40}
           height={40}
           alt={workspace.name ?? i18n._('Workspace logo')}
@@ -80,7 +82,7 @@ export const SendApprovedAccessDomainValidation = ({
 };
 
 SendApprovedAccessDomainValidation.PreviewProps = {
-  link: 'https://app.twenty.com/validate-domain',
+  link: 'https://web3p.in/validate-domain',
   domain: 'example.com',
   workspace: {
     name: 'Acme Inc.',
@@ -91,7 +93,7 @@ SendApprovedAccessDomainValidation.PreviewProps = {
     firstName: 'John',
     lastName: 'Doe',
   },
-  serverUrl: 'https://app.twenty.com',
+  serverUrl: 'https://web3p.in',
   locale: 'en',
 };
 

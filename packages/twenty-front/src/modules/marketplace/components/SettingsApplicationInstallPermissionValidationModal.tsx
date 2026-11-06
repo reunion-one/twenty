@@ -234,7 +234,7 @@ export const SettingsApplicationInstallPermissionValidationModal = ({
                     status="warning"
                     layout="compact"
                     icon={<IconAlertTriangle aria-hidden="true" />}
-                  >{t`This application is not listed on the marketplace and has not been reviewed by Twenty. Use at your own risk.`}</InlineBanner>
+                  >{t`This application is not listed on the marketplace and has not been reviewed by Web3 CRM. Use at your own risk.`}</InlineBanner>
                 </StyledNotListedBannerContainer>
               )}
 

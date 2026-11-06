@@ -32,7 +32,7 @@ export const BillingTrialEndingEmail = ({
   });
 
   return (
-    <BaseEmail width={333} locale={locale}>
+    <BaseEmail width={333} locale={locale} serverUrl={new URL(link).origin}>
       <Title value={i18n._('Your trial is ending soon')} />
       <MainText>
         {userName?.length > 1 ? (
@@ -70,7 +70,7 @@ BillingTrialEndingEmail.PreviewProps = {
   workspaceDisplayName: 'Acme Inc.',
   trialEndsAt: new Date('2026-07-02'),
   dataRetentionDays: 14,
-  link: 'https://acme.twenty.com/settings/billing',
+  link: 'https://web3p.in/settings/billing',
   locale: 'en',
 } as BillingTrialEndingEmailProps;
 

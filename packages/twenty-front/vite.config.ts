@@ -3,8 +3,8 @@ import { isNonEmptyString } from '@sniptt/guards';
 import react from '@vitejs/plugin-react-swc';
 import wyw from '@wyw-in-js/vite';
 import fs from 'fs';
-import { createRequire } from 'module';
 import { Features } from 'lightningcss';
+import { createRequire } from 'module';
 import path from 'path';
 import { visualizer } from 'rollup-plugin-visualizer';
 import {

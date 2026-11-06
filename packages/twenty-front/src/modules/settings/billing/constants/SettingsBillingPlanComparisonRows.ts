@@ -479,7 +479,7 @@ export const SETTINGS_BILLING_PLAN_COMPARISON_ROWS = [
     type: 'feature',
   },
   {
-    featureLabel: msg`Subdomain (yourco.twenty.com)`,
+    featureLabel: msg`Subdomain (yourco.example.com)`,
     plans: {
       [BillingPlanKey.ENTERPRISE]: { kind: 'included' },
       [BillingPlanKey.ORGANIZATION_V2]: { kind: 'included' },

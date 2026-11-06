@@ -56,7 +56,7 @@ const StyledRightSide = styled(StyledSide)`
 `;
 
 const StyledLogo = styled.div`
-  background-image: url('/images/integrations/twenty-logo.svg');
+  background-image: url('/images/integrations/web3-crm-logo.svg');
   background-size: cover;
   height: ${themeCssVariables.spacing[6]};
   opacity: 0.4;
