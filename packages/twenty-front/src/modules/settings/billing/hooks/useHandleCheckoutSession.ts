@@ -2,6 +2,7 @@ import { useRedirect } from '@/domain-manager/hooks/useRedirect';
 import { getToastOptionsFromError } from '@/error-handler/utils/getToastOptionsFromError';
 import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { useMutation } from '@apollo/client/react';
+import { t } from '@lingui/core/macro';
 import { useState } from 'react';
 import { isDefined } from 'twenty-shared/utils';
 import { useToast } from 'twenty-ui/components/feedback';
@@ -10,7 +11,6 @@ import {
   type SubscriptionInterval,
   CheckoutSessionDocument,
 } from '~/generated-metadata/graphql';
-import { useLingui } from '@lingui/react/macro';
 
 export const useHandleCheckoutSession = ({
   recurringInterval,
@@ -23,7 +23,6 @@ export const useHandleCheckoutSession = ({
   requirePaymentMethod: boolean;
   successUrlPath: string;
 }) => {
-  const { t } = useLingui();
   const { redirect } = useRedirect();
 
   const { enqueueToast } = useToast();
@@ -46,7 +45,7 @@ export const useHandleCheckoutSession = ({
       if (!data?.checkoutSession.url) {
         enqueueToast({
           status: 'error',
-          children: t`Checkout session error. Please retry or contact Twenty team`,
+          children: t`Checkout session error. Please retry or contact Web3 CRM team`,
         });
         return;
       }
@@ -61,7 +60,7 @@ export const useHandleCheckoutSession = ({
       enqueueToast(
         toastOptions ?? {
           status: 'error',
-          children: t`Checkout session error. Please retry or contact Twenty team`,
+          children: t`Checkout session error. Please retry or contact Web3 CRM team`,
         },
       );
     } finally {

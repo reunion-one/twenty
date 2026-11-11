@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import graphqlFields from 'graphql-fields';
+import { QUERY_MAX_RECORDS } from 'twenty-shared/constants';
 
 import { type WorkspaceResolverBuilderFactoryInterface } from 'src/engine/api/graphql/workspace-resolver-builder/interfaces/workspace-resolver-builder-factory.interface';
 import {
@@ -10,7 +11,6 @@ import {
 import { WorkspaceSchemaBuilderContext } from 'src/engine/api/graphql/workspace-schema-builder/interfaces/workspace-schema-builder-context.interface';
 
 import { CommonFindManyQueryRunnerService } from 'src/engine/api/common/common-query-runners/common-find-many-query-runner.service';
-import { getFindManyPageSize } from 'src/engine/api/common/common-query-runners/utils/get-find-many-page-size.util';
 import { ObjectRecordsToGraphqlConnectionHelper } from 'src/engine/api/graphql/graphql-query-runner/helpers/object-records-to-graphql-connection.helper';
 import { workspaceQueryRunnerGraphqlApiExceptionHandler } from 'src/engine/api/graphql/workspace-query-runner/utils/workspace-query-runner-graphql-api-exception-handler.util';
 import { RESOLVER_METHOD_NAMES } from 'src/engine/api/graphql/workspace-resolver-builder/constants/resolver-method-names';
@@ -64,7 +64,7 @@ export class FindManyResolverFactory implements WorkspaceResolverBuilderFactoryI
           objectRecordsAggregatedValues: aggregatedValues,
           selectedAggregatedFields: selectedFieldsResult.aggregate,
           objectName: resolverContext.flatObjectMetadata.nameSingular,
-          take: getFindManyPageSize(args),
+          take: args.first ?? args.last ?? QUERY_MAX_RECORDS,
           totalCount,
           order: processedArgs.orderBy,
           hasNextPage: pageInfo.hasNextPage,

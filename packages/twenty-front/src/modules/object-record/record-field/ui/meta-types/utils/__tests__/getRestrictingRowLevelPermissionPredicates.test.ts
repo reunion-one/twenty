@@ -42,10 +42,6 @@ const createGroup = ({
   objectMetadataId: 'object-metadata-id',
   parentRowLevelPermissionPredicateGroupId,
   positionInRowLevelPermissionPredicateGroup: 0,
-  canReadRecords: false,
-  canUpdateRecords: false,
-  canSoftDeleteRecords: false,
-  canDestroyRecords: false,
   roleId: 'role-id',
 });
 

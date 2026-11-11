@@ -8,10 +8,6 @@ export const ROW_LEVEL_PERMISSION_PREDICATE_GROUP_FRAGMENT = gql`
     parentRowLevelPermissionPredicateGroupId
     logicalOperator
     positionInRowLevelPermissionPredicateGroup
-    canReadRecords
-    canUpdateRecords
-    canSoftDeleteRecords
-    canDestroyRecords
     roleId
     objectMetadataId
   }

@@ -6,27 +6,26 @@ import { isDefined } from 'twenty-shared/utils';
 import { createOneOperationFactory } from 'test/integration/graphql/utils/create-one-operation-factory.util';
 import { destroyOneOperationFactory } from 'test/integration/graphql/utils/destroy-one-operation-factory.util';
 import { makeGraphqlApiRequest } from 'test/integration/graphql/utils/make-graphql-api-request.util';
-import { resolveWorkspaceMemberAuthContext } from 'test/integration/utils/resolve-workspace-member-auth-context.util';
 import { getAppProviderByClassName } from 'test/integration/utils/get-app-provider-by-class-name.util';
 
 import { findFlatEntityByUniversalIdentifier } from 'src/engine/metadata-modules/flat-entity/utils/find-flat-entity-by-universal-identifier.util';
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
 import { type RecordAccessPolicyService } from 'src/engine/permissions/combine/services/record-access-policy.service';
-import { type PermissionsAuthContext } from 'src/engine/permissions/principal/types/permissions-auth-context.type';
+import { type PermissionsPrincipalsContext } from 'src/engine/permissions/principal/types/permissions-principals-context.type';
 import { type OperationType } from 'src/engine/permissions/role/utils/validate-operation-is-permitted-or-throw.util';
 import { type WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 import { SEED_APPLE_WORKSPACE_ID } from 'src/engine/workspace-manager/dev-seeder/core/constants/seeder-workspaces.constant';
-import { WORKSPACE_MEMBER_DATA_SEED_IDS } from 'src/engine/workspace-manager/dev-seeder/data/constants/workspace-member-data-seeds.constant';
+import { STANDARD_ROLE } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-role.constant';
 
 describe('RecordAccessPolicyService', () => {
   const recordId = randomUUID();
-  let adminAuthContext: PermissionsAuthContext;
+  let adminPrincipal: PermissionsPrincipalsContext;
   let personFlatObjectMetadata: FlatObjectMetadata;
   let recordAccessPolicyService: RecordAccessPolicyService;
-  const missingRoleAuthContext: PermissionsAuthContext = {
-    type: 'apiKey',
-    workspace: { id: SEED_APPLE_WORKSPACE_ID },
-    apiKey: { id: randomUUID() },
+  const missingRolePrincipal: PermissionsPrincipalsContext = {
+    workspaceId: SEED_APPLE_WORKSPACE_ID,
+    mainPrincipal: { roleId: randomUUID(), isDeprecatedRoleOnly: true },
+    applicationPrincipal: { isCustomApp: true },
   };
 
   // Other suites wipe every person, so the record under test is created here
@@ -44,16 +43,24 @@ describe('RecordAccessPolicyService', () => {
 
     expect(response.body.errors).toBeUndefined();
 
-    const { flatObjectMetadataMaps } =
+    const { flatRoleMaps, flatObjectMetadataMaps } =
       await getAppProviderByClassName<WorkspaceCacheService>(
         'WorkspaceCacheService',
-      ).getOrRecompute(SEED_APPLE_WORKSPACE_ID, ['flatObjectMetadataMaps']);
+      ).getOrRecompute(SEED_APPLE_WORKSPACE_ID, [
+        'flatRoleMaps',
+        'flatObjectMetadataMaps',
+      ]);
     const person = findFlatEntityByUniversalIdentifier({
       flatEntityMaps: flatObjectMetadataMaps,
       universalIdentifier: STANDARD_OBJECTS.person.universalIdentifier,
     });
-    if (!isDefined(person)) {
-      throw new Error('The person object is not seeded');
+    const adminRoleId = findFlatEntityByUniversalIdentifier({
+      flatEntityMaps: flatRoleMaps,
+      universalIdentifier: STANDARD_ROLE.admin.universalIdentifier,
+    })?.id;
+
+    if (!isDefined(adminRoleId) || !isDefined(person)) {
+      throw new Error('The admin role or the person object is not seeded');
     }
 
     personFlatObjectMetadata = person;
@@ -62,10 +69,11 @@ describe('RecordAccessPolicyService', () => {
         'RecordAccessPolicyService',
       );
 
-    adminAuthContext = await resolveWorkspaceMemberAuthContext({
+    adminPrincipal = {
       workspaceId: SEED_APPLE_WORKSPACE_ID,
-      workspaceMemberId: WORKSPACE_MEMBER_DATA_SEED_IDS.JANE,
-    });
+      mainPrincipal: { roleId: adminRoleId, isDeprecatedRoleOnly: true },
+      applicationPrincipal: { isCustomApp: true },
+    };
   });
 
   afterAll(async () => {
@@ -79,16 +87,16 @@ describe('RecordAccessPolicyService', () => {
   });
 
   const hasAccessToRecords = ({
-    authContext,
+    principal,
     recordIds,
     operationType = 'select',
   }: {
-    authContext: PermissionsAuthContext;
+    principal: PermissionsPrincipalsContext;
     recordIds: string[];
     operationType?: OperationType;
   }): Promise<boolean> =>
     recordAccessPolicyService.hasAccessToRecords({
-      authContext,
+      principals: principal,
       flatObjectMetadata: personFlatObjectMetadata,
       operationType,
       recordIds,
@@ -98,23 +106,23 @@ describe('RecordAccessPolicyService', () => {
     it('grants a role reading and updating an existing record it permits', async () => {
       expect(
         await hasAccessToRecords({
-          authContext: adminAuthContext,
+          principal: adminPrincipal,
           recordIds: [recordId],
         }),
       ).toBe(true);
       expect(
         await hasAccessToRecords({
-          authContext: adminAuthContext,
+          principal: adminPrincipal,
           recordIds: [recordId],
           operationType: 'update',
         }),
       ).toBe(true);
     });
 
-    it('denies an API key without a role', async () => {
+    it('denies a principal whose role does not exist', async () => {
       expect(
         await hasAccessToRecords({
-          authContext: missingRoleAuthContext,
+          principal: missingRolePrincipal,
           recordIds: [recordId],
         }),
       ).toBe(false);
@@ -123,7 +131,7 @@ describe('RecordAccessPolicyService', () => {
     it('denies when one of the records does not exist', async () => {
       expect(
         await hasAccessToRecords({
-          authContext: adminAuthContext,
+          principal: adminPrincipal,
           recordIds: [recordId, randomUUID()],
         }),
       ).toBe(false);
@@ -134,17 +142,17 @@ describe('RecordAccessPolicyService', () => {
     it('follows the role when it permits the operation', async () => {
       expect(
         await recordAccessPolicyService.hasAccessToSomeRecords({
-          authContext: adminAuthContext,
+          principals: adminPrincipal,
           flatObjectMetadata: personFlatObjectMetadata,
           operationType: 'select',
         }),
       ).toBe(true);
     });
 
-    it('denies an API key with no role and no share on the object', async () => {
+    it('denies a principal with no role and no share on the object', async () => {
       expect(
         await recordAccessPolicyService.hasAccessToSomeRecords({
-          authContext: missingRoleAuthContext,
+          principals: missingRolePrincipal,
           flatObjectMetadata: personFlatObjectMetadata,
           operationType: 'select',
         }),

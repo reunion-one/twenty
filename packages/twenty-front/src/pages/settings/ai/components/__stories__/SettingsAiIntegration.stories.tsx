@@ -1,10 +1,7 @@
 import { SettingsProtectedRouteWrapper } from '@/settings/components/SettingsProtectedRouteWrapper';
 import { type Meta, type StoryObj } from '@storybook/react-vite';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import {
-  AiChatAssistantMode,
-  PermissionFlagType,
-} from '~/generated-metadata/graphql';
+import { PermissionFlagType } from '~/generated-metadata/graphql';
 import { SettingsAI } from '~/pages/settings/ai/SettingsAI';
 import { createSettingsAiIntegrationStoryFixture } from '~/pages/settings/ai/components/__stories__/createSettingsAiIntegrationStoryFixture';
 import {
@@ -64,7 +61,9 @@ export const OverviewNavigationAndInstructionsPersistence: Story = {
       expect(overview).toHaveAttribute('aria-current', 'page'),
     );
     expect(canvas.getByRole('heading', { name: 'MCP Server' })).toBeVisible();
-    expect(canvas.getByRole('heading', { name: 'Behavior' })).toBeVisible();
+    expect(
+      canvas.queryByRole('heading', { name: 'Behavior' }),
+    ).not.toBeInTheDocument();
     expect(
       canvas.queryByRole('heading', { name: 'Avatar' }),
     ).not.toBeInTheDocument();
@@ -74,9 +73,6 @@ export const OverviewNavigationAndInstructionsPersistence: Story = {
     });
     expect(instructions).toHaveAttribute('contenteditable', 'true');
     await userEvent.type(instructions, 'Use concise replies.');
-    const caretOffset =
-      canvasElement.ownerDocument.getSelection()?.anchorOffset;
-    expect(caretOffset).toBeGreaterThan(0);
     expect(fixture.saveInstructions).not.toHaveBeenCalled();
 
     await waitFor(
@@ -86,11 +82,6 @@ export const OverviewNavigationAndInstructionsPersistence: Story = {
     expect(fixture.saveInstructions).toHaveBeenCalledWith({
       aiAdditionalInstructions: expect.stringContaining('Use concise replies.'),
     });
-    await fixture.reloadWorkspace();
-    expect(instructions).toHaveFocus();
-    expect(canvasElement.ownerDocument.getSelection()?.anchorOffset).toBe(
-      caretOffset,
-    );
 
     await userEvent.click(canvas.getByRole('link', { name: 'Models' }));
     await canvas.findByRole('heading', { name: 'Models' });
@@ -128,61 +119,6 @@ export const OverviewNavigationAndInstructionsPersistence: Story = {
   },
 };
 
-export const BehaviorPersistenceAndRetry: Story = {
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const bodyQueries = within(canvasElement.ownerDocument.body);
-    const directMessages = await canvas.findByRole('combobox', { name: 'DMs' });
-    const inbox = canvas.getByRole('combobox', { name: 'Global inbox' });
-
-    fixture.failNextBehaviorSave();
-    await userEvent.click(directMessages);
-    await userEvent.click(
-      await bodyQueries.findByRole('option', { name: 'Never' }),
-    );
-    expect(await canvas.findByRole('alert')).toHaveTextContent(
-      'You do not have permission to change this behavior.',
-    );
-    expect(directMessages).toHaveTextContent('Only when mentioned');
-    expect(inbox).toHaveTextContent('Auto');
-
-    fixture.pauseBehaviorSave();
-    await userEvent.click(directMessages);
-    await userEvent.click(
-      await bodyQueries.findByRole('option', { name: 'Never' }),
-    );
-    await waitFor(() => expect(fixture.saveBehavior).toHaveBeenCalledTimes(2));
-    expect(fixture.saveBehavior).toHaveBeenLastCalledWith({
-      aiChatDirectMessageAssistantMode: AiChatAssistantMode.NEVER,
-    });
-    expect(directMessages).toHaveAttribute('data-disabled');
-    expect(inbox).toHaveAttribute('data-disabled');
-    expect(directMessages).toHaveTextContent('Only when mentioned');
-
-    fixture.resumeBehaviorSave();
-    await waitFor(() => expect(directMessages).toHaveTextContent('Never'));
-    expect(canvas.queryByRole('alert')).not.toBeInTheDocument();
-    await userEvent.click(inbox);
-    await userEvent.click(
-      await bodyQueries.findByRole('option', { name: 'Only when mentioned' }),
-    );
-    await waitFor(() => expect(inbox).toHaveTextContent('Only when mentioned'));
-    expect(fixture.saveBehavior).toHaveBeenLastCalledWith({
-      aiChatInboxAssistantMode: AiChatAssistantMode.MENTION_ONLY,
-    });
-
-    await userEvent.click(canvas.getByRole('link', { name: 'Models' }));
-    await fixture.reloadWorkspace();
-    await userEvent.click(canvas.getByRole('link', { name: 'Overview' }));
-    expect(
-      await canvas.findByRole('combobox', { name: 'DMs' }),
-    ).toHaveTextContent('Never');
-    expect(
-      canvas.getByRole('combobox', { name: 'Global inbox' }),
-    ).toHaveTextContent('Only when mentioned');
-  },
-};
-
 export const LegacyTabsWithoutInbox: Story = {
   args: { isInboxEnabled: false, routeHash: '#overview' },
   play: async ({ canvasElement }) => {
@@ -203,7 +139,6 @@ export const LegacyTabsWithoutInbox: Story = {
     expect(
       canvas.getByRole('heading', { name: 'System Prompt' }),
     ).toBeVisible();
-    expect(fixture.saveBehavior).not.toHaveBeenCalled();
   },
 };
 
@@ -222,7 +157,6 @@ export const SettingsPermissionDenied: Story = {
     ).not.toBeInTheDocument();
     expect(fixture.loadSystemPrompts).not.toHaveBeenCalled();
     expect(fixture.saveInstructions).not.toHaveBeenCalled();
-    expect(fixture.saveBehavior).not.toHaveBeenCalled();
   },
 };
 

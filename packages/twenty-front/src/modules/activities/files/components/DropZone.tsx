@@ -69,7 +69,7 @@ export const DropZone = ({
       setIsDraggingFile(false);
       if (fileRejections.length > 0) {
         enqueueToast({
-          variant: 'error',
+          status: 'error',
           children: t({
             id: 'Files must be smaller than {maxFileSize}.',
             message: `Files must be smaller than ${{ maxFileSize: formatFileSize(MAX_ATTACHMENT_SIZE) }}.`,

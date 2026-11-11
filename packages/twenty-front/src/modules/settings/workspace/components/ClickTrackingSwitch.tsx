@@ -3,18 +3,17 @@ import { getToastOptionsFromError } from '@/error-handler/utils/getToastOptionsF
 import { SettingsOptionCardContentSwitch } from '@/settings/components/SettingsOptions/SettingsOptionCardContentSwitch';
 import { useAtomState } from '@/ui/utilities/state/jotai/hooks/useAtomState';
 import { useMutation } from '@apollo/client/react';
+import { t } from '@lingui/core/macro';
 import { IconClick } from 'twenty-ui/icon';
 import { useToast } from 'twenty-ui/components/feedback';
 import { UpdateWorkspaceDocument } from '~/generated-metadata/graphql';
 import { doNotTranslate } from 'twenty-shared/i18n';
-import { useLingui } from '@lingui/react/macro';
 
 type ClickTrackingSwitchProps = {
   divider?: boolean;
 };
 
 export const ClickTrackingSwitch = ({ divider }: ClickTrackingSwitchProps) => {
-  const { t } = useLingui();
   const { enqueueToast } = useToast();
   const [currentWorkspace, setCurrentWorkspace] = useAtomState(
     currentWorkspaceState,
@@ -54,7 +53,7 @@ export const ClickTrackingSwitch = ({ divider }: ClickTrackingSwitchProps) => {
         <SettingsOptionCardContentSwitch
           Icon={IconClick}
           title={t`Track link clicks`}
-          description={t`Count clicks by routing campaign links through Twenty before the original page.`}
+          description={t`Count clicks by routing campaign links through Web3 CRM before the original page.`}
           divider={divider}
           checked={currentWorkspace.isCampaignClickTrackingEnabled}
           disabled={loading}

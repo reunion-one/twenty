@@ -1,38 +1,27 @@
 /* @license Enterprise */
 
-import { type AiRunPermissionScope } from 'src/engine/permissions/principal/types/ai-run-permission-scope.type';
-import {
-  type PermissionsAgentPrincipal,
-  type PermissionsApiKeyPrincipal,
-  type PermissionsApplicationIdPrincipal,
-  type PermissionsCustomApplicationPrincipal,
-  type PermissionsRolePrincipal,
-  type PermissionsWebhookPrincipal,
-  type PermissionsWorkspaceMemberPrincipal,
-} from 'src/engine/permissions/principal/types/permissions-principal.type';
-
-type WithRoleId<TPrincipal> = TPrincipal & { roleId: string };
+import { type PermissionsDeprecatedRoleOnlyPrincipal } from 'src/engine/permissions/principal/types/permissions-principals-context.type';
 
 export type PermissionsMainPrincipalWithRole =
-  | WithRoleId<PermissionsWorkspaceMemberPrincipal>
-  | WithRoleId<PermissionsApiKeyPrincipal>
-  | WithRoleId<PermissionsAgentPrincipal>
-  | WithRoleId<PermissionsWebhookPrincipal>
-  | WithRoleId<PermissionsApplicationIdPrincipal>
-  | PermissionsRolePrincipal;
+  | { roleId: string; workspaceMemberId: string }
+  | { roleId: string; apiKeyId: string }
+  | { roleId: string; agentId: string }
+  | { roleId: string; webhookId: string }
+  | { roleId: string; applicationId: string }
+  | PermissionsDeprecatedRoleOnlyPrincipal;
 
 export type PermissionsLimitingPrincipalWithRole =
-  WithRoleId<PermissionsAgentPrincipal>;
+  | { roleId: string; agentId: string }
+  | PermissionsDeprecatedRoleOnlyPrincipal;
 
 export type PermissionsApplicationPrincipalWithRole =
-  | WithRoleId<PermissionsApplicationIdPrincipal>
-  | PermissionsCustomApplicationPrincipal;
+  | { roleId: string; applicationId: string }
+  | { isCustomApp: true }
+  | PermissionsDeprecatedRoleOnlyPrincipal;
 
 export type PermissionsPrincipalsWithRolesContext = {
   workspaceId: string;
   mainPrincipal: PermissionsMainPrincipalWithRole;
   limitingPrincipal?: PermissionsLimitingPrincipalWithRole;
   applicationPrincipal: PermissionsApplicationPrincipalWithRole;
-  // narrows what the roles allow, and leaves no reach beyond them
-  aiRunScope?: AiRunPermissionScope;
 };

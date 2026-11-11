@@ -116,7 +116,7 @@ describe('SignInUpTwoFactorAuthenticationRecovery', () => {
 
   it('continues to the setup step with the authenticator issued by the redemption when the workspace enforces two-factor authentication', async () => {
     const provisioningUri =
-      'otpauth://totp/Twenty:test@example.com?secret=SECRETKEY&issuer=Twenty';
+      'otpauth://totp/Web3 CRM:test@example.com?secret=SECRETKEY&issuer=Web3 CRM';
 
     mockGetAuthTokensFromTwoFactorAuthenticationRecoveryCode.mockResolvedValue({
       provisioningUri,

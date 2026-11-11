@@ -169,7 +169,6 @@ export class RecordExportQueryService {
             selectedFields: context.selectedFields,
             first,
             after,
-            shouldBypassQueryMaxRecords: true,
           },
           context.queryRunnerContext,
         ),

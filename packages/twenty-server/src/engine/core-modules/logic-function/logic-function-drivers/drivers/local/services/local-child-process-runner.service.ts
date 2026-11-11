@@ -10,7 +10,6 @@ import { z } from 'zod';
 
 import { type FlatApplication } from 'src/engine/core-modules/application/types/flat-application.type';
 import { buildLocalChildProcessEnv } from 'src/engine/core-modules/logic-function/logic-function-drivers/drivers/local/utils/build-local-child-process-env.util';
-import { buildLocalChildProcessNodeFlags } from 'src/engine/core-modules/logic-function/logic-function-drivers/drivers/local/utils/build-local-child-process-node-flags.util';
 import { getLocalDepsLayerPath } from 'src/engine/core-modules/logic-function/logic-function-drivers/drivers/local/utils/get-local-deps-layer-path.util';
 import { getLocalSdkLayerPath } from 'src/engine/core-modules/logic-function/logic-function-drivers/drivers/local/utils/get-local-sdk-layer-path.util';
 import { HANDLER_NAME_REGEX } from 'src/engine/metadata-modules/logic-function/constants/handler.contant';
@@ -152,36 +151,17 @@ export class LocalChildProcessRunnerService {
   async runChildWithEnv(options: {
     runnerPath: string;
     executionDirectory: string;
-    flatApplication: FlatApplication;
     env: Record<string, string>;
     payload: unknown;
     context: LogicFunctionExecutionContext;
     timeoutMs: number;
   }) {
-    const {
-      runnerPath,
-      executionDirectory,
-      flatApplication,
-      env,
-      payload,
-      context,
-      timeoutMs,
-    } = options;
+    const { runnerPath, executionDirectory, env, payload, context, timeoutMs } =
+      options;
 
     const temporaryDirectory = join(executionDirectory, 'tmp');
 
     await fs.mkdir(temporaryDirectory, { recursive: true });
-
-    const nodeFlags = buildLocalChildProcessNodeFlags({
-      readableDirectories: [
-        executionDirectory,
-        ...Object.values(this.getLayerDirectories(flatApplication)),
-      ],
-      writableDirectory: temporaryDirectory,
-      // Node 25+ denies network access under --permission unless --allow-net is passed.
-      shouldAllowNetwork:
-        process.allowedNodeEnvironmentFlags.has('--allow-net'),
-    });
 
     const childEnv = buildLocalChildProcessEnv({
       hostEnv: process.env,
@@ -193,7 +173,6 @@ export class LocalChildProcessRunnerService {
       runnerPath,
       executionDirectory,
       env: childEnv,
-      nodeFlags,
       payload,
       context,
       timeoutMs,
@@ -204,7 +183,6 @@ export class LocalChildProcessRunnerService {
     runnerPath,
     executionDirectory,
     env,
-    nodeFlags = [],
     payload,
     context,
     timeoutMs,
@@ -213,13 +191,12 @@ export class LocalChildProcessRunnerService {
     runnerPath: string;
     executionDirectory: string;
     env: NodeJS.ProcessEnv;
-    nodeFlags?: string[];
     payload: unknown;
     context?: LogicFunctionExecutionContext;
     timeoutMs: number;
     maxOutputLength?: number;
   }) {
-    const child = spawn(process.execPath, [...nodeFlags, runnerPath], {
+    const child = spawn(process.execPath, [runnerPath], {
       cwd: executionDirectory,
       env,
       stdio: ['pipe', 'pipe', 'pipe', 'ipc'],

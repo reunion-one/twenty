@@ -199,9 +199,7 @@ exports[`ALL_UNIVERSAL_FLAT_ENTITY_PROPERTIES_TO_COMPARE_AND_STRINGIFY should ma
       "connectionProviderUniversalIdentifier",
       "isActive",
     ],
-    "propertiesToStringify": [
-      "tools",
-    ],
+    "propertiesToStringify": [],
   },
   "messagingProvider": {
     "propertiesToCompare": [
@@ -384,10 +382,6 @@ exports[`ALL_UNIVERSAL_FLAT_ENTITY_PROPERTIES_TO_COMPARE_AND_STRINGIFY should ma
     "propertiesToCompare": [
       "logicalOperator",
       "positionInRowLevelPermissionPredicateGroup",
-      "canReadRecords",
-      "canUpdateRecords",
-      "canSoftDeleteRecords",
-      "canDestroyRecords",
       "parentRowLevelPermissionPredicateGroupUniversalIdentifier",
       "deletedAt",
     ],

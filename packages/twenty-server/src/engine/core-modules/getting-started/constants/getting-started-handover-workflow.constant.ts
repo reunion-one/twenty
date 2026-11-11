@@ -142,7 +142,7 @@ export const GETTING_STARTED_HANDOVER_WORKFLOW: GettingStartedWorkflow = {
                   content: [
                     {
                       type: 'text',
-                      text: 'The deal {{trigger.properties.after.name}} has been won. A kickoff task has been created for you in Twenty.',
+                      text: 'The deal {{trigger.properties.after.name}} has been won. A kickoff task has been created for you in Web3 CRM.',
                     },
                   ],
                 },

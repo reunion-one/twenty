@@ -1,17 +1,9 @@
 /* @license Enterprise */
 
-import { type ObjectRecordEvent } from 'twenty-shared/database-events';
+import { type PermissionsPrincipalsContext } from 'src/engine/permissions/principal/types/permissions-principals-context.type';
 
-import { type PermissionsAuthContext } from 'src/engine/permissions/principal/types/permissions-auth-context.type';
-
-export type EventRecordAccessGate<
-  TEvent extends ObjectRecordEvent = ObjectRecordEvent,
-> = {
+export type EventRecordAccessGate = {
   resolveAdmittedRecordIds: (
-    authContext: PermissionsAuthContext,
+    principals: PermissionsPrincipalsContext,
   ) => Promise<Set<string>>;
-  resolveReadableEvents: (args: {
-    authContext: PermissionsAuthContext;
-    events: TEvent[];
-  }) => Promise<TEvent[]>;
 };

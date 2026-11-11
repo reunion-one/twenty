@@ -125,7 +125,7 @@ export class ApprovedAccessDomainService {
     const i18n = this.i18nService.getI18nInstance(sender.locale);
 
     await this.emailService.send({
-      from: `${sender.name.firstName} ${sender.name.lastName} (via Twenty) <${this.twentyConfigService.get('EMAIL_FROM_ADDRESS')}>`,
+      from: `${sender.name.firstName} ${sender.name.lastName} (via Web3 CRM) <${this.twentyConfigService.get('EMAIL_FROM_ADDRESS')}>`,
       to,
       subject: i18n._(msg`Approve your access domain`),
       text,

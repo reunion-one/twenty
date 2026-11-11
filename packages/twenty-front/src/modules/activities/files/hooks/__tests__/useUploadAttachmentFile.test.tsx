@@ -10,10 +10,7 @@ import { useObjectPermissions } from '@/object-record/hooks/useObjectPermissions
 import { useHasPermissionFlag } from '@/settings/roles/hooks/useHasPermissionFlag';
 import { type ActivityTargetableObject } from '@/activities/types/ActivityTargetableEntity';
 import { type EnrichedObjectMetadataItem } from '@/object-metadata/types/EnrichedObjectMetadataItem';
-import {
-  FieldMetadataType,
-  MetadataWritability,
-} from '~/generated-metadata/graphql';
+import { getMockObjectMetadataItemOrThrow } from '~/testing/utils/getMockObjectMetadataItemOrThrow';
 
 jest.mock('@/activities/files/hooks/useAttachmentDocumentType', () => ({
   useAttachmentDocumentType: jest.fn(),
@@ -37,20 +34,11 @@ jest.mock('@/settings/roles/hooks/useHasPermissionFlag', () => ({
   useHasPermissionFlag: jest.fn(),
 }));
 
-const attachmentMetadata = {
+const attachmentMetadata: EnrichedObjectMetadataItem = {
+  ...getMockObjectMetadataItemOrThrow('attachment'),
   id: 'attachment-metadata-id',
-  fields: [
-    {
-      id: 'file-field-id',
-      name: 'file',
-      type: FieldMetadataType.FILES,
-    },
-  ],
   isUICreatable: false,
-  isUIEditable: true,
-  isRemote: false,
-  writability: MetadataWritability.OPEN,
-} as unknown as EnrichedObjectMetadataItem;
+};
 
 const targetableObject = {
   id: 'company-id',
@@ -79,12 +67,11 @@ describe('useUploadAttachmentFile @custom', () => {
     jest.mocked(useObjectMetadataItems).mockReturnValue({
       objectMetadataItems: [
         {
+          ...getMockObjectMetadataItemOrThrow('company'),
           id: 'company-metadata-id',
-          nameSingular: 'company',
           isUIEditable: true,
           isRemote: false,
-          writability: MetadataWritability.OPEN,
-        } as EnrichedObjectMetadataItem,
+        },
       ],
     } as never);
     jest.mocked(useObjectPermissions).mockReturnValue({

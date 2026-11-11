@@ -11,39 +11,36 @@ import { type OrmFlatFieldMetadata } from 'src/engine/metadata-modules/flat-fiel
 import { type FlatObjectMetadata } from 'src/engine/metadata-modules/flat-object-metadata/types/flat-object-metadata.type';
 import { type ApplicationDefaultRoleMaps } from 'src/engine/permissions/principal/types/application-default-role-maps.type';
 import { type PermissionsPrincipalsWithRolesContext } from 'src/engine/permissions/principal/types/permissions-principals-with-roles-context.type';
-import { getPermissionsPrincipalsActingApplicationId } from 'src/engine/permissions/principal/utils/get-permissions-principals-acting-application-id.util';
-import { getPermissionsPrincipalsRoleIds } from 'src/engine/permissions/principal/utils/get-permissions-principals-role-ids.util';
+import { getPermissionsPrincipalActingApplicationId } from 'src/engine/permissions/principal/utils/get-permissions-principal-acting-application-id.util';
+import { getPermissionsPrincipalRoleIds } from 'src/engine/permissions/principal/utils/get-permissions-principal-role-ids.util';
 import { computePermissionIntersection } from 'src/engine/permissions/role/utils/compute-permission-intersection.util';
 import { restrictObjectsPermissionsToDisabledActions } from 'src/engine/permissions/role/utils/restrict-objects-permissions-to-disabled-actions.util';
-import { restrictObjectsPermissionsToScope } from 'src/engine/permissions/role/utils/restrict-objects-permissions-to-scope.util';
 
 export const computeObjectsPermissionsForRoles = ({
-  principals,
+  principal,
   rolesPermissions,
   flatObjectMetadataMaps,
   flatFieldMetadataMaps,
   flatApplicationMaps,
 }: {
-  principals: Pick<
+  principal: Pick<
     PermissionsPrincipalsWithRolesContext,
-    | 'mainPrincipal'
-    | 'limitingPrincipal'
-    | 'applicationPrincipal'
-    | 'aiRunScope'
+    'mainPrincipal' | 'limitingPrincipal' | 'applicationPrincipal'
   >;
   rolesPermissions: ObjectsPermissionsByRoleId;
   flatObjectMetadataMaps: FlatEntityMaps<FlatObjectMetadata>;
   flatFieldMetadataMaps: FlatEntityMaps<OrmFlatFieldMetadata>;
   flatApplicationMaps: ApplicationDefaultRoleMaps;
 }): ObjectsPermissions => {
-  const roleIds = getPermissionsPrincipalsRoleIds(principals);
+  const roleIds = getPermissionsPrincipalRoleIds(principal);
 
   if (!isNonEmptyArray(roleIds)) {
     return {};
   }
 
-  const actingApplicationId = getPermissionsPrincipalsActingApplicationId({
-    principals,
+  const actingApplicationId = getPermissionsPrincipalActingApplicationId({
+    principal,
+    flatApplicationMaps,
   });
 
   const actingApplicationRoleId = isDefined(actingApplicationId)
@@ -70,12 +67,5 @@ export const computeObjectsPermissionsForRoles = ({
     return {};
   }
 
-  const objectsPermissions = computePermissionIntersection(permissionsPerRole);
-
-  return isDefined(principals.aiRunScope)
-    ? restrictObjectsPermissionsToScope({
-        objectsPermissions,
-        aiRunScope: principals.aiRunScope,
-      })
-    : objectsPermissions;
+  return computePermissionIntersection(permissionsPerRole);
 };

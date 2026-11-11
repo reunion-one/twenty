@@ -221,7 +221,7 @@ describe('AttachmentUploader @custom', () => {
     resolveUpload();
     await waitFor(() =>
       expect(mockEnqueueToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: 'info' }),
+        expect.objectContaining({ status: 'info' }),
       ),
     );
   });
@@ -255,7 +255,7 @@ describe('AttachmentUploader @custom', () => {
     );
     expect(mockEnqueueToast).toHaveBeenCalledWith(
       expect.objectContaining({
-        variant: 'info',
+        status: 'info',
         children: 'Files were uploaded without a type.',
       }),
     );
@@ -282,7 +282,7 @@ describe('AttachmentUploader @custom', () => {
       expect.objectContaining({ status: 'error' }),
     );
     expect(mockEnqueueToast).not.toHaveBeenCalledWith(
-      expect.objectContaining({ variant: 'info' }),
+      expect.objectContaining({ status: 'info' }),
     );
     expect(onUploadComplete).not.toHaveBeenCalled();
   });
@@ -339,7 +339,7 @@ describe('AttachmentUploader @custom', () => {
     );
     expect(mockEnqueueToast).toHaveBeenCalledWith(
       expect.objectContaining({
-        variant: 'info',
+        status: 'info',
         children: 'Files were uploaded without Attachment category.',
       }),
     );

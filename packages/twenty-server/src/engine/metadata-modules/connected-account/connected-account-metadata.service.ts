@@ -435,13 +435,6 @@ export class ConnectedAccountMetadataService {
       ),
     );
 
-    const latestConnectedAccounts = await this.runOnDisconnectHooksAndReload({
-      connectedAccounts: connectedAccounts.filter(
-        ({ archivedAt }) => !isDefined(archivedAt),
-      ),
-      workspaceId,
-    });
-
     await this.repository.manager.transaction(async (entityManager) => {
       await entityManager.update(
         ConnectedAccountEntity,
@@ -493,8 +486,8 @@ export class ConnectedAccountMetadataService {
       );
     });
 
-    for (const latestConnectedAccount of latestConnectedAccounts) {
-      await this.appOAuthRevokeService.revokeIfApp(latestConnectedAccount);
+    for (const connectedAccount of connectedAccounts) {
+      await this.appOAuthRevokeService.revokeIfApp(connectedAccount);
     }
   }
 
@@ -509,14 +502,15 @@ export class ConnectedAccountMetadataService {
       where: { id, workspaceId },
     });
 
-    const latestConnectedAccounts = await this.runOnDisconnectHooksAndReload({
-      connectedAccounts: [connectedAccount],
-      workspaceId,
-    });
-
-    for (const latestConnectedAccount of latestConnectedAccounts) {
-      await this.appOAuthRevokeService.revokeIfApp(latestConnectedAccount);
+    if (isDefined(connectedAccount.connectionProviderId)) {
+      await this.connectionProviderLifecycleHookService.runOnDisconnect({
+        connectionProviderId: connectedAccount.connectionProviderId,
+        workspaceId,
+        connectedAccountId: id,
+      });
     }
+
+    await this.appOAuthRevokeService.revokeIfApp(connectedAccount);
 
     const [messageChannels, calendarChannels] = await Promise.all([
       this.messageChannelRepository.find({
@@ -665,15 +659,25 @@ export class ConnectedAccountMetadataService {
       `WorkspaceId: ${workspaceId} Deleting ${connectedAccounts.length} connected account(s) with ${messageChannels.length} message channel(s) and ${calendarChannels.length} calendar channel(s)`,
     );
 
-    const latestConnectedAccounts = await this.runOnDisconnectHooksAndReload({
-      connectedAccounts,
-      workspaceId,
-    });
+    for (const { id, connectionProviderId } of connectedAccounts) {
+      if (isDefined(connectionProviderId)) {
+        await this.connectionProviderLifecycleHookService.runOnDisconnect({
+          connectionProviderId,
+          workspaceId,
+          connectedAccountId: id,
+        });
+      }
+    }
 
     await this.stopWebhookSubscriptions({
       messageChannels,
       calendarChannels,
       workspaceId,
+    });
+
+    // Hooks may have refreshed tokens through getConnection and an overlapping delete may have removed rows
+    const latestConnectedAccounts = await this.repository.find({
+      where: { id: In(connectedAccountIds), workspaceId },
     });
 
     for (const latestConnectedAccount of latestConnectedAccounts) {
@@ -706,35 +710,6 @@ export class ConnectedAccountMetadataService {
       })),
       workspaceId,
     );
-  }
-
-  private async runOnDisconnectHooksAndReload({
-    connectedAccounts,
-    workspaceId,
-  }: {
-    connectedAccounts: Pick<
-      ConnectedAccountEntity,
-      'id' | 'connectionProviderId'
-    >[];
-    workspaceId: string;
-  }): Promise<ConnectedAccountEntity[]> {
-    if (connectedAccounts.length === 0) {
-      return [];
-    }
-
-    for (const { id, connectionProviderId } of connectedAccounts) {
-      if (isDefined(connectionProviderId)) {
-        await this.connectionProviderLifecycleHookService.runOnDisconnect({
-          connectionProviderId,
-          workspaceId,
-          connectedAccountId: id,
-        });
-      }
-    }
-
-    return this.repository.find({
-      where: { id: In(connectedAccounts.map(({ id }) => id)), workspaceId },
-    });
   }
 
   private async stopWebhookSubscriptions({

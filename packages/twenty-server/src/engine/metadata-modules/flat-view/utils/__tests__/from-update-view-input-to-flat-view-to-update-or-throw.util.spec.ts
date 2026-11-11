@@ -189,6 +189,37 @@ const updateView = ({
 };
 
 describe('fromUpdateViewInputToFlatViewToUpdateOrThrow', () => {
+  it('repairs missing SELECT groups when saving the same widget grouping @custom', () => {
+    const view: FlatView = {
+      ...buildExistingFlatView({ groupingOverride: null }),
+      type: ViewType.TABLE_WIDGET,
+      overrides: null,
+      viewGroupIds: [],
+      viewGroupUniversalIdentifiers: [],
+    };
+    const result = fromUpdateViewInputToFlatViewToUpdateOrThrow({
+      updateViewInput: {
+        id: VIEW_ID,
+        mainGroupByFieldMetadataId: STAGE_FIELD_ID,
+      },
+      flatViewMaps: addFlatEntityToFlatEntityMapsOrThrow({
+        flatEntity: view,
+        flatEntityMaps: createEmptyFlatEntityMaps(),
+      }),
+      flatViewGroupMaps: createEmptyFlatEntityMaps(),
+      flatFieldMetadataMaps,
+      callerApplicationUniversalIdentifier:
+        WORKSPACE_CUSTOM_APPLICATION_UNIVERSAL_IDENTIFIER,
+      workspaceCustomApplicationUniversalIdentifier:
+        WORKSPACE_CUSTOM_APPLICATION_UNIVERSAL_IDENTIFIER,
+    });
+
+    expect(result.flatViewGroupsToDelete).toEqual([]);
+    expect(
+      result.flatViewGroupsToCreate.map((group) => group.fieldValue),
+    ).toEqual(stageOptions.map((option) => option.value));
+  });
+
   it.each([COMPANY_FIELD_ID, null])(
     'recreates stage groups when restoring the base grouping from %s',
     (groupingOverride) => {

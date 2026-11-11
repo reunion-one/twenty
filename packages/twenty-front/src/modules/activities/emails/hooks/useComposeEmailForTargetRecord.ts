@@ -20,11 +20,15 @@ export const useComposeEmailForTargetRecord = (
       recordId: targetRecord.id,
     });
 
-  const openComposerWithConnectedAccount = (
-    composerConnectedAccountId: string,
-  ) => {
+  const openComposer = () => {
+    if (!isDefined(connectedAccountId)) {
+      navigateSettings(SettingsPath.NewAccount);
+
+      return;
+    }
+
     openComposeEmailInSidePanel({
-      connectedAccountId: composerConnectedAccountId,
+      connectedAccountId,
       defaultTo,
       contextRecord: {
         objectNameSingular: targetRecord.targetObjectNameSingular,
@@ -33,19 +37,8 @@ export const useComposeEmailForTargetRecord = (
     });
   };
 
-  const openComposer = () => {
-    if (!isDefined(connectedAccountId)) {
-      navigateSettings(SettingsPath.NewAccount);
-
-      return;
-    }
-
-    openComposerWithConnectedAccount(connectedAccountId);
-  };
-
   return {
     openComposer,
-    openComposerWithConnectedAccount,
     loading: accountLoading || recipientLoading,
   };
 };

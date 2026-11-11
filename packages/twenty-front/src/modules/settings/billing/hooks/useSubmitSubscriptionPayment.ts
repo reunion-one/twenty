@@ -1,6 +1,7 @@
 import { getToastOptionsFromError } from '@/error-handler/utils/getToastOptionsFromError';
 import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { useMutation } from '@apollo/client/react';
+import { t } from '@lingui/core/macro';
 import { useElements, useStripe } from '@stripe/react-stripe-js';
 import { useState } from 'react';
 import { AppPath } from 'twenty-shared/types';
@@ -11,7 +12,6 @@ import {
   type SubscriptionInterval,
   CreateSubscriptionPaymentIntentDocument,
 } from '~/generated-metadata/graphql';
-import { useLingui } from '@lingui/react/macro';
 
 type UseSubmitSubscriptionPaymentParams = {
   plan: BillingPlanKey;
@@ -22,7 +22,6 @@ export const useSubmitSubscriptionPayment = ({
   plan,
   recurringInterval,
 }: UseSubmitSubscriptionPaymentParams) => {
-  const { t } = useLingui();
   const stripe = useStripe();
   const elements = useElements();
   const { enqueueToast } = useToast();
@@ -63,7 +62,7 @@ export const useSubmitSubscriptionPayment = ({
       if (!isDefined(paymentIntent?.clientSecret)) {
         enqueueToast({
           status: 'error',
-          children: t`Subscription error. Please retry or contact Twenty team`,
+          children: t`Subscription error. Please retry or contact Web3 CRM team`,
         });
         setIsSubmitting(false);
         return;
@@ -102,7 +101,7 @@ export const useSubmitSubscriptionPayment = ({
       } else {
         enqueueToast({
           status: 'error',
-          children: t`Subscription error. Please retry or contact Twenty team`,
+          children: t`Subscription error. Please retry or contact Web3 CRM team`,
         });
       }
       setIsSubmitting(false);

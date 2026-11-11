@@ -171,8 +171,8 @@ export const useNavigationMenuItemAddOptions = ({
           onClick: () => {
             addItem({
               type: NavigationMenuItemType.LINK,
-              name: 'Twenty',
-              link: 'https://twenty.com',
+              name: 'Web3 CRM',
+              link: 'https://web3p.in',
               color: DEFAULT_NAVIGATION_MENU_ITEM_COLOR_LINK,
             });
           },

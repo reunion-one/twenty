@@ -12,16 +12,15 @@ import { useObjectPermissions } from '@/object-record/hooks/useObjectPermissions
 import { useHasPermissionFlag } from '@/settings/roles/hooks/useHasPermissionFlag';
 import { CoreObjectNameSingular } from 'twenty-shared/types';
 import { useCreateOneRecord } from '@/object-record/hooks/useCreateOneRecord';
+import { t } from '@lingui/core/macro';
 import { assertIsDefinedOrThrow, isDefined } from 'twenty-shared/utils';
 import {
   FieldMetadataType,
   FileFolder,
   PermissionFlagType,
 } from '~/generated-metadata/graphql';
-import { useLingui } from '@lingui/react/macro';
 
 export const useUploadAttachmentFile = () => {
-  const { t } = useLingui();
   const { uploadFile: directUploadFile } = useDirectFileUpload();
   const attachmentDocumentType = useAttachmentDocumentType();
   const { objectMetadataItem: attachmentMetadata } = useObjectMetadataItem({

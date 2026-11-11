@@ -29,7 +29,7 @@ export const WarnSuspendedWorkspaceEmail = ({
   const remainingDays = daysLeft > 0 ? daysLeft : 0;
 
   return (
-    <BaseEmail width={333} locale={locale}>
+    <BaseEmail width={333} locale={locale} serverUrl={new URL(link).origin}>
       <Title value={i18n._('Your workspace is paused')} />
       <MainText>
         {userName?.length > 1 ? (
@@ -67,7 +67,7 @@ WarnSuspendedWorkspaceEmail.PreviewProps = {
   inactiveDaysBeforeDelete: 14,
   userName: 'John Doe',
   workspaceDisplayName: 'Acme Inc.',
-  link: 'https://acme.twenty.com/settings/billing',
+  link: 'https://web3p.in/settings/billing',
   locale: 'en',
 };
 

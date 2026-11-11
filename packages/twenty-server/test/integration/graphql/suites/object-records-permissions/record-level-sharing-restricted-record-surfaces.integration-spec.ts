@@ -18,7 +18,6 @@ import { updateManyOperationFactory } from 'test/integration/graphql/utils/updat
 import { makeMetadataApiRequest } from 'test/integration/metadata/suites/utils/make-metadata-api-request.util';
 import { updateFeatureFlag } from 'test/integration/metadata/suites/utils/update-feature-flag.util';
 import { makeRestApiRequest } from 'test/integration/rest/utils/make-rest-api-request.util';
-import { resolveWorkspaceMemberAuthContext } from 'test/integration/utils/resolve-workspace-member-auth-context.util';
 import { getAppProviderByClassName } from 'test/integration/utils/get-app-provider-by-class-name.util';
 import { getCoreRepository } from 'test/integration/utils/get-core-repository.util';
 
@@ -307,12 +306,13 @@ describe('A restricted record on an object open by default', () => {
             properties: { after: { id: recordId } },
           })) as ObjectRecordEvent[],
         })
-        .resolveAdmittedRecordIds(
-          await resolveWorkspaceMemberAuthContext({
-            workspaceId,
+        .resolveAdmittedRecordIds({
+          workspaceId: workspaceId,
+          mainPrincipal: {
             workspaceMemberId: WORKSPACE_MEMBER_DATA_SEED_IDS.JONY,
-          }),
-        );
+          },
+          applicationPrincipal: { isCustomApp: true },
+        });
 
     expect([...admittedRecordIds]).toEqual([OPEN_COMPANY_ID]);
   });

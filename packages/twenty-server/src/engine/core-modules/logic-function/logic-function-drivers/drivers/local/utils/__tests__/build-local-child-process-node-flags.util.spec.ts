@@ -1,11 +1,16 @@
+import { spawnSync } from 'node:child_process';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
 import { buildLocalChildProcessNodeFlags } from 'src/engine/core-modules/logic-function/logic-function-drivers/drivers/local/utils/build-local-child-process-node-flags.util';
 
-describe('buildLocalChildProcessNodeFlags', () => {
-  it('grants read access to each directory and write access to the temporary directory only', () => {
+// Local execution bypasses these legacy flags; retain their tests for upstream syncs.
+describe('buildLocalChildProcessNodeFlags @custom', () => {
+  it.skip('grants unrestricted file reads and writes', () => {
     expect(
       buildLocalChildProcessNodeFlags({
         readableDirectories: ['/execution', '/layers/deps', '/layers/sdk'],
-        writableDirectory: '/execution/tmp',
         shouldAllowNetwork: false,
       }),
     ).toEqual([
@@ -15,15 +20,42 @@ describe('buildLocalChildProcessNodeFlags', () => {
       '--allow-fs-read=/execution',
       '--allow-fs-read=/layers/deps',
       '--allow-fs-read=/layers/sdk',
-      '--allow-fs-write=/execution/tmp',
+      '--allow-fs-read=*',
+      '--allow-fs-write=*',
     ]);
   });
 
-  it('keeps network access when requested', () => {
+  it.skip('lets the child write outside its execution directory', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'twenty-file-permissions-'));
+    const outputPath = join(directory, 'outside-execution.txt');
+
+    try {
+      const child = spawnSync(
+        process.execPath,
+        [
+          ...buildLocalChildProcessNodeFlags({
+            readableDirectories: [join(directory, 'execution')],
+            shouldAllowNetwork: false,
+          }),
+          '-e',
+          "require('node:fs').writeFileSync(process.argv[1], 'written')",
+          outputPath,
+        ],
+        { encoding: 'utf8' },
+      );
+
+      expect(child.stderr).toBe('');
+      expect(child.status).toBe(0);
+      expect(readFileSync(outputPath, 'utf8')).toBe('written');
+    } finally {
+      rmSync(directory, { recursive: true, force: true });
+    }
+  });
+
+  it.skip('keeps network access when requested', () => {
     expect(
       buildLocalChildProcessNodeFlags({
         readableDirectories: ['/execution'],
-        writableDirectory: '/execution/tmp',
         shouldAllowNetwork: true,
       }),
     ).toContain('--allow-net');

@@ -32,7 +32,7 @@ export type PermissionsMetadataMaps = {
 };
 
 export type PermissionsRowAccessRequest = {
-  principals: PermissionsPrincipalsWithRolesContext;
+  principal: PermissionsPrincipalsWithRolesContext;
   metadataMaps: PermissionsMetadataMaps;
   flatObjectMetadata: FlatObjectMetadata;
   operationType: OperationType;
@@ -41,7 +41,7 @@ export type PermissionsRowAccessRequest = {
 
 export type PermissionsObjectAccessRequest = Pick<
   PermissionsRowAccessRequest,
-  'principals' | 'metadataMaps' | 'flatObjectMetadata' | 'operationType'
+  'principal' | 'metadataMaps' | 'flatObjectMetadata' | 'operationType'
 >;
 
 export type RowAccessRecord = { id: string } & Record<string, unknown>;

@@ -11,6 +11,7 @@ import { RecordTableWidgetRendererContent } from '@/page-layout/widgets/record-t
 import { getFieldWidgetJunctionCreateThrough } from '@/page-layout/widgets/field/utils/getFieldWidgetJunctionCreateThrough';
 import { getFieldWidgetNestedRelationCreateThrough } from '@/page-layout/widgets/field/utils/getFieldWidgetNestedRelationCreateThrough';
 import { isFieldWidget } from '@/page-layout/widgets/field/utils/isFieldWidget';
+import { resolveFieldWidgetRelationTableObjectMetadataId } from '@/page-layout/widgets/field/utils/resolveFieldWidgetRelationTableObjectMetadataId';
 import { resolveFieldWidgetNestedRelation } from '@/page-layout/widgets/field/utils/resolveFieldWidgetNestedRelation';
 import { useCurrentWidget } from '@/page-layout/widgets/hooks/useCurrentWidget';
 import { useWorkspaceSurface } from '@/ui/layout/hooks/useWorkspaceSurface';
@@ -86,45 +87,27 @@ export const FieldWidgetRelationTable = ({
     ],
   );
 
-  // A junction widget lists the records behind the junction, except morph junctions and views saved on the
-  // junction object, which keep listing the junction records.
+  const tableObjectMetadataId = resolveFieldWidgetRelationTableObjectMetadataId(
+    {
+      relationObjectMetadataId,
+      junctionConfig,
+      viewObjectMetadataId: persistedView?.objectMetadataId,
+      nestedRelationFieldMetadataId,
+      nestedRelationTargetObjectMetadataId:
+        resolvedNestedRelation?.nestedRelationTargetObjectMetadataItem.id,
+    },
+  );
+
   const junctionTargetObjectMetadataId =
     isDefined(junctionConfig) && !junctionConfig.isMorphRelation
       ? junctionConfig.targetFields[0]?.relation?.targetObjectMetadata.id
       : undefined;
 
-  const isPersistedViewOnJunctionObject =
-    persistedView?.objectMetadataId === relationObjectMetadataId;
-
-  const junctionTableObjectMetadataId = isPersistedViewOnJunctionObject
-    ? relationObjectMetadataId
-    : junctionTargetObjectMetadataId;
-
   const isJunctionTable =
-    isDefined(junctionTableObjectMetadataId) &&
-    junctionTableObjectMetadataId === junctionTargetObjectMetadataId;
-
-  // A broken chain or a view of another object renders nothing, not records the title doesn't claim.
-  const directTableObjectMetadataId =
-    junctionTableObjectMetadataId ?? relationObjectMetadataId;
-
-  const isPersistedViewOnAnotherObject =
-    isDefined(persistedView) &&
-    persistedView.objectMetadataId !== directTableObjectMetadataId;
-
-  const getTableObjectMetadataId = () => {
-    if (isDefined(nestedRelationFieldMetadataId)) {
-      return resolvedNestedRelation?.nestedRelationTargetObjectMetadataItem.id;
-    }
-
-    if (isPersistedViewOnAnotherObject) {
-      return undefined;
-    }
-
-    return directTableObjectMetadataId;
-  };
-
-  const tableObjectMetadataId = getTableObjectMetadataId();
+    isDefined(junctionTargetObjectMetadataId) &&
+    (persistedView?.objectMetadataId === relationObjectMetadataId
+      ? relationObjectMetadataId
+      : junctionTargetObjectMetadataId) === junctionTargetObjectMetadataId;
 
   const {
     targetFieldMetadataName,

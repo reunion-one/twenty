@@ -1,5 +1,6 @@
+import { DEFAULT_WORKSPACE_LOGO } from 'src/constants/DefaultWorkspaceLogo';
 import { type I18n } from '@lingui/core';
-import { Img } from 'react-email';
+import { Img, Text } from 'react-email';
 
 const logoStyle = {
   marginBottom: '40px',
@@ -7,13 +8,18 @@ const logoStyle = {
 
 type LogoProps = {
   i18n: I18n;
+  serverUrl?: string;
 };
 
-export const Logo = ({ i18n }: LogoProps) => {
+export const Logo = ({ i18n, serverUrl }: LogoProps) => {
+  if (!serverUrl) {
+    return <Text style={logoStyle}>{i18n._('Web3 CRM')}</Text>;
+  }
+
   return (
     <Img
-      src="https://app.twenty.com/images/icons/windows11/Square150x150Logo.scale-100.png"
-      alt={i18n._('Twenty logo')}
+      src={`${serverUrl}${DEFAULT_WORKSPACE_LOGO}`}
+      alt={i18n._('Web3 CRM')}
       width="40"
       height="40"
       style={logoStyle}

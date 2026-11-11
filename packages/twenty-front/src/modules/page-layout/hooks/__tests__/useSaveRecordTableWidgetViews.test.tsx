@@ -1,3 +1,8 @@
+import { recordTableWidgetViewPersistedComponentState } from '@/page-layout/states/recordTableWidgetViewPersistedComponentState';
+import { useRecordTableWidgetLayoutCallbacks } from '@/page-layout/widgets/record-table/hooks/useRecordTableWidgetLayoutCallbacks';
+import { buildMissingRecordTableWidgetViewDraftSnapshots } from '@/page-layout/widgets/record-table/utils/buildMissingRecordTableWidgetViewDraftSnapshots';
+import { constructViewFromRecordTableWidgetViewSnapshot } from '@/page-layout/widgets/record-table/utils/constructViewFromRecordTableWidgetViewSnapshot';
+import { isFieldMetadataItemAvailableAsWidgetGroupByField } from '@/page-layout/widgets/record-table/utils/isFieldMetadataItemAvailableAsWidgetGroupByField';
 import { type FlatViewFilter } from '@/metadata-store/types/FlatViewFilter';
 import { UPSERT_VIEW_WIDGET } from '@/page-layout/graphql/mutations/upsertViewWidget';
 import { useSaveRecordTableWidgetViews } from '@/page-layout/hooks/useSaveRecordTableWidgetViews';
@@ -17,6 +22,7 @@ import { createStore, Provider as JotaiProvider } from 'jotai';
 import { type ReactNode } from 'react';
 import { ViewFilterOperand } from 'twenty-shared/types';
 import {
+  FieldDisplayMode,
   WidgetConfigurationType,
   WidgetType,
   type UpsertViewWidgetInput,
@@ -100,7 +106,7 @@ describe('useSaveRecordTableWidgetViews', () => {
     jest.clearAllMocks();
   });
 
-  it('should include relationTargetFieldMetadataId in the upsert view filters input', async () => {
+  it('should include relationTargetFieldMetadataId in the upsert view filters input @custom', async () => {
     const store = createStore();
 
     store.set(
@@ -185,4 +191,134 @@ describe('useSaveRecordTableWidgetViews', () => {
       undefined,
     );
   });
+});
+
+it('repairs missing groups and reloads FIELD widget grouping with its junction filter @custom', async () => {
+  const store = createStore();
+  const objectMetadataItem = getMockObjectMetadataItemOrThrow('opportunity');
+  const selectField = objectMetadataItem.readableFields.find(
+    isFieldMetadataItemAvailableAsWidgetGroupByField,
+  );
+
+  if (!selectField?.options?.length) {
+    throw new Error('Missing SELECT options fixture');
+  }
+
+  const initialSnapshot = {
+    ...buildRecordTableWidgetViewSnapshot(objectMetadataItem),
+    viewFilters: [relationTraversalViewFilter],
+  };
+  initialSnapshot.view.mainGroupByFieldMetadataId = selectField.id;
+  initialSnapshot.viewFilters = initialSnapshot.viewFilters.map((filter) => ({
+    ...filter,
+    viewId: initialSnapshot.view.id,
+  }));
+
+  const widget: PageLayoutWidget = {
+    ...makeWidget(WIDGET_ID, 0),
+    type: WidgetType.FIELD,
+    configuration: {
+      __typename: 'FieldConfiguration',
+      configurationType: WidgetConfigurationType.FIELD,
+      fieldMetadataId: SOURCE_FIELD_METADATA_ID,
+      fieldDisplayMode: FieldDisplayMode.TABLE,
+      viewId: initialSnapshot.view.id,
+    },
+  };
+  const draftState = recordTableWidgetViewDraftComponentState.atomFamily({
+    instanceId: PAGE_LAYOUT_ID,
+  });
+  const persistedState =
+    recordTableWidgetViewPersistedComponentState.atomFamily({
+      instanceId: PAGE_LAYOUT_ID,
+    });
+
+  store.set(
+    pageLayoutDraftComponentState.atomFamily({ instanceId: PAGE_LAYOUT_ID }),
+    makeDraft([makeTab('tab-1', [widget])]),
+  );
+  store.set(draftState, { [WIDGET_ID]: initialSnapshot });
+  store.set(persistedState, { [WIDGET_ID]: initialSnapshot });
+
+  const serverGroups = selectField.options.map((option, index) => ({
+    id: `server-group-${index}`,
+    viewId: initialSnapshot.view.id,
+    fieldValue: option.value,
+    position: index,
+    isVisible: true,
+  }));
+  const saveResult = jest.fn((variables: { input: UpsertViewWidgetInput }) => ({
+    data: {
+      upsertViewWidget: {
+        __typename: 'View',
+        id: initialSnapshot.view.id,
+        viewGroups: variables.input.view?.mainGroupByFieldMetadataId
+          ? serverGroups
+          : [],
+      },
+    },
+  }));
+  const wrapper = ({ children }: { children: ReactNode }) => (
+    <JotaiProvider store={store}>
+      <MockedProvider
+        mocks={[
+          {
+            request: { query: UPSERT_VIEW_WIDGET, variables: () => true },
+            maxUsageCount: Number.POSITIVE_INFINITY,
+            result: saveResult,
+          },
+        ]}
+        defaultOptions={{ mutate: { fetchPolicy: 'no-cache' } }}
+      >
+        {children}
+      </MockedProvider>
+    </JotaiProvider>
+  );
+  const { result } = renderHook(
+    () => ({
+      ...useSaveRecordTableWidgetViews(),
+      ...useRecordTableWidgetLayoutCallbacks({
+        pageLayoutId: PAGE_LAYOUT_ID,
+        widgetId: WIDGET_ID,
+      }),
+    }),
+    { wrapper },
+  );
+
+  for (const field of [selectField, null]) {
+    act(() => result.current.handleGroupByFieldChange(field));
+    await act(async () => {
+      await result.current.saveRecordTableWidgetViews(PAGE_LAYOUT_ID);
+    });
+
+    const call = saveResult.mock.calls.at(-1);
+    expect(call).toBeDefined();
+    expect(call?.[0].input.view?.mainGroupByFieldMetadataId).toBe(
+      field?.id ?? null,
+    );
+    expect(call?.[0].input.viewFilters).toEqual([
+      expect.objectContaining({
+        relationTargetFieldMetadataId: RELATION_TARGET_FIELD_METADATA_ID,
+        value: relationTraversalViewFilter.value,
+      }),
+    ]);
+
+    const savedSnapshot = store.get(persistedState)[WIDGET_ID];
+    expect(savedSnapshot.viewGroups).toEqual(field ? serverGroups : []);
+
+    const savedView =
+      constructViewFromRecordTableWidgetViewSnapshot(savedSnapshot);
+    const reloaded = buildMissingRecordTableWidgetViewDraftSnapshots({
+      widgets: [widget],
+      existingSnapshotsByWidgetId: {},
+      views: [savedView],
+    })[WIDGET_ID];
+
+    expect(reloaded.view.mainGroupByFieldMetadataId).toBe(field?.id ?? null);
+    expect(reloaded.viewGroups).toEqual(field ? serverGroups : []);
+    expect(reloaded.viewFilters).toEqual(initialSnapshot.viewFilters);
+    store.set(draftState, { [WIDGET_ID]: reloaded });
+    store.set(persistedState, { [WIDGET_ID]: reloaded });
+  }
+  expect(saveResult).toHaveBeenCalledTimes(2);
 });

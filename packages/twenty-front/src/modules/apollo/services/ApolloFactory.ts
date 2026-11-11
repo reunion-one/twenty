@@ -33,7 +33,7 @@ import isEmpty from 'lodash.isempty';
 import { SESSION_COOKIE_OPT_IN_HEADER_NAME } from 'twenty-shared/constants';
 import { getGenericOperationName, isDefined } from 'twenty-shared/utils';
 
-const logger = loggerLink(() => 'Twenty');
+const logger = loggerLink(() => 'Web3 CRM');
 
 export interface Options {
   uri: string;

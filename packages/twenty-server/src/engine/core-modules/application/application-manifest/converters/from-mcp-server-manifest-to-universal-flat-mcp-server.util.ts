@@ -19,9 +19,6 @@ export const fromMcpServerManifestToUniversalFlatMcpServer = ({
   connectionProviderUniversalIdentifier:
     mcpServerManifest.connectionProvider?.universalIdentifier ?? null,
   isActive: true,
-  tools: [],
-  toolsSyncedAt: null,
-  toolsSyncError: null,
   createdAt: now,
   updatedAt: now,
 });

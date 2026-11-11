@@ -16,8 +16,8 @@ const mockGetIcon = jest.fn();
 jest.mock('@/activities/files/hooks/useAttachmentDocumentType', () => ({
   useAttachmentDocumentType: jest.fn(),
 }));
-jest.mock('twenty-ui/icon', () => ({
-  ...jest.requireActual('twenty-ui/icon'),
+jest.mock('twenty-ui/icon/provider', () => ({
+  ...jest.requireActual('twenty-ui/icon/provider'),
   useIcons: () => ({ getIcon: mockGetIcon }),
 }));
 jest.mock('@/object-record/hooks/useUpdateOneRecord', () => ({

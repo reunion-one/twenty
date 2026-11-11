@@ -7,6 +7,7 @@ import { useAtomStateValue } from '@/ui/utilities/state/jotai/hooks/useAtomState
 import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { useMutation } from '@apollo/client/react';
 import { styled } from '@linaria/react';
+import { t } from '@lingui/core/macro';
 import {
   Elements,
   PaymentElement,
@@ -20,7 +21,6 @@ import { InlineBanner, useToast } from 'twenty-ui/components/feedback';
 import { Button } from 'twenty-ui/primitives/input';
 import { themeCssVariables } from 'twenty-ui/theme';
 import { CreateBillingPaymentMethodSetupIntentDocument } from '~/generated-metadata/graphql';
-import { useLingui } from '@lingui/react/macro';
 
 type AddPaymentMethodFormContentProps = {
   finalRedirectPath?: string;
@@ -42,7 +42,6 @@ const AddPaymentMethodFormContent = ({
   onPaymentMethodAdded,
   shouldStartSubscriptionAfterPaymentMethod = true,
 }: AddPaymentMethodFormContentProps) => {
-  const { t } = useLingui();
   const stripe = useStripe();
   const elements = useElements();
   const { enqueueToast } = useToast();
@@ -99,7 +98,7 @@ const AddPaymentMethodFormContent = ({
       if (!isDefined(clientSecret)) {
         enqueueToast({
           status: 'error',
-          children: t`Subscription error. Please retry or contact Twenty team`,
+          children: t`Subscription error. Please retry or contact Web3 CRM team`,
         });
         setIsSubmitting(false);
         return;
@@ -132,7 +131,7 @@ const AddPaymentMethodFormContent = ({
       } else {
         enqueueToast({
           status: 'error',
-          children: t`Subscription error. Please retry or contact Twenty team`,
+          children: t`Subscription error. Please retry or contact Web3 CRM team`,
         });
       }
       setIsSubmitting(false);
@@ -165,7 +164,6 @@ export const AddPaymentMethodForm = ({
   onPaymentMethodAdded,
   shouldStartSubscriptionAfterPaymentMethod,
 }: AddPaymentMethodFormProps) => {
-  const { t } = useLingui();
   const stripePromise = useStripePromise();
   const appearance = useStripeAppearance();
 

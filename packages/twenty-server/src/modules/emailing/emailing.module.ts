@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CoreCommonApiModule } from 'src/engine/api/common/core-common-api.module';
 import { ActorModule } from 'src/engine/core-modules/actor/actor.module';
 import { CacheLockModule } from 'src/engine/core-modules/cache-lock/cache-lock.module';
+import { RecordCrudModule } from 'src/engine/core-modules/record-crud/record-crud.module';
 import { UserWorkspaceModule } from 'src/engine/core-modules/user-workspace/user-workspace.module';
 import { AddPeopleToMessageListJobService } from 'src/modules/emailing/services/add-people-to-message-list-job.service';
 import { AddPeopleToMessageListService } from 'src/modules/emailing/services/add-people-to-message-list.service';
@@ -72,6 +73,7 @@ import { SendCampaignTool } from 'src/modules/emailing/tools/send-campaign.tool'
     ActorModule,
     CacheLockModule,
     CoreCommonApiModule,
+    RecordCrudModule,
     UserWorkspaceModule,
     EmailingDomainModule,
     ThrottlerModule,

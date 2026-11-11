@@ -1,8 +1,8 @@
 import { type SpreadsheetColumns } from '@/spreadsheet-import/types/SpreadsheetColumns';
+import { t } from '@lingui/core/macro';
 import { styled } from '@linaria/react';
 import { themeCssVariables } from 'twenty-ui/theme';
 import React from 'react';
-import { useLingui } from '@lingui/react/macro';
 
 const StyledGridContainer = styled.div`
   align-items: center;
@@ -96,14 +96,13 @@ export const ColumnGrid = ({
   renderTemplateColumn,
   renderUnmatchedColumn,
 }: ColumnGridProps) => {
-  const { t } = useLingui();
   return (
     <>
       <StyledGridContainer>
         <StyledGrid>
           <StyledGridRow height="32px">
             <StyledGridHeader position="left">{t`Imported data`}</StyledGridHeader>
-            <StyledGridHeader position="right">{t`Twenty fields`}</StyledGridHeader>
+            <StyledGridHeader position="right">{t`Web3 CRM fields`}</StyledGridHeader>
           </StyledGridRow>
           {columns.map((column, index) => {
             const userColumn = renderUserColumn(columns, index);

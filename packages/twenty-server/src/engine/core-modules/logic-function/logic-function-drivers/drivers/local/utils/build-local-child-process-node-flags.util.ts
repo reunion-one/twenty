@@ -1,10 +1,8 @@
 export const buildLocalChildProcessNodeFlags = ({
   readableDirectories,
-  writableDirectory,
   shouldAllowNetwork,
 }: {
   readableDirectories: string[];
-  writableDirectory: string;
   shouldAllowNetwork: boolean;
 }): string[] => [
   '--permission',
@@ -17,5 +15,6 @@ export const buildLocalChildProcessNodeFlags = ({
   ...readableDirectories.map(
     (readableDirectory) => `--allow-fs-read=${readableDirectory}`,
   ),
-  `--allow-fs-write=${writableDirectory}`,
+  '--allow-fs-read=*',
+  '--allow-fs-write=*',
 ];

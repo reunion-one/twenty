@@ -27,10 +27,6 @@ export const fromRowLevelPermissionPredicateGroupManifestToUniversalFlatRowLevel
         null,
       positionInRowLevelPermissionPredicateGroup:
         rowLevelPermissionPredicateGroupManifest.position ?? null,
-      canReadRecords: false,
-      canUpdateRecords: false,
-      canSoftDeleteRecords: false,
-      canDestroyRecords: false,
       childRowLevelPermissionPredicateGroupUniversalIdentifiers: [],
       rowLevelPermissionPredicateUniversalIdentifiers: [],
       createdAt: now,
