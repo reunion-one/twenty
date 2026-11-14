@@ -11,6 +11,7 @@ import { computeStandardCallRecordingViewFieldGroups } from 'src/engine/workspac
 import { computeStandardCompanyViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-company-view-field-groups.util';
 import { computeStandardMessageCampaignViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-message-campaign-view-field-groups.util';
 import { computeStandardMessageViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-message-view-field-groups.util';
+import { computeStandardMessageRawContentViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-message-raw-content-view-field-groups.util';
 import { computeStandardMessageChannelMessageAssociationViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-message-channel-message-association-view-field-groups.util';
 import { computeStandardMessageChannelMessageAssociationMessageFolderViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-message-channel-message-association-message-folder-view-field-groups.util';
 import { computeStandardMessageParticipantViewFieldGroups } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field-group/compute-standard-message-participant-view-field-groups.util';
@@ -39,6 +40,7 @@ const STANDARD_FLAT_VIEW_FIELD_GROUP_METADATA_BUILDERS_BY_OBJECT_NAME = {
   company: computeStandardCompanyViewFieldGroups,
   message: computeStandardMessageViewFieldGroups,
   messageCampaign: computeStandardMessageCampaignViewFieldGroups,
+  messageRawContent: computeStandardMessageRawContentViewFieldGroups,
   messageChannelMessageAssociation:
     computeStandardMessageChannelMessageAssociationViewFieldGroups,
   messageChannelMessageAssociationMessageFolder:

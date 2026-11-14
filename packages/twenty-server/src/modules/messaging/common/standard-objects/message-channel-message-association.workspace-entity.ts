@@ -1,3 +1,4 @@
+import { type MessageRawContentWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message-raw-content.workspace-entity';
 import { BaseWorkspaceEntity } from 'src/engine/twenty-orm/base.workspace-entity';
 import { type EntityRelation } from 'src/engine/workspace-manager/workspace-migration/types/entity-relation.interface';
 import { type MessageDirection } from 'src/modules/messaging/common/enums/message-direction.enum';
@@ -5,6 +6,7 @@ import { type MessageChannelMessageAssociationMessageFolderWorkspaceEntity } fro
 import { type MessageWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message.workspace-entity';
 
 export class MessageChannelMessageAssociationWorkspaceEntity extends BaseWorkspaceEntity {
+  messageRawContents: EntityRelation<MessageRawContentWorkspaceEntity[]>;
   messageExternalId: string | null;
   messageThreadExternalId: string | null;
   direction: MessageDirection;

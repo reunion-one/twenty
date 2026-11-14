@@ -90,6 +90,5 @@ export const parseAndFormatGmailMessage = (
     labelIds,
     isDraft,
     messageHeaders,
-    rawProviderData: message as unknown as Record<string, unknown>,
   };
 };

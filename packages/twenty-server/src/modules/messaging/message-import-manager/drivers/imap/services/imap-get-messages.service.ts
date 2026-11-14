@@ -15,7 +15,6 @@ import { extractAddressesFromParsedEmail } from 'src/modules/messaging/message-i
 import { extractMessageTextWithoutQuotedHistory } from 'src/modules/messaging/message-import-manager/utils/extract-message-text-without-quoted-history.util';
 import { extractParticipantsFromParsedEmail } from 'src/modules/messaging/message-import-manager/utils/extract-participants-from-parsed-email.util';
 import { extractThreadIdFromParsedEmail } from 'src/modules/messaging/message-import-manager/utils/extract-thread-id-from-parsed-email.util';
-import { formatRawMimeMessage } from 'src/modules/messaging/message-import-manager/utils/format-raw-mime-message.util';
 import { sanitizeString } from 'src/modules/messaging/message-import-manager/utils/sanitize-string.util';
 
 type ConnectedAccount = Pick<
@@ -143,7 +142,6 @@ export class ImapGetMessagesService {
       messages.push(
         this.buildMessage(
           result.parsed,
-          result.rawMessage,
           result.uid,
           folderPath,
           folderExternalId,
@@ -163,7 +161,6 @@ export class ImapGetMessagesService {
 
   private buildMessage(
     parsed: ParsedMail,
-    rawMessage: Buffer | undefined,
     uid: number,
     folderPath: string,
     folderExternalId: string,
@@ -197,11 +194,6 @@ export class ImapGetMessagesService {
         name: key,
         value,
       })),
-      ...(rawMessage !== undefined
-        ? {
-            rawProviderData: formatRawMimeMessage(rawMessage),
-          }
-        : {}),
     };
   }
 }

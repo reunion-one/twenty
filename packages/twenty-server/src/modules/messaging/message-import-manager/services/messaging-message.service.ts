@@ -11,6 +11,7 @@ import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager
 import { type WorkspaceTransactionScope } from 'src/engine/twenty-orm/types/workspace-transaction-scope.type';
 import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
 import { type MessageChannelMessageAssociationWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message-channel-message-association.workspace-entity';
+import { type MessageRawContentWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message-raw-content.workspace-entity';
 import { type MessageThreadWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message-thread.workspace-entity';
 import { type MessageWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message.workspace-entity';
 import { type MessageWithParticipants } from 'src/modules/messaging/message-import-manager/types/message.type';
@@ -28,8 +29,7 @@ type MessageAccumulator = {
     | 'text'
     | 'messageThreadId'
     | 'isDraft'
-  > &
-    Partial<Pick<MessageWorkspaceEntity, 'rawProviderData'>>;
+  >;
   threadToCreate?: Pick<MessageThreadWorkspaceEntity, 'id' | 'subject'>;
   messageChannelMessageAssociationToCreate?: Pick<
     MessageChannelMessageAssociationWorkspaceEntity,
@@ -145,10 +145,6 @@ export class MessagingMessageService {
             MessageAccumulator['messageChannelMessageAssociationToCreate']
           >
         >();
-        const messageUpdatesById = new Map<
-          string,
-          Partial<MessageWorkspaceEntity> & Pick<MessageWorkspaceEntity, 'id'>
-        >();
 
         for (const message of messages) {
           const messageAccumulator = messageAccumulatorMap.get(
@@ -184,29 +180,11 @@ export class MessagingMessageService {
               text: message.text,
               messageThreadId,
               isDraft: message.isDraft,
-              ...(isDefined(message.rawProviderData)
-                ? { rawProviderData: message.rawProviderData }
-                : {}),
             };
 
             messageAccumulator.messageToCreate = messageToCreate;
           } else {
             newOrExistingMessageId = messageAccumulator.existingMessageInDB.id;
-
-            if (isDefined(message.rawProviderData)) {
-              const existingMessage = messageAccumulator.existingMessageInDB;
-              const rawProviderDataChanged = !isEqual(
-                existingMessage.rawProviderData,
-                message.rawProviderData,
-              );
-
-              if (rawProviderDataChanged) {
-                messageUpdatesById.set(existingMessage.id, {
-                  id: existingMessage.id,
-                  rawProviderData: message.rawProviderData,
-                });
-              }
-            }
           }
 
           if (
@@ -235,20 +213,6 @@ export class MessagingMessageService {
           }
 
           messageAccumulatorMap.set(message.externalId, messageAccumulator);
-        }
-
-        if (messageUpdatesById.size > 0) {
-          for (const messageUpdatesChunk of chunk(
-            Array.from(messageUpdatesById.values()).map(
-              ({ id, ...partialEntity }) => ({
-                criteria: id,
-                partialEntity,
-              }),
-            ),
-            QUERY_MAX_RECORDS,
-          )) {
-            await messageRepository.updateMany(messageUpdatesChunk);
-          }
         }
 
         const messageThreadsToCreate = Array.from(
@@ -316,6 +280,12 @@ export class MessagingMessageService {
           messageChannelMessageAssociationsToCreate,
         );
 
+        await this.saveMessageRawContents(
+          messages,
+          messageAccumulatorMap,
+          transactionScope,
+        );
+
         const messageExternalIdsAndIdsMap = new Map<string, string>();
         const messageExternalIdToMessageChannelMessageAssociationIdMap =
           new Map<string, string>();
@@ -374,6 +344,104 @@ export class MessagingMessageService {
       authContext,
       { lite: true },
     );
+  }
+
+  private async saveMessageRawContents(
+    messages: MessageWithParticipants[],
+    messageAccumulatorMap: Map<string, MessageAccumulator>,
+    transactionScope: WorkspaceTransactionScope,
+  ) {
+    const rawContentsByAssociationId = new Map<
+      string,
+      Pick<
+        MessageRawContentWorkspaceEntity,
+        | 'messageId'
+        | 'messageChannelMessageAssociationId'
+        | 'provider'
+        | 'contentFormat'
+        | 'rawContent'
+        | 'metadata'
+      >
+    >();
+
+    for (const message of messages) {
+      if (!isDefined(message.rawContent)) {
+        continue;
+      }
+
+      const accumulator = messageAccumulatorMap.get(message.externalId);
+      const associationId =
+        accumulator?.existingMessageChannelMessageAssociationInDB?.id ??
+        accumulator?.messageChannelMessageAssociationToCreate?.id;
+      const messageId =
+        accumulator?.existingMessageInDB?.id ??
+        accumulator?.messageToCreate?.id;
+
+      if (!isDefined(associationId) || !isDefined(messageId)) {
+        continue;
+      }
+
+      rawContentsByAssociationId.set(associationId, {
+        messageId,
+        messageChannelMessageAssociationId: associationId,
+        provider: message.rawContent.provider,
+        contentFormat: message.rawContent.contentFormat,
+        rawContent: message.rawContent.content,
+        metadata: message.rawContent.metadata,
+      });
+    }
+
+    if (rawContentsByAssociationId.size === 0) {
+      return;
+    }
+
+    const repository =
+      transactionScope.getRepository<MessageRawContentWorkspaceEntity>(
+        'messageRawContent',
+        { shouldBypassPermissionChecks: true },
+      );
+    const existingRawContents = await repository.find({
+      where: {
+        messageChannelMessageAssociationId: In([
+          ...rawContentsByAssociationId.keys(),
+        ]),
+      },
+    });
+    const existingRawContentsByAssociationId = new Map(
+      existingRawContents.map((rawContent) => [
+        rawContent.messageChannelMessageAssociationId,
+        rawContent,
+      ]),
+    );
+    const rawContentsToInsert = [];
+    const rawContentsToUpdate = [];
+
+    for (const [associationId, rawContent] of rawContentsByAssociationId) {
+      const existing = existingRawContentsByAssociationId.get(associationId);
+
+      if (!isDefined(existing)) {
+        rawContentsToInsert.push({ id: v4(), ...rawContent });
+      } else if (
+        existing.messageId !== rawContent.messageId ||
+        existing.provider !== rawContent.provider ||
+        existing.contentFormat !== rawContent.contentFormat ||
+        existing.rawContent !== rawContent.rawContent ||
+        !isEqual(existing.metadata, rawContent.metadata)
+      ) {
+        rawContentsToUpdate.push({
+          criteria: existing.id,
+          partialEntity: rawContent,
+        });
+      }
+    }
+
+    if (rawContentsToInsert.length > 0) {
+      await repository.insert(rawContentsToInsert);
+    }
+
+    for (const updates of chunk(rawContentsToUpdate, QUERY_MAX_RECORDS)) {
+      await repository.updateMany(updates);
+    }
   }
 
   private async enrichMessageAccumulatorWithExistingMessages(

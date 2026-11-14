@@ -5,5 +5,4 @@ export const HIDDEN_SYSTEM_FIELD_NAMES = new Set([
   'id',
   'searchVector',
   'position',
-  'rawProviderData',
 ]);

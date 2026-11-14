@@ -17,6 +17,7 @@ import { computeStandardMessageChannelMessageAssociationViews } from 'src/engine
 import { computeStandardMessageListViews } from 'src/engine/workspace-manager/twenty-standard-application/utils/view/compute-standard-message-list-views.util';
 import { computeStandardMessageListMemberViews } from 'src/engine/workspace-manager/twenty-standard-application/utils/view/compute-standard-message-list-member-views.util';
 import { computeStandardMessageParticipantViews } from 'src/engine/workspace-manager/twenty-standard-application/utils/view/compute-standard-message-participant-views.util';
+import { computeStandardMessageRawContentViews } from 'src/engine/workspace-manager/twenty-standard-application/utils/view/compute-standard-message-raw-content-views.util';
 import { computeStandardMessageThreadViews } from 'src/engine/workspace-manager/twenty-standard-application/utils/view/compute-standard-message-thread-views.util';
 import { computeStandardMessageViews } from 'src/engine/workspace-manager/twenty-standard-application/utils/view/compute-standard-message-views.util';
 import { computeStandardNoteTargetViews } from 'src/engine/workspace-manager/twenty-standard-application/utils/view/compute-standard-note-target-views.util';
@@ -56,6 +57,7 @@ const STANDARD_FLAT_VIEW_METADATA_BUILDERS_BY_OBJECT_NAME = {
   messageList: computeStandardMessageListViews,
   messageListMember: computeStandardMessageListMemberViews,
   messageParticipant: computeStandardMessageParticipantViews,
+  messageRawContent: computeStandardMessageRawContentViews,
   messageThread: computeStandardMessageThreadViews,
   note: computeStandardNoteViews,
   noteTarget: computeStandardNoteTargetViews,

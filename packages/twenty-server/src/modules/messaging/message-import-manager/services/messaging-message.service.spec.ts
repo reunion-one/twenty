@@ -1,9 +1,10 @@
 import { type WorkspaceTransactionScope } from 'src/engine/twenty-orm/types/workspace-transaction-scope.type';
 import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
 import { MessageDirection } from 'src/modules/messaging/common/enums/message-direction.enum';
+import { type MessageRawContentWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message-raw-content.workspace-entity';
 import { type MessageWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message.workspace-entity';
-import { type MessageWithParticipants } from 'src/modules/messaging/message-import-manager/types/message.type';
 import { MessagingMessageService } from 'src/modules/messaging/message-import-manager/services/messaging-message.service';
+import { type MessageWithParticipants } from 'src/modules/messaging/message-import-manager/types/message.type';
 
 const MESSAGE_CHANNEL_ID = 'message-channel-id';
 
@@ -35,15 +36,22 @@ const buildExistingMessage = (
     text: 'Original body',
     receivedAt: new Date('2026-09-01T10:00:00.000Z'),
     isDraft: false,
-    rawProviderData: { providerMessageId: 'original' },
     ...overrides,
   }) as MessageWorkspaceEntity;
+
+const RAW_CONTENT = {
+  provider: 'gmail',
+  contentFormat: 'gmail-snapshot-v1',
+  content: 'raw body',
+  metadata: { labels: ['INBOX'] },
+};
 
 const buildService = (
   existingMessages: MessageWorkspaceEntity[],
   existingAssociations: { id: string; messageId: string }[] = [
     { id: 'association-id', messageId: 'message-id' },
   ],
+  existingRawContents: Partial<MessageRawContentWorkspaceEntity>[] = [],
 ) => {
   const messageRepository = {
     find: jest.fn().mockResolvedValue(existingMessages),
@@ -61,7 +69,13 @@ const buildService = (
     insert: jest.fn().mockResolvedValue(undefined),
     upsert: jest.fn().mockResolvedValue(undefined),
   };
+  const rawContentRepository = {
+    find: jest.fn().mockResolvedValue(existingRawContents),
+    insert: jest.fn().mockResolvedValue(undefined),
+    updateMany: jest.fn().mockResolvedValue(undefined),
+  };
   const repositories = {
+    messageRawContent: rawContentRepository,
     message: messageRepository,
     messageChannelMessageAssociation: associationRepository,
     messageThread: messageThreadRepository,
@@ -81,128 +95,144 @@ const buildService = (
   return {
     service: new MessagingMessageService(workspaceOrmManager),
     messageRepository,
+    associationRepository,
+    rawContentRepository,
     transactionScope,
   };
 };
 
-describe('MessagingMessageService raw provider data @custom', () => {
-  it('updates raw data while retaining large payloads', async () => {
-    const { service, messageRepository, transactionScope } = buildService([
-      buildExistingMessage(),
-    ]);
-    const largePayload = 'a'.repeat(256 * 1024);
-
-    await service.saveMessagesWithinTransaction(
-      [buildMessage({ rawProviderData: { largePayload } })],
+describe('MessagingMessageService raw content @custom', () => {
+  const saveMessages = (
+    harness: ReturnType<typeof buildService>,
+    messages = [buildMessage({ rawContent: RAW_CONTENT })],
+  ) =>
+    harness.service.saveMessagesWithinTransaction(
+      messages,
       MESSAGE_CHANNEL_ID,
-      transactionScope,
+      harness.transactionScope,
       'workspace-id',
     );
 
-    expect(messageRepository.updateMany).toHaveBeenCalledTimes(1);
-    const [updates] = messageRepository.updateMany.mock.calls[0];
+  const existingRawContent = {
+    id: 'raw-content-id',
+    messageId: 'message-id',
+    messageChannelMessageAssociationId: 'association-id',
+    provider: RAW_CONTENT.provider,
+    contentFormat: RAW_CONTENT.contentFormat,
+    rawContent: RAW_CONTENT.content,
+    metadata: RAW_CONTENT.metadata,
+  };
 
-    expect(updates).toHaveLength(1);
-    expect(updates[0].criteria).toBe('message-id');
-    expect(updates[0].partialEntity).toEqual({
-      rawProviderData: { largePayload },
-    });
-    expect(messageRepository.insert).toHaveBeenCalledWith([]);
-  });
-
-  it('skips updates when the raw data is unchanged', async () => {
-    const rawProviderData = { providerMessageId: 'original' };
-    const { service, messageRepository, transactionScope } = buildService([
-      buildExistingMessage({ rawProviderData }),
-    ]);
-
-    await service.saveMessagesWithinTransaction(
-      [buildMessage({ rawProviderData })],
-      MESSAGE_CHANNEL_ID,
-      transactionScope,
-      'workspace-id',
-    );
-
-    expect(messageRepository.updateMany).not.toHaveBeenCalled();
-  });
-
-  it('preserves raw data when the provider omits it or passes null', async () => {
-    for (const rawProviderData of [undefined, null]) {
-      const { service, messageRepository, transactionScope } = buildService([
-        buildExistingMessage(),
-      ]);
-
-      await service.saveMessagesWithinTransaction(
-        [buildMessage({ rawProviderData })],
-        MESSAGE_CHANNEL_ID,
-        transactionScope,
-        'workspace-id',
+  it('inserts raw content linked to the created message and association', async () => {
+    const harness = buildService([], []);
+    const result = await saveMessages(harness);
+    const messageId = result.createdMessages[0].id;
+    const associationId =
+      result.messageExternalIdToMessageChannelMessageAssociationIdMap.get(
+        'provider-message-1',
       );
 
-      expect(messageRepository.updateMany).not.toHaveBeenCalled();
-    }
+    expect(harness.rawContentRepository.insert).toHaveBeenCalledWith([
+      {
+        ...existingRawContent,
+        id: expect.any(String),
+        messageId,
+        messageChannelMessageAssociationId: associationId,
+      },
+    ]);
+    expect(harness.rawContentRepository.updateMany).not.toHaveBeenCalled();
   });
 
-  it('replaces raw data in one update', async () => {
-    const { service, messageRepository, transactionScope } = buildService([
-      buildExistingMessage(),
-    ]);
-    const newMessageChannelId = 'replacement-message-channel-id';
-    const rawProviderData = { providerMessageId: 'replacement' };
+  it('links raw content to an existing message and a new channel association', async () => {
+    const harness = buildService([buildExistingMessage()], []);
+    const result = await saveMessages(harness);
 
-    await service.saveMessagesWithinTransaction(
-      [buildMessage({ rawProviderData })],
-      newMessageChannelId,
-      transactionScope,
-      'workspace-id',
-    );
-
-    expect(messageRepository.updateMany).toHaveBeenCalledWith([
+    expect(harness.rawContentRepository.insert).toHaveBeenCalledWith([
       {
-        criteria: 'message-id',
+        ...existingRawContent,
+        id: expect.any(String),
+        messageChannelMessageAssociationId:
+          result.messageExternalIdToMessageChannelMessageAssociationIdMap.get(
+            'provider-message-1',
+          ),
+      },
+    ]);
+    expect(harness.messageRepository.insert).toHaveBeenCalledWith([]);
+    expect(harness.associationRepository.insert).toHaveBeenCalledWith([
+      expect.objectContaining({ messageId: 'message-id' }),
+    ]);
+  });
+
+  it('does not insert or update identical raw content', async () => {
+    const harness = buildService([buildExistingMessage()], undefined, [
+      existingRawContent,
+    ]);
+
+    await saveMessages(harness, [
+      buildMessage({
+        rawContent: { ...RAW_CONTENT, metadata: { labels: ['INBOX'] } },
+      }),
+    ]);
+
+    expect(harness.rawContentRepository.insert).not.toHaveBeenCalled();
+    expect(harness.rawContentRepository.updateMany).not.toHaveBeenCalled();
+  });
+
+  it('updates changed raw content in place with the latest envelope', async () => {
+    const harness = buildService([buildExistingMessage()], undefined, [
+      existingRawContent,
+    ]);
+
+    await saveMessages(harness, [
+      buildMessage({
+        rawContent: { ...RAW_CONTENT, content: 'new body', metadata: null },
+      }),
+    ]);
+
+    expect(harness.rawContentRepository.insert).not.toHaveBeenCalled();
+    expect(harness.rawContentRepository.updateMany).toHaveBeenCalledWith([
+      {
+        criteria: 'raw-content-id',
         partialEntity: {
-          rawProviderData,
+          messageId: 'message-id',
+          messageChannelMessageAssociationId: 'association-id',
+          provider: RAW_CONTENT.provider,
+          contentFormat: RAW_CONTENT.contentFormat,
+          rawContent: 'new body',
+          metadata: null,
         },
       },
     ]);
   });
 
-  it('stores empty raw objects on new messages', async () => {
-    const { service, messageRepository, transactionScope } = buildService(
-      [],
-      [],
+  it('never accesses the raw content repository when raw content is absent', async () => {
+    const harness = buildService([], []);
+
+    await saveMessages(harness, [buildMessage()]);
+
+    expect(harness.transactionScope.getRepository).not.toHaveBeenCalledWith(
+      'messageRawContent',
+      expect.anything(),
     );
-
-    await service.saveMessagesWithinTransaction(
-      [buildMessage({ rawProviderData: {} })],
-      MESSAGE_CHANNEL_ID,
-      transactionScope,
-      'workspace-id',
-    );
-
-    expect(messageRepository.insert).toHaveBeenCalledTimes(1);
-    const [[message]] = messageRepository.insert.mock.calls[0];
-
-    expect(message).toMatchObject({
-      rawProviderData: {},
-    });
+    expect(harness.rawContentRepository.find).not.toHaveBeenCalled();
+    expect(harness.rawContentRepository.insert).not.toHaveBeenCalled();
+    expect(harness.rawContentRepository.updateMany).not.toHaveBeenCalled();
   });
 
-  it('creates messages from legacy providers without raw fields when omitted', async () => {
-    const { service, messageRepository, transactionScope } = buildService(
-      [],
-      [],
+  it('writes only the raw content supplied in a mixed batch', async () => {
+    const harness = buildService([], []);
+
+    await saveMessages(harness, [
+      buildMessage({ rawContent: RAW_CONTENT }),
+      buildMessage({
+        externalId: 'provider-message-2',
+        headerMessageId: '<second@example.com>',
+      }),
+    ]);
+
+    expect(harness.rawContentRepository.insert).toHaveBeenCalledTimes(1);
+    expect(harness.rawContentRepository.insert.mock.calls[0][0]).toHaveLength(
+      1,
     );
-
-    await service.saveMessagesWithinTransaction(
-      [buildMessage()],
-      MESSAGE_CHANNEL_ID,
-      transactionScope,
-      'workspace-id',
-    );
-
-    const [[message]] = messageRepository.insert.mock.calls[0];
-
-    expect(message).not.toHaveProperty('rawProviderData');
   });
 });

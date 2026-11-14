@@ -17,6 +17,7 @@ import { computeStandardMessageChannelMessageAssociationViewFields } from 'src/e
 import { computeStandardMessageListViewFields } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field/compute-standard-message-list-view-fields.util';
 import { computeStandardMessageListMemberViewFields } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field/compute-standard-message-list-member-view-fields.util';
 import { computeStandardMessageParticipantViewFields } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field/compute-standard-message-participant-view-fields.util';
+import { computeStandardMessageRawContentViewFields } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field/compute-standard-message-raw-content-view-fields.util';
 import { computeStandardMessageThreadViewFields } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field/compute-standard-message-thread-view-fields.util';
 import { computeStandardMessageViewFields } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field/compute-standard-message-view-fields.util';
 import { computeStandardNoteTargetViewFields } from 'src/engine/workspace-manager/twenty-standard-application/utils/view-field/compute-standard-note-target-view-fields.util';
@@ -56,6 +57,7 @@ const STANDARD_FLAT_VIEW_FIELD_METADATA_BUILDERS_BY_OBJECT_NAME = {
   messageList: computeStandardMessageListViewFields,
   messageListMember: computeStandardMessageListMemberViewFields,
   messageParticipant: computeStandardMessageParticipantViewFields,
+  messageRawContent: computeStandardMessageRawContentViewFields,
   messageThread: computeStandardMessageThreadViewFields,
   note: computeStandardNoteViewFields,
   noteTarget: computeStandardNoteTargetViewFields,
