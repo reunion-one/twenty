@@ -5,6 +5,7 @@ import { type gmail_v1, google, type people_v1 } from 'googleapis';
 import MailComposer from 'nodemailer/lib/mail-composer';
 import { isDefined } from 'twenty-shared/utils';
 
+import { buildGmailMessageRawContent } from 'src/modules/messaging/message-import-manager/drivers/gmail/utils/build-gmail-message-raw-content.util';
 import { type MessageOutboundDriver } from 'src/modules/messaging/message-outbound-manager/interfaces/message-outbound-driver.interface';
 
 import { GoogleOAuth2ClientProvider } from 'src/modules/connected-account/oauth2-client-manager/drivers/google/google-oauth2-client.provider';
@@ -42,19 +43,24 @@ export class GmailMessageOutboundService implements MessageOutboundDriver {
       },
     });
 
-    const gmailAssignedHeaderMessageId =
-      await this.getGmailAssignedHeaderMessageId(gmailClient, data.id);
+    const gmailMessageDetails = await this.getGmailMessageDetails(
+      gmailClient,
+      data.id,
+    );
 
     return {
       headerMessageId:
-        gmailAssignedHeaderMessageId ??
+        gmailMessageDetails?.headerMessageId ??
         extractMessageIdFromBuffer(messageBuffer),
       messageExternalId: data.id ?? undefined,
       threadExternalId: data.threadId ?? undefined,
+      ...(isDefined(gmailMessageDetails?.rawContent)
+        ? { rawContent: gmailMessageDetails.rawContent }
+        : {}),
     };
   }
 
-  private async getGmailAssignedHeaderMessageId(
+  private async getGmailMessageDetails(
     gmailClient: gmail_v1.Gmail,
     messageExternalId: string | null | undefined,
   ) {
@@ -62,19 +68,40 @@ export class GmailMessageOutboundService implements MessageOutboundDriver {
       return;
     }
 
-    return gmailClient.users.messages
-      .get({
+    let message: gmail_v1.Schema$Message;
+
+    try {
+      const { data } = await gmailClient.users.messages.get({
         userId: 'me',
         id: messageExternalId,
-        format: 'metadata',
-        metadataHeaders: ['Message-ID'],
-      })
-      .then(({ data }) => getPropertyFromHeaders(data, 'Message-ID'))
-      .catch((error) =>
-        this.logger.warn(
-          `Failed to read Gmail Message-ID for sent message ${messageExternalId}: ${error}`,
-        ),
+      });
+
+      message = data;
+    } catch (error) {
+      this.logger.warn(
+        `Failed to read Gmail message details for sent message ${messageExternalId}: ${error}`,
       );
+
+      return undefined;
+    }
+
+    const headerMessageId = getPropertyFromHeaders(message, 'Message-ID');
+
+    try {
+      return {
+        headerMessageId,
+        rawContent: await buildGmailMessageRawContent({
+          gmailClient,
+          message,
+        }),
+      };
+    } catch (error) {
+      this.logger.warn(
+        `Failed to build Gmail raw content for sent message ${messageExternalId}: ${error}`,
+      );
+
+      return { headerMessageId };
+    }
   }
 
   async createDraft(

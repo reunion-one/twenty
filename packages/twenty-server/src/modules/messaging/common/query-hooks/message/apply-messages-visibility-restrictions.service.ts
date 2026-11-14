@@ -11,12 +11,11 @@ import { In, Repository } from 'typeorm';
 
 import { CommonRecordVisibilityService } from 'src/engine/api/common/common-record-visibility/common-record-visibility.service';
 import { type RecordVisibilityRestrictionHandler } from 'src/engine/api/common/common-record-visibility/types/record-visibility-restriction-handler.type';
-import { isApplicationAuthContext } from 'src/engine/core-modules/auth/guards/is-application-auth-context.guard';
-import { isUserAuthContext } from 'src/engine/core-modules/auth/guards/is-user-auth-context.guard';
 import { type WorkspaceAuthContext } from 'src/engine/core-modules/auth/types/workspace-auth-context.type';
 import { MessageChannelEntity } from 'src/engine/metadata-modules/message-channel/entities/message-channel.entity';
-import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
 import { buildSystemAuthContext } from 'src/engine/twenty-orm/utils/build-system-auth-context.util';
+import { WorkspaceOrmManager } from 'src/engine/twenty-orm/workspace-orm.manager';
+import { isMessageChannelFullyVisibleToViewer } from 'src/modules/messaging/common/query-hooks/message/utils/is-message-channel-fully-visible-to-viewer.util';
 import { type MessageChannelMessageAssociationWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message-channel-message-association.workspace-entity';
 
 const RESTRICTED_MESSAGE_FIELD_NAMES = ['subject', 'text'];
@@ -155,9 +154,7 @@ export class ApplyMessagesVisibilityRestrictionsService
       }
 
       if (
-        messageChannel.visibility ===
-          MessageChannelVisibility.SHARE_EVERYTHING ||
-        this.isMessageChannelOwnedByViewer({ messageChannel, authContext })
+        isMessageChannelFullyVisibleToViewer({ messageChannel, authContext })
       ) {
         fullyVisibleMessageIds.add(association.messageId);
       } else if (
@@ -168,30 +165,5 @@ export class ApplyMessagesVisibilityRestrictionsService
     }
 
     return { fullyVisibleMessageIds, subjectVisibleMessageIds };
-  }
-
-  private isMessageChannelOwnedByViewer({
-    messageChannel,
-    authContext,
-  }: {
-    messageChannel: MessageChannelEntity;
-    authContext: WorkspaceAuthContext;
-  }): boolean {
-    if (isUserAuthContext(authContext)) {
-      return (
-        messageChannel.connectedAccount.userWorkspaceId ===
-        authContext.userWorkspaceId
-      );
-    }
-
-    // Email connections carry no applicationId, so an application only sees through channels it created itself
-    if (isApplicationAuthContext(authContext)) {
-      return (
-        messageChannel.connectedAccount.applicationId ===
-        authContext.application.id
-      );
-    }
-
-    return false;
   }
 }

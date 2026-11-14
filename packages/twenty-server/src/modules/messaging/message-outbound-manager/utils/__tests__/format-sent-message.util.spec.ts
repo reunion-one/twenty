@@ -2,6 +2,7 @@ import { MessageParticipantRole } from 'twenty-shared/types';
 
 import { type ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
 import { MessageDirection } from 'src/modules/messaging/common/enums/message-direction.enum';
+import { type MessageRawContentInput } from 'src/modules/messaging/message-import-manager/types/message-raw-content-input.type';
 import { type PersistSentMessageInput } from 'src/modules/messaging/message-outbound-manager/types/persist-sent-message-input.type';
 import { formatSentMessage } from 'src/modules/messaging/message-outbound-manager/utils/format-sent-message.util';
 
@@ -102,5 +103,23 @@ describe('formatSentMessage', () => {
     expect(message.text).toBe('See attached.');
     expect(message.attachments).toEqual([]);
     expect(message.messageFolderIds).toBeUndefined();
+  });
+  describe('raw content @custom', () => {
+    it('passes raw content through from the send result', () => {
+      const rawContent: MessageRawContentInput = {
+        provider: 'gmail',
+        contentFormat: 'gmail_email_snapshot_v1',
+        content: '{}',
+        metadata: null,
+      };
+      const input = buildInput();
+      input.sendResult.rawContent = rawContent;
+
+      expect(formatSentMessage(input).rawContent).toBe(rawContent);
+    });
+
+    it('leaves absent raw content undefined', () => {
+      expect(formatSentMessage(buildInput()).rawContent).toBeUndefined();
+    });
   });
 });

@@ -11,6 +11,7 @@ import { GoogleOAuth2ClientProvider } from 'src/modules/connected-account/oauth2
 import { type ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
 import { MESSAGING_GMAIL_EXCLUDED_SYSTEM_LABELS } from 'src/modules/messaging/message-import-manager/drivers/gmail/constants/messaging-gmail-excluded-system-labels.constant';
 import { GmailMessagesImportErrorHandler } from 'src/modules/messaging/message-import-manager/drivers/gmail/services/gmail-messages-import-error-handler.service';
+import { buildGmailMessageRawContent } from 'src/modules/messaging/message-import-manager/drivers/gmail/utils/build-gmail-message-raw-content.util';
 import { filterGmailMessagesByFolderPolicy } from 'src/modules/messaging/message-import-manager/drivers/gmail/utils/filter-gmail-messages-by-folder-policy.util';
 import { parseAndFormatGmailMessage } from 'src/modules/messaging/message-import-manager/drivers/gmail/utils/parse-and-format-gmail-message.util';
 import { type MessageWithParticipants } from 'src/modules/messaging/message-import-manager/types/message.type';
@@ -173,25 +174,43 @@ export class GmailGetMessagesService {
       ),
     );
 
-    return results
-      .map(({ messageId, data, error }) => {
+    const messages = await Promise.all(
+      results.map(async ({ messageId, data, error }) => {
         if (error) {
           this.gmailMessagesImportErrorHandler.handleError(error, messageId);
 
           return undefined;
         }
 
-        return parseAndFormatGmailMessage(
+        const message = parseAndFormatGmailMessage(
           data as gmailV1.Schema$Message,
           connectedAccount,
         );
-      })
-      .filter(isDefined)
-      .filter(
-        (message) =>
-          !(message.labelIds ?? []).some((labelId) =>
+
+        if (
+          !isDefined(message) ||
+          (message.labelIds ?? []).some((labelId) =>
             MESSAGING_GMAIL_EXCLUDED_SYSTEM_LABELS.includes(labelId),
-          ),
-      );
+          )
+        ) {
+          return undefined;
+        }
+
+        try {
+          const rawContent = await buildGmailMessageRawContent({
+            gmailClient,
+            message: data as gmailV1.Schema$Message,
+          });
+
+          return { ...message, rawContent };
+        } catch (error) {
+          this.gmailMessagesImportErrorHandler.handleError(error, messageId);
+
+          return undefined;
+        }
+      }),
+    );
+
+    return messages.filter(isDefined);
   }
 }

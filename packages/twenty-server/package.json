@@ -124,6 +124,7 @@
     "json-schema": "0.4.0",
     "jsonwebtoken": "9.0.2",
     "keyv": "^5.6.0",
+    "libmime": "5.6.3",
     "libphonenumber-js": "1.11.5",
     "lodash.camelcase": "4.3.0",
     "lodash.chunk": "4.2.0",
