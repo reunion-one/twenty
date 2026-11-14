@@ -1,8 +1,12 @@
 import { STANDARD_OBJECTS } from 'twenty-shared/metadata';
 import {
   FieldMetadataType,
+  PageLayoutType,
+  WidgetType,
   RelationOnDeleteAction,
   RelationType,
+  ViewKey,
+  ViewType,
 } from 'twenty-shared/types';
 import { isDefined } from 'twenty-shared/utils';
 
@@ -159,6 +163,123 @@ describe('messageRawContent standard metadata @custom', () => {
         ),
       ).toEqual([field?.id]);
     }
+  });
+
+  it('provides exactly one index table view with all raw content columns in order', () => {
+    const views = Object.values(
+      allFlatEntityMaps.flatViewMaps.byUniversalIdentifier,
+    )
+      .filter(isDefined)
+      .filter(
+        (view) =>
+          view.objectMetadataUniversalIdentifier ===
+            STANDARD_OBJECTS.messageRawContent.universalIdentifier &&
+          view.key === ViewKey.INDEX,
+      );
+
+    expect(views).toHaveLength(1);
+    expect(views[0]).toMatchObject({
+      type: ViewType.TABLE,
+      key: ViewKey.INDEX,
+      position: 0,
+      icon: 'IconTable',
+    });
+
+    const viewFields = Object.values(
+      allFlatEntityMaps.flatViewFieldMaps.byUniversalIdentifier,
+    )
+      .filter(isDefined)
+      .filter((viewField) => viewField.viewId === views[0].id)
+      .sort((first, second) => first.position - second.position);
+    const fieldNames = [
+      'message',
+      'messageChannelMessageAssociation',
+      'provider',
+      'contentFormat',
+      'rawContent',
+      'metadata',
+      'updatedAt',
+      'createdAt',
+    ] as const;
+
+    expect(viewFields.map((viewField) => viewField.fieldMetadataId)).toEqual(
+      fieldNames.map(
+        (fieldName) => findField(fields[fieldName].universalIdentifier)?.id,
+      ),
+    );
+    for (const viewField of viewFields) {
+      expect(viewField).toMatchObject({ isVisible: true, size: 150 });
+    }
+  });
+
+  it('provides a Home-only record page whose fields widget covers all raw content fields', () => {
+    const layouts = Object.values(
+      allFlatEntityMaps.flatPageLayoutMaps.byUniversalIdentifier,
+    )
+      .filter(isDefined)
+      .filter(
+        (layout) =>
+          layout.objectMetadataUniversalIdentifier ===
+            STANDARD_OBJECTS.messageRawContent.universalIdentifier &&
+          layout.type === PageLayoutType.RECORD_PAGE,
+      );
+
+    expect(layouts).toHaveLength(1);
+
+    const tabs = Object.values(
+      allFlatEntityMaps.flatPageLayoutTabMaps.byUniversalIdentifier,
+    )
+      .filter(isDefined)
+      .filter((tab) => tab.pageLayoutId === layouts[0].id);
+
+    expect(tabs).toHaveLength(1);
+    expect(tabs[0]).toMatchObject({ title: 'Home' });
+
+    const widgets = Object.values(
+      allFlatEntityMaps.flatPageLayoutWidgetMaps.byUniversalIdentifier,
+    )
+      .filter(isDefined)
+      .filter((widget) => widget.pageLayoutTabId === tabs[0].id);
+    const view =
+      allFlatEntityMaps.flatViewMaps.byUniversalIdentifier[
+        STANDARD_OBJECTS.messageRawContent.views
+          .messageRawContentRecordPageFields.universalIdentifier
+      ];
+
+    expect(view).toBeDefined();
+    expect(view).toMatchObject({ type: ViewType.FIELDS_WIDGET, key: null });
+    expect(widgets).toHaveLength(1);
+    expect(widgets[0]).toMatchObject({
+      type: WidgetType.FIELDS,
+      configuration: { viewId: view?.id },
+    });
+
+    const viewFields = Object.values(
+      allFlatEntityMaps.flatViewFieldMaps.byUniversalIdentifier,
+    )
+      .filter(isDefined)
+      .filter((viewField) => viewField.viewId === view?.id);
+    const fieldNames = [
+      'message',
+      'messageChannelMessageAssociation',
+      'provider',
+      'contentFormat',
+      'rawContent',
+      'metadata',
+      'createdAt',
+      'updatedAt',
+      'createdBy',
+    ] as const;
+
+    expect(
+      viewFields.map((viewField) => viewField.fieldMetadataId).sort(),
+    ).toEqual(
+      fieldNames
+        .map(
+          (fieldName) => findField(fields[fieldName].universalIdentifier)?.id,
+        )
+        .sort(),
+    );
   });
 
   it('keeps raw content out of all standard message views and record page fields', () => {

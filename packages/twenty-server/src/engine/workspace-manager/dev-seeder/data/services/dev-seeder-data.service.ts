@@ -76,6 +76,10 @@ import {
   MESSAGE_PARTICIPANT_DATA_SEED_COLUMNS,
 } from 'src/engine/workspace-manager/dev-seeder/data/constants/message-participant-data-seeds.constant';
 import {
+  getMessageRawContentDataSeeds,
+  MESSAGE_RAW_CONTENT_DATA_SEED_COLUMNS,
+} from 'src/engine/workspace-manager/dev-seeder/data/constants/message-raw-content-data-seeds.constant';
+import {
   MESSAGE_THREAD_DATA_SEED_COLUMNS,
   MESSAGE_THREAD_DATA_SEEDS,
 } from 'src/engine/workspace-manager/dev-seeder/data/constants/message-thread-data-seeds.constant';
@@ -136,11 +140,11 @@ type RecordSeedConfig = {
   recordSeeds: Record<string, unknown>[];
 };
 
-const getRecordSeedsBatches = (
+const getRecordSeedsBatches = async (
   workspaceId: string,
   attachmentSeeds: RecordSeedConfig['recordSeeds'],
   _featureFlags?: Record<FeatureFlagKey, boolean>,
-): RecordSeedConfig[][] => {
+): Promise<RecordSeedConfig[][]> => {
   // Participants are random, so the derived target seeds must come from the same arrays
   const messageParticipantSeeds = getMessageParticipantDataSeeds(workspaceId);
   const calendarEventParticipantSeeds =
@@ -277,6 +281,14 @@ const getRecordSeedsBatches = (
       pgColumns: MESSAGE_CHANNEL_MESSAGE_ASSOCIATION_DATA_SEED_COLUMNS,
       recordSeeds: MESSAGE_CHANNEL_MESSAGE_ASSOCIATION_DATA_SEEDS,
     },
+  ];
+
+  const batch7: RecordSeedConfig[] = [
+    {
+      tableName: 'messageRawContent',
+      pgColumns: MESSAGE_RAW_CONTENT_DATA_SEED_COLUMNS,
+      recordSeeds: await getMessageRawContentDataSeeds(),
+    },
     {
       tableName: 'messageParticipant',
       pgColumns: MESSAGE_PARTICIPANT_DATA_SEED_COLUMNS,
@@ -301,7 +313,7 @@ const getRecordSeedsBatches = (
     },
   ];
 
-  return [batch1, batch2, batch3, batch4, batch5, batch6];
+  return [batch1, batch2, batch3, batch4, batch5, batch6, batch7];
 };
 
 @Injectable()
@@ -417,7 +429,7 @@ export class DevSeederDataService {
     objectMetadataItems: FlatObjectMetadata[];
     light?: boolean;
   }) {
-    const batches = getRecordSeedsBatches(
+    const batches = await getRecordSeedsBatches(
       workspaceId,
       attachmentSeeds,
       featureFlags,

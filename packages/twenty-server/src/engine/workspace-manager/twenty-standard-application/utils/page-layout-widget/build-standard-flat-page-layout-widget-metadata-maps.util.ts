@@ -93,6 +93,7 @@ const RECORD_PAGE_FIELDS_VIEW_NAME_BY_OBJECT: Partial<
   company: 'companyRecordPageFields',
   message: 'messageRecordPageFields',
   messageCampaign: 'messageCampaignRecordPageFields',
+  messageRawContent: 'messageRawContentRecordPageFields',
   messageChannelMessageAssociation:
     'messageChannelMessageAssociationRecordPageFields',
   messageChannelMessageAssociationMessageFolder:

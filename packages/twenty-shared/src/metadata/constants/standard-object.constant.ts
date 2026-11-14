@@ -1043,7 +1043,44 @@ export const STANDARD_OBJECTS = {
         universalIdentifier: 'e34bef86-e049-4859-a895-3195bbfadf46',
       },
     },
-    views: {},
+    views: {
+      allMessageRawContents: buildStandardObjectIndexView({
+        objectUniversalIdentifier:
+          STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS.messageRawContent,
+        fields: STANDARD_OBJECT_FIELDS.messageRawContent,
+        viewFieldNames: [
+          'message',
+          'messageChannelMessageAssociation',
+          'provider',
+          'contentFormat',
+          'rawContent',
+          'metadata',
+          'updatedAt',
+          'createdAt',
+        ],
+      }),
+      messageRawContentRecordPageFields:
+        buildStandardObjectRecordPageFieldsView({
+          objectUniversalIdentifier:
+            STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS.messageRawContent,
+          fields: STANDARD_OBJECT_FIELDS.messageRawContent,
+          viewFieldNames: [
+            'message',
+            'messageChannelMessageAssociation',
+            'provider',
+            'contentFormat',
+            'rawContent',
+            'metadata',
+            'createdAt',
+            'updatedAt',
+            'createdBy',
+          ],
+          viewFieldGroupNames: {
+            general: 'General',
+            system: 'System',
+          },
+        }),
+    },
   },
   accessGroup: {
     universalIdentifier: STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS.accessGroup,

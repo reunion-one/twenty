@@ -32,3 +32,4 @@ export { STANDARD_WORKFLOW_PAGE_LAYOUT_CONFIG } from './standard-workflow-page-l
 export { STANDARD_WORKFLOW_RUN_PAGE_LAYOUT_CONFIG } from './standard-workflow-run-page-layout.config';
 export { STANDARD_WORKSPACE_MEMBER_PAGE_LAYOUT_CONFIG } from './standard-workspace-member-page-layout.config';
 export { STANDARD_WORKFLOW_VERSION_PAGE_LAYOUT_CONFIG } from './standard-workflow-version-page-layout.config';
+export { STANDARD_MESSAGE_RAW_CONTENT_PAGE_LAYOUT_CONFIG } from './standard-message-raw-content-page-layout.config';
