@@ -8,7 +8,6 @@ import {
   RelationType,
 } from 'twenty-shared/types';
 
-import { PLATFORM_WRITTEN_DISABLED_FIELD_PERMISSION_ACTIONS } from 'src/engine/workspace-manager/twenty-standard-application/constants/standard-disabled-field-permission-actions.constant';
 import { type FlatFieldMetadata } from 'src/engine/metadata-modules/flat-field-metadata/types/flat-field-metadata.type';
 import { type AllStandardObjectFieldName } from 'src/engine/workspace-manager/twenty-standard-application/types/all-standard-object-field-name.type';
 import {
@@ -483,34 +482,4 @@ export const buildMessageStandardFlatFieldMetadatas = ({
     twentyStandardApplicationId,
     now,
   }),
-  rawProviderData: {
-    ...createStandardFieldFlatMetadata({
-      objectName,
-      workspaceId,
-      context: {
-        fieldName: 'rawProviderData',
-        type: FieldMetadataType.RAW_JSON,
-        label: i18nLabel(
-          msg({ message: `Raw provider data`, context: 'fieldMetadata.label' }),
-        ),
-        description: i18nLabel(
-          msg({
-            message: `Original message payload from its provider`,
-            context: 'fieldMetadata.description',
-          }),
-        ),
-        icon: 'IconCode',
-        isSystem: true,
-        isNullable: true,
-        isUIEditable: false,
-      },
-      standardObjectMetadataRelatedEntityIds,
-      dependencyFlatEntityMaps,
-      twentyStandardApplicationId,
-      now,
-    }),
-    disabledFieldPermissionActions:
-      PLATFORM_WRITTEN_DISABLED_FIELD_PERMISSION_ACTIONS,
-    isAuditLogged: false,
-  },
 });

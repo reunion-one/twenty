@@ -15,7 +15,6 @@ export type Message = Omit<
   | 'id'
   | 'messageCampaign'
   | 'messageCampaignId'
-  | 'rawProviderData'
 > & {
   attachments: {
     filename: string;
@@ -27,7 +26,6 @@ export type Message = Omit<
   messageFolderExternalIds?: string[];
   labelIds?: string[];
   messageHeaders?: MessageHeader[];
-  rawProviderData?: Record<string, unknown> | null;
 };
 
 export type MessageHeader = {

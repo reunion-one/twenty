@@ -184,7 +184,6 @@ export class ApplicationMessageIngestionService {
         personId: participant.personId ?? null,
         workspaceMemberId: participant.workspaceMemberId ?? null,
       })),
-      rawProviderData: message.rawProviderData,
     };
   }
 

@@ -19,5 +19,4 @@ export class MessageWorkspaceEntity extends BaseWorkspaceEntity {
   messageCampaign: EntityRelation<MessageCampaignWorkspaceEntity> | null;
   messageCampaignId: string | null;
   isDraft: boolean;
-  rawProviderData: Record<string, unknown> | null;
 }

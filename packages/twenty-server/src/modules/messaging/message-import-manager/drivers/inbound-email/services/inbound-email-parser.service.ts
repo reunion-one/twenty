@@ -8,7 +8,6 @@ import { type MessageWithParticipants } from 'src/modules/messaging/message-impo
 import { extractMessageTextWithoutQuotedHistory } from 'src/modules/messaging/message-import-manager/utils/extract-message-text-without-quoted-history.util';
 import { extractParticipantsFromParsedEmail } from 'src/modules/messaging/message-import-manager/utils/extract-participants-from-parsed-email.util';
 import { extractThreadIdFromParsedEmail } from 'src/modules/messaging/message-import-manager/utils/extract-thread-id-from-parsed-email.util';
-import { formatRawMimeMessage } from 'src/modules/messaging/message-import-manager/utils/format-raw-mime-message.util';
 import { sanitizeString } from 'src/modules/messaging/message-import-manager/utils/sanitize-string.util';
 
 @Injectable()
@@ -18,7 +17,7 @@ export class InboundEmailParserService {
     reference: string,
   ): Promise<ParsedInboundMessage> {
     const parsedEmail = await PostalMime.parse(rawMessage);
-    const message = this.buildMessage(parsedEmail, reference, rawMessage);
+    const message = this.buildMessage(parsedEmail, reference);
 
     return { parsed: parsedEmail, message };
   }
@@ -26,7 +25,6 @@ export class InboundEmailParserService {
   private buildMessage(
     parsedEmail: ParsedEmail,
     reference: string,
-    rawMessage: Buffer,
   ): MessageWithParticipants {
     return {
       externalId: `inbound-email:${reference}`,
@@ -46,7 +44,6 @@ export class InboundEmailParserService {
         name: key,
         value,
       })),
-      rawProviderData: formatRawMimeMessage(rawMessage),
     };
   }
 }

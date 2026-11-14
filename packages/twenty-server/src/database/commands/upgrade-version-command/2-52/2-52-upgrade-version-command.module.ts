@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 
 import { WorkspaceIteratorModule } from 'src/database/commands/command-runners/workspace-iterator.module';
-import { AddMessageRawProviderDataCommand } from 'src/database/commands/upgrade-version-command/2-52/2-52-workspace-command-1793160041041-add-message-raw-provider-data.command';
 import { ReconcileStandardSkillCatalogCommand } from 'src/database/commands/upgrade-version-command/2-52/2-52-workspace-command-1792764632845-reconcile-standard-skill-catalog.command';
 import { BackfillFilesRecordFormWidgetsCommand } from 'src/database/commands/upgrade-version-command/2-52/2-52-workspace-command-1792861553907-backfill-files-record-form-widgets.command';
 import { SeedWorkspaceFrontendDependenciesCommand } from 'src/database/commands/upgrade-version-command/2-52/2-52-workspace-command-1792766943126-seed-workspace-frontend-dependencies.command';
@@ -22,7 +21,6 @@ import { WorkspaceMigrationModule } from 'src/engine/workspace-manager/workspace
     SeedWorkspaceFrontendDependenciesCommand,
     BackfillFilesRecordFormWidgetsCommand,
     EnableGlobalChatCommandsCommand,
-    AddMessageRawProviderDataCommand,
   ],
 })
 export class V2_52_UpgradeVersionCommandModule {}
