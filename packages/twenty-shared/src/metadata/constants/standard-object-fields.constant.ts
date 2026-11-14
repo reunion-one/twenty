@@ -974,6 +974,9 @@ export const STANDARD_OBJECT_FIELDS = {
     },
   },
   messageChannelMessageAssociation: {
+    messageRawContents: {
+      universalIdentifier: 'c148e0db-66d0-49de-9d9f-0623d659693a',
+    },
     ...buildStandardObjectSystemFields(
       STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS.messageChannelMessageAssociation,
     ),
@@ -1099,6 +1102,9 @@ export const STANDARD_OBJECT_FIELDS = {
     },
   },
   message: {
+    messageRawContents: {
+      universalIdentifier: '5778f2ff-ea8c-4cb5-98c2-54b21c8788fa',
+    },
     ...buildStandardObjectSystemFields(
       STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS.message,
     ),
@@ -1370,6 +1376,21 @@ export const STANDARD_OBJECT_FIELDS = {
     listMemberships: {
       universalIdentifier: '8b8d1be0-4c94-4413-a2c9-c7ede205a81d',
     },
+  },
+  messageRawContent: {
+    ...buildStandardObjectSystemFields(
+      STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS.messageRawContent,
+    ),
+    message: { universalIdentifier: 'db131c1c-b04d-4887-9064-004200ebeb22' },
+    messageChannelMessageAssociation: {
+      universalIdentifier: 'bdfcb399-93d8-42e7-aa74-1a4871aa79db',
+    },
+    provider: { universalIdentifier: '4be1106e-189c-4331-856c-87cc7a33fd1c' },
+    contentFormat: {
+      universalIdentifier: '795aa0e6-111d-41a7-ae08-0d0d9c0ed522',
+    },
+    rawContent: { universalIdentifier: '670bb32e-3eaf-4062-8bcf-848f7768c4ea' },
+    metadata: { universalIdentifier: '3c9c4f07-1724-4ebc-b20e-b17407161055' },
   },
   accessGroup: {
     ...buildStandardObjectSystemFields(

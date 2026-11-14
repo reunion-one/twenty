@@ -1031,6 +1031,20 @@ export const STANDARD_OBJECTS = {
       },
     },
   },
+  messageRawContent: {
+    universalIdentifier:
+      STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS.messageRawContent,
+    fields: STANDARD_OBJECT_FIELDS.messageRawContent,
+    indexes: {
+      messageIdIndex: {
+        universalIdentifier: 'c4b47482-9d7f-46ab-a677-a201fc1de9d5',
+      },
+      messageChannelMessageAssociationIdUniqueIndex: {
+        universalIdentifier: 'e34bef86-e049-4859-a895-3195bbfadf46',
+      },
+    },
+    views: {},
+  },
   accessGroup: {
     universalIdentifier: STANDARD_OBJECT_UNIVERSAL_IDENTIFIERS.accessGroup,
     fields: STANDARD_OBJECT_FIELDS.accessGroup,

@@ -482,4 +482,37 @@ export const buildMessageStandardFlatFieldMetadatas = ({
     twentyStandardApplicationId,
     now,
   }),
+  messageRawContents: createStandardRelationFieldFlatMetadata({
+    objectName,
+    workspaceId,
+    context: {
+      type: FieldMetadataType.RELATION,
+      morphId: null,
+      fieldName: 'messageRawContents',
+      label: i18nLabel(
+        msg({
+          message: `Message Raw Contents`,
+          context: 'fieldMetadata.label',
+        }),
+      ),
+      description: i18nLabel(
+        msg({
+          message: `Message Raw Contents`,
+          context: 'fieldMetadata.description',
+        }),
+      ),
+      icon: 'IconFileCode',
+      isNullable: true,
+      isUIEditable: false,
+      targetObjectName: 'messageRawContent',
+      targetFieldName: 'message',
+      settings: {
+        relationType: RelationType.ONE_TO_MANY,
+      },
+    },
+    standardObjectMetadataRelatedEntityIds,
+    dependencyFlatEntityMaps,
+    twentyStandardApplicationId,
+    now,
+  }),
 });
