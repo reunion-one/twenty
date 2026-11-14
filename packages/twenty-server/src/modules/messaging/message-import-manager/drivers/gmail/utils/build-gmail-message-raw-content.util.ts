@@ -4,6 +4,7 @@ import { isDefined } from 'twenty-shared/utils';
 
 import { GMAIL_EMAIL_SNAPSHOT_CONTENT_FORMAT } from 'src/modules/messaging/message-import-manager/drivers/gmail/constants/gmail-email-snapshot-content-format.constant';
 import { buildGmailEmailSnapshot } from 'src/modules/messaging/message-import-manager/drivers/gmail/utils/build-gmail-email-snapshot.util';
+import { decodeGmailBase64Url } from 'src/modules/messaging/message-import-manager/drivers/gmail/utils/decode-gmail-base64-url.util';
 import { type MessageRawContentInput } from 'src/modules/messaging/message-import-manager/types/message-raw-content-input.type';
 
 export const buildGmailMessageRawContent = async ({
@@ -38,7 +39,13 @@ export const buildGmailMessageRawContent = async ({
         throw new Error('Gmail inline body attachment data is required');
       }
 
-      return Buffer.from(response.data.data, 'base64url');
+      try {
+        return decodeGmailBase64Url(response.data.data);
+      } catch {
+        throw new Error(
+          `invalid Gmail inline body attachment encoding for ${attachmentId}`,
+        );
+      }
     },
   });
 

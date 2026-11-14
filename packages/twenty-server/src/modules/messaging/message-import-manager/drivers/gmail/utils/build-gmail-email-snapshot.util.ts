@@ -2,6 +2,53 @@ import { isString } from '@sniptt/guards';
 import { type gmail_v1 } from 'googleapis';
 import libmime from 'libmime';
 
+import { decodeGmailBase64Url } from 'src/modules/messaging/message-import-manager/drivers/gmail/utils/decode-gmail-base64-url.util';
+
+const parseHeaderValue = (header: string) => {
+  const segments: string[] = [];
+  let quoted = false;
+  let segmentStart = 0;
+
+  for (let index = 0; index < header.length; index++) {
+    if (header[index] === '"' && header[index - 1] !== '\\') {
+      quoted = !quoted;
+    } else if (header[index] === ';' && !quoted) {
+      segments.push(header.slice(segmentStart, index));
+      segmentStart = index + 1;
+    }
+  }
+  segments.push(header.slice(segmentStart));
+
+  const parameters = segments.slice(1).map((segment) => {
+    const name = segment.split('=', 1)[0].trim().toLowerCase();
+    const extendedName = /^(\w+)\*(?:[0-9]+\*?)?$/.exec(name)?.[1];
+
+    return { segment, name, extendedName };
+  });
+  const plainNames = new Set(
+    parameters
+      .filter(({ extendedName }) => !extendedName)
+      .map(({ name }) => name),
+  );
+  const seenPlainNames = new Set<string>();
+  const filtered = parameters.filter(({ name, extendedName }) => {
+    if (extendedName) {
+      return !plainNames.has(extendedName);
+    }
+    if (seenPlainNames.has(name)) {
+      return false;
+    }
+    seenPlainNames.add(name);
+
+    return true;
+  });
+
+  // Python gives the first plain parameter precedence over RFC 2231 variants.
+  return libmime.parseHeaderValue(
+    [segments[0], ...filtered.map(({ segment }) => segment)].join(';'),
+  );
+};
+
 export const buildGmailEmailSnapshot = async ({
   payload,
   messageId,
@@ -28,10 +75,10 @@ export const buildGmailEmailSnapshot = async ({
       }
     }
 
-    const contentTypeHeader = libmime.parseHeaderValue(
+    const contentTypeHeader = parseHeaderValue(
       headerMap.get('content-type') ?? '',
     );
-    const dispositionHeader = libmime.parseHeaderValue(
+    const dispositionHeader = parseHeaderValue(
       headerMap.get('content-disposition') ?? '',
     );
     const contentType = (
@@ -123,16 +170,11 @@ export const buildGmailEmailSnapshot = async ({
         );
       }
     } else if (body.data) {
-      const padded = body.data + '='.repeat((4 - (body.data.length % 4)) % 4);
-
-      if (
-        !/^(?:[A-Za-z0-9+/_-]{4})*(?:[A-Za-z0-9+/_-]{2}==|[A-Za-z0-9+/_-]{3}=)?$/.test(
-          padded,
-        )
-      ) {
+      try {
+        bytes = decodeGmailBase64Url(body.data);
+      } catch {
         throw new Error(`invalid Gmail MIME body encoding at ${partPath}`);
       }
-      bytes = Buffer.from(padded, 'base64');
     }
 
     let decodingCharset = 'utf-8';

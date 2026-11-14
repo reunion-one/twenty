@@ -269,6 +269,49 @@ describe('buildGmailEmailSnapshot @custom', () => {
     expect(getNode(result).filename).toBe('résumé.pdf');
   });
 
+  it.each([
+    "charset=windows-1252; charset*=UTF-8''utf-8",
+    "charset*=UTF-8''utf-8; CHARSET=windows-1252",
+    'charset=windows-1252; charset=utf-8',
+  ])('uses the first plain charset in %s', async (parameters) => {
+    const bytes = Buffer.from([0x63, 0x61, 0x66, 0xe9]);
+    const result = await snapshot(
+      textPart('', {
+        headers: [{ name: 'Content-Type', value: `text/plain; ${parameters}` }],
+        body: { data: bytes.toString('base64url') },
+      }),
+    );
+
+    expect(getNode(result)).toMatchObject({
+      charset: 'windows-1252',
+      decoding_charset: 'windows-1252',
+    });
+    expect(inlineBytes(getNode(result))).toEqual(bytes);
+  });
+
+  it.each([
+    ['filename="cafe.pdf"; filename*=UTF-8\'\'caf%C3%A9.pdf', 'cafe.pdf'],
+    ['filename*=UTF-8\'\'caf%C3%A9.pdf; FILENAME="cafe.pdf"', 'cafe.pdf'],
+    ['filename="cafe;menu.pdf"', 'cafe;menu.pdf'],
+    ['filename="cafe\\\";menu.pdf"; filename="ignored.pdf"', 'cafe";menu.pdf'],
+    [
+      'filename="cafe.pdf"; filename*0*=UTF-8\'\'caf; filename*1*=%C3%A9.pdf',
+      'cafe.pdf',
+    ],
+    ['filename="cafe.pdf"; filename*0=caf; filename*1=e.pdf', 'cafe.pdf'],
+  ])('uses the first plain filename in %s', async (parameters, filename) => {
+    const result = await snapshot({
+      mimeType: 'application/pdf',
+      filename: '',
+      headers: [
+        { name: 'Content-Disposition', value: `attachment; ${parameters}` },
+      ],
+      body: { attachmentId: 'pdf-attachment' },
+    });
+
+    expect(getNode(result).filename).toBe(filename);
+  });
+
   it('rejects invalid base64url body data', async () => {
     await expect(
       snapshot(textPart('', { body: { data: '%%%invalid' } })),

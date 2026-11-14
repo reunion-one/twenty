@@ -55,6 +55,22 @@ describe('buildGmailMessageRawContent @custom', () => {
     ).toEqual(bytes);
   });
 
+  it('rejects malformed attachment-only inline text data', async () => {
+    get.mockResolvedValue({ data: { data: '%%%invalid' } });
+
+    await expect(
+      buildGmailMessageRawContent({
+        gmailClient,
+        message: {
+          ...message,
+          payload: { mimeType: 'text/plain', body: { attachmentId: 'body-1' } },
+        },
+      }),
+    ).rejects.toThrow(
+      'invalid Gmail inline body attachment encoding for body-1',
+    );
+  });
+
   it('does not fetch a named attachment', async () => {
     await buildGmailMessageRawContent({
       gmailClient,
