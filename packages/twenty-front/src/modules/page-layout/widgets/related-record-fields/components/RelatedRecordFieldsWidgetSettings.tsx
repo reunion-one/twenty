@@ -1,5 +1,5 @@
 import { RelatedRecordFieldsWidgetRecordSourceSelect } from '@/page-layout/widgets/related-record-fields/components/RelatedRecordFieldsWidgetRecordSourceSelect';
-import { useObjectMetadataItemById } from '@/object-metadata/hooks/useObjectMetadataItemById';
+import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
 import { CommandMenuItem } from '@/command-menu/components/CommandMenuItem';
 import { CommandMenuItemSwitch } from '@/command-menu/components/CommandMenuItemSwitch';
 import { useFieldsWidgetGroups } from '@/page-layout/widgets/fields/hooks/useFieldsWidgetGroups';
@@ -57,9 +57,11 @@ export const RelatedRecordFieldsWidgetSettings = () => {
     | RelatedRecordFieldsConfiguration
     | undefined;
 
-  const { objectMetadataItem } = useObjectMetadataItemById({
-    objectId: widgetInEditMode?.objectMetadataId ?? '',
-  });
+  const { objectMetadataItems } = useObjectMetadataItems();
+  const objectMetadataItem = objectMetadataItems.find(
+    (objectMetadataItem) =>
+      objectMetadataItem.id === widgetInEditMode?.objectMetadataId,
+  );
 
   const { groups } = useFieldsWidgetGroups({
     viewId: fieldsConfiguration?.viewId ?? null,

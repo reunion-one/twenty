@@ -1,4 +1,4 @@
-import { useObjectMetadataItemById } from '@/object-metadata/hooks/useObjectMetadataItemById';
+import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
 import { useTemporaryFieldsConfiguration } from '@/page-layout/hooks/useTemporaryFieldsConfiguration';
 import { FieldsConfigurationEditor } from '@/page-layout/widgets/fields/components/FieldsConfigurationEditor';
 import { FieldsWidgetGroupsDraftInitializationEffect } from '@/page-layout/widgets/fields/components/FieldsWidgetGroupsDraftInitializationEffect';
@@ -28,9 +28,11 @@ export const SidePanelFieldsLayoutSubPage = () => {
   const { widgetInEditMode } = useWidgetInEditMode(pageLayoutId);
   const temporaryFieldsConfiguration = useTemporaryFieldsConfiguration();
 
-  const { objectMetadataItem } = useObjectMetadataItemById({
-    objectId: widgetInEditMode?.objectMetadataId ?? '',
-  });
+  const { objectMetadataItems } = useObjectMetadataItems();
+  const objectMetadataItem = objectMetadataItems.find(
+    (objectMetadataItem) =>
+      objectMetadataItem.id === widgetInEditMode?.objectMetadataId,
+  );
   const objectNameSingular =
     objectMetadataItem?.nameSingular ??
     targetRecordIdentifier.targetObjectNameSingular;
