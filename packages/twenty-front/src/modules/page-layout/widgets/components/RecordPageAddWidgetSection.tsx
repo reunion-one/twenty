@@ -1,3 +1,4 @@
+import { useCreateRelatedRecordFieldsWidget } from '@/page-layout/widgets/related-record-fields/hooks/useCreateRelatedRecordFieldsWidget';
 import { ListItemIconContainer } from '@/ui/navigation/list-item/components/ListItemIconContainer';
 import { usePageLayoutContentContext } from '@/page-layout/contexts/PageLayoutContentContext';
 import { useCreateRecordPageFieldWidget } from '@/page-layout/hooks/useCreateRecordPageFieldWidget';
@@ -12,6 +13,7 @@ import { t } from '@lingui/core/macro';
 import { ListItemButton } from 'twenty-ui/components/navigation';
 import {
   IconListDetails,
+  IconRelationManyToOne,
   IconListSearch,
   IconNotes,
   IconPlus,
@@ -58,6 +60,9 @@ export const RecordPageAddWidgetSection = ({
   const theme = useTheme();
   const { tabId } = usePageLayoutContentContext();
 
+  const { createRelatedRecordFieldsWidget } =
+    useCreateRelatedRecordFieldsWidget();
+
   const { createRecordPageFieldsWidget } = useCreateRecordPageFieldsWidget();
 
   const { createRecordPageFieldWidget } = useCreateRecordPageFieldWidget();
@@ -77,6 +82,18 @@ export const RecordPageAddWidgetSection = ({
     <StyledContainer>
       <StyledHeader>{t`Add widget`}</StyledHeader>
       <StyledMenuItemList>
+        <ListItemButton
+          startIcon={
+            <ListItemIconContainer>
+              <IconRelationManyToOne
+                size={theme.icon.size.md}
+                stroke={theme.icon.stroke.sm}
+              />
+            </ListItemIconContainer>
+          }
+          description={t`Group fields from a linked record`}
+          onClick={() => handleCreateWidget(createRelatedRecordFieldsWidget)}
+        >{t`Related record fields`}</ListItemButton>
         <ListItemButton
           startIcon={
             <ListItemIconContainer>

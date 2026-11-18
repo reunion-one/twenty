@@ -1,3 +1,4 @@
+import { createDefaultRelatedRecordFieldsWidget } from '@/page-layout/widgets/related-record-fields/utils/createDefaultRelatedRecordFieldsWidget';
 import { AppMenuItemIcon } from '@/applications/components/AppMenuItemIcon';
 import { CommandMenuItem } from '@/command-menu/components/CommandMenuItem';
 import { FIND_MANY_FRONT_COMPONENTS } from '@/front-components/graphql/queries/findManyFrontComponents';
@@ -37,6 +38,7 @@ import { isDefined } from 'twenty-shared/utils';
 import {
   IconApps,
   IconListDetails,
+  IconRelationManyToOne,
   IconListSearch,
   IconNotes,
 } from 'twenty-ui/icon';
@@ -210,6 +212,49 @@ export const SidePanelPageLayoutRecordPageWidgetTypeSelect = () => {
     tabId,
   ]);
 
+  const handleCreateRelatedRecordFieldsWidget = useCallback(() => {
+    const replacePositionIndex = getExistingWidgetPositionIndex();
+
+    removeExistingWidgetIfReplacing();
+
+    const updatedPageLayout = store.get(pageLayoutDraftState);
+    const activeTab = updatedPageLayout.tabs.find((tab) => tab.id === tabId);
+    const positionIndex =
+      replacePositionIndex ?? activeTab?.widgets.length ?? 0;
+    const widgetId = uuidv4();
+
+    const newWidget = createDefaultRelatedRecordFieldsWidget({
+      id: widgetId,
+      pageLayoutTabId: tabId,
+      objectMetadataId: objectMetadataItem.id,
+      positionIndex,
+    });
+
+    store.set(pageLayoutDraftState, (prev) => ({
+      ...prev,
+      tabs: addWidgetToTab(prev.tabs, tabId, newWidget),
+    }));
+
+    setPageLayoutEditingWidgetId(widgetId);
+    insertCreatedWidgetAtContext({ newWidgetId: widgetId });
+
+    navigatePageLayoutSidePanel({
+      sidePanelPage: SidePanelPages.RelatedRecordFieldsSettings,
+      focusTitleInput: true,
+      resetNavigationStack: true,
+    });
+  }, [
+    getExistingWidgetPositionIndex,
+    insertCreatedWidgetAtContext,
+    navigatePageLayoutSidePanel,
+    objectMetadataItem.id,
+    pageLayoutDraftState,
+    removeExistingWidgetIfReplacing,
+    setPageLayoutEditingWidgetId,
+    store,
+    tabId,
+  ]);
+
   const handleCreateFieldWidget = useCallback(() => {
     const replacePositionIndex = getExistingWidgetPositionIndex();
     removeExistingWidgetIfReplacing();
@@ -354,6 +399,7 @@ export const SidePanelPageLayoutRecordPageWidgetTypeSelect = () => {
   );
 
   const selectableItemIds = [
+    'related-record-fields',
     'fields',
     'field',
     'note',
@@ -363,6 +409,17 @@ export const SidePanelPageLayoutRecordPageWidgetTypeSelect = () => {
   return (
     <SidePanelList selectableItemIds={selectableItemIds}>
       <SidePanelGroup heading={t`Standard widgets`}>
+        <SelectableListItem
+          itemId="related-record-fields"
+          onEnter={handleCreateRelatedRecordFieldsWidget}
+        >
+          <CommandMenuItem
+            Icon={IconRelationManyToOne}
+            label={t`Related record fields`}
+            id="related-record-fields"
+            onClick={handleCreateRelatedRecordFieldsWidget}
+          />
+        </SelectableListItem>
         <SelectableListItem itemId="fields" onEnter={handleCreateFieldsWidget}>
           <CommandMenuItem
             Icon={IconListDetails}

@@ -1,3 +1,5 @@
+import { isNonEmptyString } from '@sniptt/guards';
+import { WidgetType } from '~/generated-metadata/graphql';
 import { useSaveCommandMenuItemsDraft } from '@/command-menu-item/edit/hooks/useSaveCommandMenuItemsDraft';
 import { useCommandMenuItemsDraftState } from '@/command-menu-item/hooks/useCommandMenuItemsDraftState';
 import { useExitLayoutCustomizationMode } from '@/layout-customization/hooks/useExitLayoutCustomizationMode';
@@ -51,6 +53,35 @@ export const useSaveLayoutCustomization = () => {
   const save = useCallback(async () => {
     setIsSaving(true);
     try {
+      const activePageLayoutIds = store.get(
+        activeCustomizationPageLayoutIdsState.atom,
+      );
+      for (const pageLayoutId of activePageLayoutIds) {
+        const draft = store.get(
+          pageLayoutDraftComponentState.atomFamily({
+            instanceId: pageLayoutId,
+          }),
+        );
+        const unconfiguredWidget = draft?.tabs
+          .flatMap((tab) => tab.widgets)
+          .find(
+            (widget) =>
+              widget.type === WidgetType.RELATED_RECORD_FIELDS &&
+              (widget.configuration.__typename !==
+                'RelatedRecordFieldsConfiguration' ||
+                !isNonEmptyString(
+                  widget.configuration.relationFieldMetadataId,
+                ) ||
+                !isNonEmptyString(widget.configuration.viewId)),
+          );
+        if (isDefined(unconfiguredWidget)) {
+          enqueueToast({
+            status: 'error',
+            children: t`Pick a source for "${unconfiguredWidget.title}" before saving`,
+          });
+          return;
+        }
+      }
       const objectColorEntries = Object.entries(
         store.get(objectColorsDraftState.atom),
       );
@@ -114,9 +145,6 @@ export const useSaveLayoutCustomization = () => {
         await saveCommandMenuItemsDraft();
       }
 
-      const activePageLayoutIds = store.get(
-        activeCustomizationPageLayoutIdsState.atom,
-      );
       let hasAnyFailure = false;
 
       for (const pageLayoutId of activePageLayoutIds) {

@@ -25,6 +25,7 @@ export const getPageLayoutIcon = (page: PageLayoutSidePanelPage) => {
       return IconPerspective;
     case SidePanelPages.PageLayoutWidgetSettings:
       return IconLayoutDashboard;
+    case SidePanelPages.RelatedRecordFieldsSettings:
     case SidePanelPages.RecordPageFieldsSettings:
       return IconListDetails;
     case SidePanelPages.RecordPageFieldSettings:

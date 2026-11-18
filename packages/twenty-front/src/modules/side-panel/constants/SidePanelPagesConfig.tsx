@@ -1,3 +1,4 @@
+import { RelatedRecordFieldsWidgetSettings } from '@/page-layout/widgets/related-record-fields/components/RelatedRecordFieldsWidgetSettings';
 import { SidePanelCommandMenuItemDisplayPage } from '@/command-menu-item/display/components/SidePanelCommandMenuItemDisplayPage';
 import { SidePanelCommandMenuItemEditPage } from '@/command-menu-item/edit/components/SidePanelCommandMenuItemEditPage';
 import { SidePanelCoreAgentFiltersPage } from '@/object-core/agents/components/SidePanelCoreAgentFiltersPage';
@@ -85,6 +86,10 @@ export const SIDE_PANEL_PAGES_CONFIG = new Map<
   [
     SidePanelPages.DashboardRecordTableSettings,
     <SidePanelDashboardRecordTableSettings />,
+  ],
+  [
+    SidePanelPages.RelatedRecordFieldsSettings,
+    <RelatedRecordFieldsWidgetSettings />,
   ],
   [
     SidePanelPages.RecordPageFieldsSettings,

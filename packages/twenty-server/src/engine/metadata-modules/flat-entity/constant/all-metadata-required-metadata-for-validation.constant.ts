@@ -102,6 +102,8 @@ export const ALL_METADATA_REQUIRED_METADATA_FOR_VALIDATION = {
     pageLayout: true,
   },
   pageLayoutWidget: {
+    pageLayout: true,
+    view: true,
     objectMetadata: true,
     pageLayoutTab: true,
     frontComponent: true,

@@ -224,6 +224,7 @@ export type {
   FieldConfiguration,
   FormFieldConfiguration,
   FieldsConfiguration,
+  RelatedRecordFieldsConfiguration,
   FieldRichTextConfiguration,
   StandaloneRichTextConfiguration,
   IframeConfiguration,

@@ -195,6 +195,14 @@ export const PAGE_LAYOUT_WIDGET_FRAGMENT = gql`
         newFieldDefaultVisibility
         shouldAllowUserToSeeHiddenFields
       }
+      ... on RelatedRecordFieldsConfiguration {
+        relationFieldMetadataId
+        isReadOnly
+        configurationType
+        viewId
+        newFieldDefaultVisibility
+        shouldAllowUserToSeeHiddenFields
+      }
       ... on FormFieldConfiguration {
         configurationType
         fieldMetadataId

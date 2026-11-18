@@ -1,3 +1,4 @@
+import { RelatedRecordFieldsConfigurationDTO } from 'src/engine/metadata-modules/page-layout-widget/dtos/related-record-fields-configuration.dto';
 import { isNotEmptyObject, type ValidationError } from 'class-validator';
 
 import { AggregateChartConfigurationDTO } from 'src/engine/metadata-modules/page-layout-widget/dtos/aggregate-chart-configuration.dto';
@@ -185,6 +186,12 @@ export const validateWidgetConfigurationInput = ({
     case WidgetConfigurationType.FORM_FIELD:
       errors = validateWidgetConfigurationByDto(
         FormFieldConfigurationDTO,
+        configuration,
+      );
+      break;
+    case WidgetConfigurationType.RELATED_RECORD_FIELDS:
+      errors = validateWidgetConfigurationByDto(
+        RelatedRecordFieldsConfigurationDTO,
         configuration,
       );
       break;

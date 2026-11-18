@@ -1,3 +1,4 @@
+import { validateRelatedRecordFieldsFlatPageLayoutWidgetForCreation } from 'src/engine/metadata-modules/flat-page-layout-widget/validators/utils/validate-related-record-fields-flat-page-layout-widget-for-creation.util';
 import { Injectable } from '@nestjs/common';
 
 import { msg } from '@lingui/core/macro';
@@ -55,6 +56,8 @@ export class FlatPageLayoutWidgetTypeValidatorService {
         WidgetConfigurationType.FIELD,
       ),
       FIELDS: validateFieldsFlatPageLayoutWidgetForCreation,
+      RELATED_RECORD_FIELDS:
+        validateRelatedRecordFieldsFlatPageLayoutWidgetForCreation,
       GRAPH: validateGraphFlatPageLayoutWidgetForCreation,
       STANDALONE_RICH_TEXT:
         validateStandaloneRichTextFlatPageLayoutWidgetForCreation,
@@ -130,6 +133,8 @@ export class FlatPageLayoutWidgetTypeValidatorService {
         WidgetConfigurationType.FIELD,
       ),
       FIELDS: () => [],
+      RELATED_RECORD_FIELDS:
+        validateRelatedRecordFieldsFlatPageLayoutWidgetForCreation,
       GRAPH: validateGraphFlatPageLayoutWidgetForUpdate,
       STANDALONE_RICH_TEXT:
         validateStandaloneRichTextFlatPageLayoutWidgetForUpdate,

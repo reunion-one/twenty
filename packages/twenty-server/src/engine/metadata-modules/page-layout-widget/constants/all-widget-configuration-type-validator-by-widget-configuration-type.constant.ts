@@ -1,3 +1,4 @@
+import { RelatedRecordFieldsConfigurationDTO } from 'src/engine/metadata-modules/page-layout-widget/dtos/related-record-fields-configuration.dto';
 import { AggregateChartConfigurationDTO } from 'src/engine/metadata-modules/page-layout-widget/dtos/aggregate-chart-configuration.dto';
 import { CallRecordingSummaryConfigurationDTO } from 'src/engine/metadata-modules/page-layout-widget/dtos/call-recording-summary-configuration.dto';
 import { CallRecordingTranscriptConfigurationDTO } from 'src/engine/metadata-modules/page-layout-widget/dtos/call-recording-transcript-configuration.dto';
@@ -51,6 +52,7 @@ export const ALL_WIDGET_CONFIGURATION_TYPE_VALIDATOR_BY_WIDGET_CONFIGURATION_TYP
     FIELD: FieldConfigurationDTO,
     FIELD_RICH_TEXT: FieldRichTextConfigurationDTO,
     FIELDS: FieldsConfigurationDTO,
+    RELATED_RECORD_FIELDS: RelatedRecordFieldsConfigurationDTO,
     FORM_FIELD: FormFieldConfigurationDTO,
     FILES: FilesConfigurationDTO,
     NOTES: NotesConfigurationDTO,

@@ -1,8 +1,9 @@
+import { useContextStoreObjectMetadataItemOrThrow } from '@/context-store/hooks/useContextStoreObjectMetadataItemOrThrow';
 import { ListItemIconContainer } from '@/ui/navigation/list-item/components/ListItemIconContainer';
 import { DragDropProvider } from '@dnd-kit/react';
 import { styled } from '@linaria/react';
 
-import { useContextStoreObjectMetadataItemOrThrow } from '@/context-store/hooks/useContextStoreObjectMetadataItemOrThrow';
+import { useObjectMetadataItem } from '@/object-metadata/hooks/useObjectMetadataItem';
 import { fieldsWidgetGroupsDraftComponentState } from '@/page-layout/states/fieldsWidgetGroupsDraftComponentState';
 import { fieldsWidgetUngroupedFieldsDraftComponentState } from '@/page-layout/states/fieldsWidgetUngroupedFieldsDraftComponentState';
 import { FieldsConfigurationGroupEditor } from '@/page-layout/widgets/fields/components/FieldsConfigurationGroupEditor';
@@ -46,16 +47,23 @@ const StyledAddGroupButtonContainer = styled.div`
 
 type FieldsConfigurationEditorProps = {
   pageLayoutId: string;
+  objectNameSingular?: string;
   widgetId: string;
 };
 
 export const FieldsConfigurationEditor = ({
   pageLayoutId,
+  objectNameSingular,
   widgetId,
 }: FieldsConfigurationEditorProps) => {
   const { t } = useLingui();
   const theme = useTheme();
-  const { objectMetadataItem } = useContextStoreObjectMetadataItemOrThrow();
+  const { objectMetadataItem: contextObjectMetadataItem } =
+    useContextStoreObjectMetadataItemOrThrow();
+  const { objectMetadataItem } = useObjectMetadataItem({
+    objectNameSingular:
+      objectNameSingular ?? contextObjectMetadataItem.nameSingular,
+  });
 
   const { editorMode } = useFieldsWidgetEditorMode({
     pageLayoutId,

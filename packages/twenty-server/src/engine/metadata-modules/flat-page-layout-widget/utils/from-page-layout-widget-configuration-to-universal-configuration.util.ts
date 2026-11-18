@@ -288,6 +288,43 @@ export const fromPageLayoutWidgetConfigurationToUniversalConfiguration = ({
       };
     }
 
+    case WidgetConfigurationType.RELATED_RECORD_FIELDS: {
+      const {
+        viewId,
+        relationFieldMetadataId,
+        newFieldDefaultVisibility,
+        ...rest
+      } = configuration;
+
+      let viewUniversalIdentifier: string | null = null;
+
+      if (isDefined(viewId)) {
+        viewUniversalIdentifier = viewUniversalIdentifierById[viewId] ?? null;
+
+        if (
+          !isDefined(viewUniversalIdentifier) &&
+          shouldThrowOnMissingIdentifier
+        ) {
+          throw new FlatEntityMapsException(
+            `View universal identifier not found for id: ${viewId}`,
+            FlatEntityMapsExceptionCode.RELATION_UNIVERSAL_IDENTIFIER_NOT_FOUND,
+          );
+        }
+      }
+
+      return {
+        ...rest,
+        newFieldDefaultVisibility,
+        relationFieldMetadataUniversalIdentifier:
+          getFieldMetadataUniversalIdentifier({
+            fieldMetadataId: relationFieldMetadataId,
+            fieldMetadataUniversalIdentifierById,
+            shouldThrowOnMissingIdentifier,
+          }),
+        viewUniversalIdentifier,
+      };
+    }
+
     case WidgetConfigurationType.RECORD_TABLE: {
       const { viewId, ...rest } = configuration;
 

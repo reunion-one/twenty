@@ -1,3 +1,4 @@
+import { RelatedRecordFieldsWidget } from '@/page-layout/widgets/related-record-fields/components/RelatedRecordFieldsWidget';
 import { type PageLayoutWidget } from '@/page-layout/types/PageLayoutWidget';
 import { CalendarWidget } from '@/page-layout/widgets/calendar/components/CalendarWidget';
 import { CallRecordingWidget } from '@/page-layout/widgets/call-recording/components/CallRecordingWidget';
@@ -39,6 +40,9 @@ export const WidgetContentRenderer = ({
 
     case WidgetType.FIELD:
       return <FieldWidget widget={widget} />;
+
+    case WidgetType.RELATED_RECORD_FIELDS:
+      return <RelatedRecordFieldsWidget widget={widget} />;
 
     case WidgetType.FIELDS:
       return <FieldsWidget widget={widget} />;

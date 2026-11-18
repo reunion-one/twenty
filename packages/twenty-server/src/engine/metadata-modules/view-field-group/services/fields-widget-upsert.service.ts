@@ -105,10 +105,14 @@ export class FieldsWidgetUpsertService {
 
     if (
       !isDefined(widget) ||
-      !isFlatPageLayoutWidgetConfigurationOfType(
+      (!isFlatPageLayoutWidgetConfigurationOfType(
         widget,
         WidgetConfigurationType.FIELDS,
-      )
+      ) &&
+        !isFlatPageLayoutWidgetConfigurationOfType(
+          widget,
+          WidgetConfigurationType.RELATED_RECORD_FIELDS,
+        ))
     ) {
       throw new ViewFieldGroupException(
         t`Fields widget not found`,

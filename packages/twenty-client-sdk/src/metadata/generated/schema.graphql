@@ -4366,6 +4366,15 @@ input RecordTargetInput {
   recordId: UUID!
 }
 
+type RelatedRecordFieldsConfiguration {
+  configurationType: WidgetConfigurationType!
+  isReadOnly: Boolean
+  newFieldDefaultVisibility: Boolean
+  relationFieldMetadataId: String!
+  shouldAllowUserToSeeHiddenFields: Boolean
+  viewId: String
+}
+
 type RelatedRecordPath {
   firstFieldMetadataId: UUID!
   id: UUID!
@@ -6185,7 +6194,7 @@ type Webhook {
   updatedAt: DateTime!
 }
 
-union WidgetConfiguration = AggregateChartConfiguration | BarChartConfiguration | CalendarConfiguration | CallRecordingSummaryConfiguration | CallRecordingTranscriptConfiguration | ChatConfiguration | ChatThreadsConfiguration | EmailThreadConfiguration | EmailsConfiguration | FieldConfiguration | FieldRichTextConfiguration | FieldsConfiguration | FilesConfiguration | FormFieldConfiguration | FrontComponentConfiguration | IframeConfiguration | LineChartConfiguration | MessageCampaignBodyConfiguration | MessageCampaignDetailsConfiguration | NotesConfiguration | PieChartConfiguration | RecordTableConfiguration | StandaloneRichTextConfiguration | TasksConfiguration | TimelineConfiguration | ViewConfiguration | WorkflowConfiguration | WorkflowRunConfiguration | WorkflowVersionConfiguration
+union WidgetConfiguration = AggregateChartConfiguration | BarChartConfiguration | CalendarConfiguration | CallRecordingSummaryConfiguration | CallRecordingTranscriptConfiguration | ChatConfiguration | ChatThreadsConfiguration | EmailThreadConfiguration | EmailsConfiguration | FieldConfiguration | FieldRichTextConfiguration | FieldsConfiguration | FilesConfiguration | FormFieldConfiguration | FrontComponentConfiguration | IframeConfiguration | LineChartConfiguration | MessageCampaignBodyConfiguration | MessageCampaignDetailsConfiguration | NotesConfiguration | PieChartConfiguration | RecordTableConfiguration | RelatedRecordFieldsConfiguration | StandaloneRichTextConfiguration | TasksConfiguration | TimelineConfiguration | ViewConfiguration | WorkflowConfiguration | WorkflowRunConfiguration | WorkflowVersionConfiguration
 
 enum WidgetConfigurationType {
   AGGREGATE_CHART
@@ -6210,6 +6219,7 @@ enum WidgetConfigurationType {
   NOTES
   PIE_CHART
   RECORD_TABLE
+  RELATED_RECORD_FIELDS
   STANDALONE_RICH_TEXT
   TASKS
   TIMELINE
@@ -6239,6 +6249,7 @@ enum WidgetType {
   MESSAGE_CAMPAIGN_DETAILS
   NOTES
   RECORD_TABLE
+  RELATED_RECORD_FIELDS
   STANDALONE_RICH_TEXT
   TASKS
   TIMELINE

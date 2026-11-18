@@ -1,3 +1,4 @@
+import { useObjectMetadataItemById } from '@/object-metadata/hooks/useObjectMetadataItemById';
 import { useTemporaryFieldsConfiguration } from '@/page-layout/hooks/useTemporaryFieldsConfiguration';
 import { FieldsConfigurationEditor } from '@/page-layout/widgets/fields/components/FieldsConfigurationEditor';
 import { FieldsWidgetGroupsDraftInitializationEffect } from '@/page-layout/widgets/fields/components/FieldsWidgetGroupsDraftInitializationEffect';
@@ -21,10 +22,18 @@ const StyledFieldsLayoutContainer = styled.div`
 `;
 
 export const SidePanelFieldsLayoutSubPage = () => {
-  const { pageLayoutId } = usePageLayoutSidePanelTarget();
+  const { pageLayoutId, targetRecordIdentifier } =
+    usePageLayoutSidePanelTarget();
 
   const { widgetInEditMode } = useWidgetInEditMode(pageLayoutId);
   const temporaryFieldsConfiguration = useTemporaryFieldsConfiguration();
+
+  const { objectMetadataItem } = useObjectMetadataItemById({
+    objectId: widgetInEditMode?.objectMetadataId ?? '',
+  });
+  const objectNameSingular =
+    objectMetadataItem?.nameSingular ??
+    targetRecordIdentifier.targetObjectNameSingular;
 
   if (!isDefined(widgetInEditMode)) {
     return null;
@@ -34,18 +43,22 @@ export const SidePanelFieldsLayoutSubPage = () => {
 
   const resolvedFieldsConfiguration: FieldsConfiguration =
     isDefined(widgetConfiguration) &&
-    widgetConfiguration.configurationType === WidgetConfigurationType.FIELDS
+    (widgetConfiguration.configurationType === WidgetConfigurationType.FIELDS ||
+      widgetConfiguration.configurationType ===
+        WidgetConfigurationType.RELATED_RECORD_FIELDS)
       ? (widgetConfiguration as FieldsConfiguration)
       : temporaryFieldsConfiguration;
 
   return (
     <StyledFieldsLayoutContainer>
       <FieldsWidgetGroupsDraftInitializationEffect
+        objectNameSingular={objectNameSingular}
         viewId={resolvedFieldsConfiguration.viewId ?? null}
         pageLayoutId={pageLayoutId}
         widgetId={widgetInEditMode.id}
       />
       <FieldsConfigurationEditor
+        objectNameSingular={objectNameSingular}
         pageLayoutId={pageLayoutId}
         widgetId={widgetInEditMode.id}
       />

@@ -14,6 +14,7 @@ const EXPECTED_IS_VIEWPORT_FILLING_BY_WIDGET_TYPE = {
   [WidgetType.EMAIL_THREAD]: true,
   [WidgetType.FIELD]: false,
   [WidgetType.FIELDS]: false,
+  [WidgetType.RELATED_RECORD_FIELDS]: false,
   [WidgetType.FIELD_RICH_TEXT]: false,
   [WidgetType.FILES]: true,
   [WidgetType.FRONT_COMPONENT]: false,

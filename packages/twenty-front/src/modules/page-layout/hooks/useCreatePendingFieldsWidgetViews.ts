@@ -27,9 +27,11 @@ export const useCreatePendingFieldsWidgetViews = () => {
         }),
       );
 
-      const persistedWidgetIds = new Set(
+      const persistedViewIds = new Set(
         persisted?.tabs.flatMap((tab) =>
-          tab.widgets.map((widget) => widget.id),
+          tab.widgets.map((widget) =>
+            getWidgetConfigurationViewId(widget.configuration),
+          ),
         ) ?? [],
       );
 
@@ -38,12 +40,15 @@ export const useCreatePendingFieldsWidgetViews = () => {
       const newFieldsWidgets = draft.tabs
         .flatMap((tab) => tab.widgets)
         .filter((widget) => {
-          if (widget.type !== WidgetType.FIELDS) {
+          if (
+            widget.type !== WidgetType.FIELDS &&
+            widget.type !== WidgetType.RELATED_RECORD_FIELDS
+          ) {
             return false;
           }
           const viewId = getWidgetConfigurationViewId(widget.configuration);
 
-          return isDefined(viewId) && !persistedWidgetIds.has(widget.id);
+          return isDefined(viewId) && !persistedViewIds.has(viewId);
         });
 
       for (const widget of newFieldsWidgets) {

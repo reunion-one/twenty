@@ -693,7 +693,9 @@ export class PageLayoutResetService {
     for (const widget of widgets) {
       if (
         widget.configuration.configurationType !==
-        WidgetConfigurationType.FIELDS
+          WidgetConfigurationType.FIELDS &&
+        widget.configuration.configurationType !==
+          WidgetConfigurationType.RELATED_RECORD_FIELDS
       ) {
         continue;
       }

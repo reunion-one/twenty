@@ -177,6 +177,7 @@ export const usePageLayoutHeaderInfo = ({
       });
     }
 
+    case SidePanelPages.RelatedRecordFieldsSettings:
     case SidePanelPages.RecordPageFieldsSettings: {
       if (!isDefined(widgetInEditMode)) {
         return null;

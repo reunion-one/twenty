@@ -119,6 +119,15 @@ export type FieldsConfiguration = {
   shouldAllowUserToSeeHiddenFields?: boolean;
 };
 
+export type RelatedRecordFieldsConfiguration = Omit<
+  FieldsConfiguration,
+  'configurationType'
+> & {
+  configurationType: 'RELATED_RECORD_FIELDS';
+  relationFieldMetadataId: SerializedRelation;
+  isReadOnly?: boolean;
+};
+
 export type FieldRichTextConfiguration = {
   configurationType: 'FIELD_RICH_TEXT';
 };
@@ -216,6 +225,7 @@ export type PageLayoutWidgetConfiguration =
   | RecordTableConfiguration
   | FieldConfiguration
   | FieldsConfiguration
+  | RelatedRecordFieldsConfiguration
   | FormFieldConfiguration
   | FieldRichTextConfiguration
   | StandaloneRichTextConfiguration

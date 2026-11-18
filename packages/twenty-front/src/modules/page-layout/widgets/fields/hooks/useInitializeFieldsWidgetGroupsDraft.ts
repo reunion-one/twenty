@@ -89,20 +89,24 @@ export const useInitializeFieldsWidgetGroupsDraft = ({
         [widgetId]: persistedGroups,
       }));
 
-      store.set(fieldsWidgetGroupsPersistedState, (prev) => ({
-        ...prev,
-        [widgetId]: persistedGroups,
-      }));
+      if (!(widgetId in store.get(fieldsWidgetGroupsPersistedState))) {
+        store.set(fieldsWidgetGroupsPersistedState, (prev) => ({
+          ...prev,
+          [widgetId]: persistedGroups,
+        }));
+      }
 
       store.set(fieldsWidgetUngroupedFieldsDraftState, (prev) => ({
         ...prev,
         [widgetId]: persistedUngroupedFields,
       }));
 
-      store.set(fieldsWidgetUngroupedFieldsPersistedState, (prev) => ({
-        ...prev,
-        [widgetId]: persistedUngroupedFields,
-      }));
+      if (!(widgetId in store.get(fieldsWidgetUngroupedFieldsPersistedState))) {
+        store.set(fieldsWidgetUngroupedFieldsPersistedState, (prev) => ({
+          ...prev,
+          [widgetId]: persistedUngroupedFields,
+        }));
+      }
     }
 
     const currentEditorModes = store.get(fieldsWidgetEditorModeDraftState);
@@ -113,10 +117,12 @@ export const useInitializeFieldsWidgetGroupsDraft = ({
         [widgetId]: persistedEditorMode,
       }));
 
-      store.set(fieldsWidgetEditorModePersistedState, (prev) => ({
-        ...prev,
-        [widgetId]: persistedEditorMode,
-      }));
+      if (!(widgetId in store.get(fieldsWidgetEditorModePersistedState))) {
+        store.set(fieldsWidgetEditorModePersistedState, (prev) => ({
+          ...prev,
+          [widgetId]: persistedEditorMode,
+        }));
+      }
     }
 
     store.set(hasInitializedFieldsWidgetGroupsDraftState, (prev) => ({

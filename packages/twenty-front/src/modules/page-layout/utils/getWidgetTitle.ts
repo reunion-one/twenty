@@ -31,6 +31,7 @@ export const getWidgetTitle = (
       return `${t`Rich Text`} ${index + 1}`;
     case WidgetConfigurationType.FIELD:
     case WidgetConfigurationType.FIELDS:
+    case WidgetConfigurationType.RELATED_RECORD_FIELDS:
     case WidgetConfigurationType.CALENDAR:
     case WidgetConfigurationType.EMAILS:
     case WidgetConfigurationType.TASKS:

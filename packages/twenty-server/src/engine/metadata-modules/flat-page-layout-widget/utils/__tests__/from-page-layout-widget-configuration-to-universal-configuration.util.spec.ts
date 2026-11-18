@@ -149,3 +149,25 @@ describe('fromPageLayoutWidgetConfigurationToUniversalConfiguration', () => {
     });
   });
 });
+
+describe('linked fields group configuration @custom', () => {
+  it('serializes the relation using its universal identifier', () => {
+    expect(
+      fromPageLayoutWidgetConfigurationToUniversalConfiguration({
+        configuration: {
+          configurationType: WidgetConfigurationType.RELATED_RECORD_FIELDS,
+          relationFieldMetadataId: RELATION_FIELD_ID,
+          newFieldDefaultVisibility: false,
+          viewId: null,
+        },
+        fieldMetadataUniversalIdentifierById,
+      }),
+    ).toEqual({
+      configurationType: WidgetConfigurationType.RELATED_RECORD_FIELDS,
+      relationFieldMetadataUniversalIdentifier:
+        RELATION_FIELD_UNIVERSAL_IDENTIFIER,
+      newFieldDefaultVisibility: false,
+      viewUniversalIdentifier: null,
+    });
+  });
+});

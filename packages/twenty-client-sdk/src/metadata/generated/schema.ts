@@ -3251,6 +3251,16 @@ export interface RecordTableConfiguration {
     __typename: 'RecordTableConfiguration'
 }
 
+export interface RelatedRecordFieldsConfiguration {
+    configurationType: WidgetConfigurationType
+    isReadOnly?: Scalars['Boolean']
+    newFieldDefaultVisibility?: Scalars['Boolean']
+    relationFieldMetadataId: Scalars['String']
+    shouldAllowUserToSeeHiddenFields?: Scalars['Boolean']
+    viewId?: Scalars['String']
+    __typename: 'RelatedRecordFieldsConfiguration'
+}
+
 export interface RelatedRecordPath {
     firstFieldMetadataId: Scalars['UUID']
     id: Scalars['UUID']
@@ -4100,11 +4110,11 @@ export interface Webhook {
     __typename: 'Webhook'
 }
 
-export type WidgetConfiguration = (AggregateChartConfiguration | BarChartConfiguration | CalendarConfiguration | CallRecordingSummaryConfiguration | CallRecordingTranscriptConfiguration | ChatConfiguration | ChatThreadsConfiguration | EmailThreadConfiguration | EmailsConfiguration | FieldConfiguration | FieldRichTextConfiguration | FieldsConfiguration | FilesConfiguration | FormFieldConfiguration | FrontComponentConfiguration | IframeConfiguration | LineChartConfiguration | MessageCampaignBodyConfiguration | MessageCampaignDetailsConfiguration | NotesConfiguration | PieChartConfiguration | RecordTableConfiguration | StandaloneRichTextConfiguration | TasksConfiguration | TimelineConfiguration | ViewConfiguration | WorkflowConfiguration | WorkflowRunConfiguration | WorkflowVersionConfiguration) & { __isUnion?: true }
+export type WidgetConfiguration = (AggregateChartConfiguration | BarChartConfiguration | CalendarConfiguration | CallRecordingSummaryConfiguration | CallRecordingTranscriptConfiguration | ChatConfiguration | ChatThreadsConfiguration | EmailThreadConfiguration | EmailsConfiguration | FieldConfiguration | FieldRichTextConfiguration | FieldsConfiguration | FilesConfiguration | FormFieldConfiguration | FrontComponentConfiguration | IframeConfiguration | LineChartConfiguration | MessageCampaignBodyConfiguration | MessageCampaignDetailsConfiguration | NotesConfiguration | PieChartConfiguration | RecordTableConfiguration | RelatedRecordFieldsConfiguration | StandaloneRichTextConfiguration | TasksConfiguration | TimelineConfiguration | ViewConfiguration | WorkflowConfiguration | WorkflowRunConfiguration | WorkflowVersionConfiguration) & { __isUnion?: true }
 
-export type WidgetConfigurationType = 'AGGREGATE_CHART' | 'BAR_CHART' | 'CALENDAR' | 'CALL_RECORDING_SUMMARY' | 'CALL_RECORDING_TRANSCRIPT' | 'CHAT' | 'CHAT_THREADS' | 'EMAILS' | 'EMAIL_THREAD' | 'FIELD' | 'FIELDS' | 'FIELD_RICH_TEXT' | 'FILES' | 'FORM_FIELD' | 'FRONT_COMPONENT' | 'IFRAME' | 'LINE_CHART' | 'MESSAGE_CAMPAIGN_BODY' | 'MESSAGE_CAMPAIGN_DETAILS' | 'NOTES' | 'PIE_CHART' | 'RECORD_TABLE' | 'STANDALONE_RICH_TEXT' | 'TASKS' | 'TIMELINE' | 'VIEW' | 'WORKFLOW' | 'WORKFLOW_RUN' | 'WORKFLOW_VERSION'
+export type WidgetConfigurationType = 'AGGREGATE_CHART' | 'BAR_CHART' | 'CALENDAR' | 'CALL_RECORDING_SUMMARY' | 'CALL_RECORDING_TRANSCRIPT' | 'CHAT' | 'CHAT_THREADS' | 'EMAILS' | 'EMAIL_THREAD' | 'FIELD' | 'FIELDS' | 'FIELD_RICH_TEXT' | 'FILES' | 'FORM_FIELD' | 'FRONT_COMPONENT' | 'IFRAME' | 'LINE_CHART' | 'MESSAGE_CAMPAIGN_BODY' | 'MESSAGE_CAMPAIGN_DETAILS' | 'NOTES' | 'PIE_CHART' | 'RECORD_TABLE' | 'RELATED_RECORD_FIELDS' | 'STANDALONE_RICH_TEXT' | 'TASKS' | 'TIMELINE' | 'VIEW' | 'WORKFLOW' | 'WORKFLOW_RUN' | 'WORKFLOW_VERSION'
 
-export type WidgetType = 'CALENDAR' | 'CALL_RECORDING_SUMMARY' | 'CALL_RECORDING_TRANSCRIPT' | 'CHAT' | 'CHAT_THREADS' | 'EMAILS' | 'EMAIL_THREAD' | 'FIELD' | 'FIELDS' | 'FIELD_RICH_TEXT' | 'FILES' | 'FORM_FIELD' | 'FRONT_COMPONENT' | 'GRAPH' | 'IFRAME' | 'MESSAGE_CAMPAIGN_BODY' | 'MESSAGE_CAMPAIGN_DETAILS' | 'NOTES' | 'RECORD_TABLE' | 'STANDALONE_RICH_TEXT' | 'TASKS' | 'TIMELINE' | 'VIEW' | 'WORKFLOW' | 'WORKFLOW_RUN' | 'WORKFLOW_VERSION'
+export type WidgetType = 'CALENDAR' | 'CALL_RECORDING_SUMMARY' | 'CALL_RECORDING_TRANSCRIPT' | 'CHAT' | 'CHAT_THREADS' | 'EMAILS' | 'EMAIL_THREAD' | 'FIELD' | 'FIELDS' | 'FIELD_RICH_TEXT' | 'FILES' | 'FORM_FIELD' | 'FRONT_COMPONENT' | 'GRAPH' | 'IFRAME' | 'MESSAGE_CAMPAIGN_BODY' | 'MESSAGE_CAMPAIGN_DETAILS' | 'NOTES' | 'RECORD_TABLE' | 'RELATED_RECORD_FIELDS' | 'STANDALONE_RICH_TEXT' | 'TASKS' | 'TIMELINE' | 'VIEW' | 'WORKFLOW' | 'WORKFLOW_RUN' | 'WORKFLOW_VERSION'
 
 export type WorkflowActionType = 'AI_AGENT' | 'CLASSIFY' | 'CODE' | 'CREATE_CALENDAR_EVENT' | 'CREATE_RECORD' | 'DELAY' | 'DELETE_RECORD' | 'DRAFT_EMAIL' | 'EMPTY' | 'FILTER' | 'FIND_RECORDS' | 'FORM' | 'HTTP_REQUEST' | 'IF_ELSE' | 'ITERATOR' | 'LOGIC_FUNCTION' | 'PICK_RECORD' | 'SEND_CHAT_MESSAGE' | 'SEND_EMAIL' | 'UPDATE_RECORD' | 'UPSERT_RECORD' | 'WAIT_FOR_EVENT'
 
@@ -7894,6 +7904,17 @@ export interface RecordTableConfigurationGenqlSelection{
 
 export interface RecordTargetInput {objectMetadataId: Scalars['UUID'],recordId: Scalars['UUID']}
 
+export interface RelatedRecordFieldsConfigurationGenqlSelection{
+    configurationType?: boolean | number
+    isReadOnly?: boolean | number
+    newFieldDefaultVisibility?: boolean | number
+    relationFieldMetadataId?: boolean | number
+    shouldAllowUserToSeeHiddenFields?: boolean | number
+    viewId?: boolean | number
+    __typename?: boolean | number
+    __scalar?: boolean | number
+}
+
 export interface RelatedRecordPathGenqlSelection{
     firstFieldMetadataId?: boolean | number
     id?: boolean | number
@@ -9091,6 +9112,7 @@ export interface WidgetConfigurationGenqlSelection{
     on_NotesConfiguration?:NotesConfigurationGenqlSelection,
     on_PieChartConfiguration?:PieChartConfigurationGenqlSelection,
     on_RecordTableConfiguration?:RecordTableConfigurationGenqlSelection,
+    on_RelatedRecordFieldsConfiguration?:RelatedRecordFieldsConfigurationGenqlSelection,
     on_StandaloneRichTextConfiguration?:StandaloneRichTextConfigurationGenqlSelection,
     on_TasksConfiguration?:TasksConfigurationGenqlSelection,
     on_TimelineConfiguration?:TimelineConfigurationGenqlSelection,
@@ -11363,6 +11385,14 @@ export interface WorkspaceUrlsAndIdGenqlSelection{
     
 
 
+    const RelatedRecordFieldsConfiguration_possibleTypes: string[] = ['RelatedRecordFieldsConfiguration']
+    export const isRelatedRecordFieldsConfiguration = (obj?: { __typename?: any } | null): obj is RelatedRecordFieldsConfiguration => {
+      if (!obj?.__typename) throw new Error('__typename is missing in "isRelatedRecordFieldsConfiguration"')
+      return RelatedRecordFieldsConfiguration_possibleTypes.includes(obj.__typename)
+    }
+
+
+
     const RelatedRecordPath_possibleTypes: string[] = ['RelatedRecordPath']
     export const isRelatedRecordPath = (obj?: { __typename?: any } | null): obj is RelatedRecordPath => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isRelatedRecordPath"')
@@ -12011,7 +12041,7 @@ export interface WorkspaceUrlsAndIdGenqlSelection{
     
 
 
-    const WidgetConfiguration_possibleTypes: string[] = ['AggregateChartConfiguration','BarChartConfiguration','CalendarConfiguration','CallRecordingSummaryConfiguration','CallRecordingTranscriptConfiguration','ChatConfiguration','ChatThreadsConfiguration','EmailThreadConfiguration','EmailsConfiguration','FieldConfiguration','FieldRichTextConfiguration','FieldsConfiguration','FilesConfiguration','FormFieldConfiguration','FrontComponentConfiguration','IframeConfiguration','LineChartConfiguration','MessageCampaignBodyConfiguration','MessageCampaignDetailsConfiguration','NotesConfiguration','PieChartConfiguration','RecordTableConfiguration','StandaloneRichTextConfiguration','TasksConfiguration','TimelineConfiguration','ViewConfiguration','WorkflowConfiguration','WorkflowRunConfiguration','WorkflowVersionConfiguration']
+    const WidgetConfiguration_possibleTypes: string[] = ['AggregateChartConfiguration','BarChartConfiguration','CalendarConfiguration','CallRecordingSummaryConfiguration','CallRecordingTranscriptConfiguration','ChatConfiguration','ChatThreadsConfiguration','EmailThreadConfiguration','EmailsConfiguration','FieldConfiguration','FieldRichTextConfiguration','FieldsConfiguration','FilesConfiguration','FormFieldConfiguration','FrontComponentConfiguration','IframeConfiguration','LineChartConfiguration','MessageCampaignBodyConfiguration','MessageCampaignDetailsConfiguration','NotesConfiguration','PieChartConfiguration','RecordTableConfiguration','RelatedRecordFieldsConfiguration','StandaloneRichTextConfiguration','TasksConfiguration','TimelineConfiguration','ViewConfiguration','WorkflowConfiguration','WorkflowRunConfiguration','WorkflowVersionConfiguration']
     export const isWidgetConfiguration = (obj?: { __typename?: any } | null): obj is WidgetConfiguration => {
       if (!obj?.__typename) throw new Error('__typename is missing in "isWidgetConfiguration"')
       return WidgetConfiguration_possibleTypes.includes(obj.__typename)
@@ -13076,6 +13106,7 @@ export const enumWidgetConfigurationType = {
    NOTES: 'NOTES' as const,
    PIE_CHART: 'PIE_CHART' as const,
    RECORD_TABLE: 'RECORD_TABLE' as const,
+   RELATED_RECORD_FIELDS: 'RELATED_RECORD_FIELDS' as const,
    STANDALONE_RICH_TEXT: 'STANDALONE_RICH_TEXT' as const,
    TASKS: 'TASKS' as const,
    TIMELINE: 'TIMELINE' as const,
@@ -13105,6 +13136,7 @@ export const enumWidgetType = {
    MESSAGE_CAMPAIGN_DETAILS: 'MESSAGE_CAMPAIGN_DETAILS' as const,
    NOTES: 'NOTES' as const,
    RECORD_TABLE: 'RECORD_TABLE' as const,
+   RELATED_RECORD_FIELDS: 'RELATED_RECORD_FIELDS' as const,
    STANDALONE_RICH_TEXT: 'STANDALONE_RICH_TEXT' as const,
    TASKS: 'TASKS' as const,
    TIMELINE: 'TIMELINE' as const,

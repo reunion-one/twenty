@@ -78,6 +78,18 @@ export const useOpenWidgetSettingsInSidePanel = (
         return;
       }
 
+      if (widgetType === WidgetType.RELATED_RECORD_FIELDS) {
+        if (!isDashboardPageLayout) {
+          navigatePageLayoutSidePanel({
+            sidePanelPage: SidePanelPages.RelatedRecordFieldsSettings,
+            pageTitle: t`Related record fields`,
+            resetNavigationStack: true,
+          });
+          setPageLayoutEditingWidgetId(widgetId);
+        }
+        return;
+      }
+
       if (widgetType === WidgetType.FIELDS) {
         if (!isDashboardPageLayout) {
           navigatePageLayoutSidePanel({
