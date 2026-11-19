@@ -185,7 +185,7 @@ export const SettingsApplicationsAvailableTab = () => {
 
           {showUnlisted && unlistedApplications.length > 0 && (
             <StyledUnlistedContainer>
-              <InlineBanner status="warning">{t`Applications below have not been reviewed by Twenty. Use at your own risk.`}</InlineBanner>
+              <InlineBanner status="warning">{t`Applications below have not been reviewed by Web3 CRM. Use at your own risk.`}</InlineBanner>
               <StyledCardsGrid>
                 {unlistedApplications.map((application) => (
                   <SettingsAvailableApplicationCard

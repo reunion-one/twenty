@@ -117,7 +117,7 @@ export const SettingsApplicationIframeMediaPermissionsSection = ({
         )}
         {hasSavedChanges && (
           <>
-            <Text role="status">{t`Changes saved. Reload open Twenty tabs to apply the updated permissions. Reloading ends active calls and recordings.`}</Text>
+            <Text role="status">{t`Changes saved. Reload open Web3 CRM tabs to apply the updated permissions. Reloading ends active calls and recordings.`}</Text>
             <Button
               variant="outline"
               size="sm"

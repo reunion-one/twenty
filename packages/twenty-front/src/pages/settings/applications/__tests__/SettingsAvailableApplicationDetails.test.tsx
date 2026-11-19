@@ -146,7 +146,7 @@ const renderPage = (availableApplicationId: string) =>
   );
 
 const NOT_LISTED_WARNING =
-  'This application is not listed on the marketplace and has not been reviewed by Twenty. Use at your own risk.';
+  'This application is not listed on the marketplace and has not been reviewed by Web3 CRM. Use at your own risk.';
 
 describe('SettingsAvailableApplicationDetails', () => {
   beforeEach(() => {
@@ -163,10 +163,10 @@ describe('SettingsAvailableApplicationDetails', () => {
 
     expect(screen.queryByText(NOT_LISTED_WARNING)).not.toBeInTheDocument();
     expect(
-      screen.getByText('The base data model every Twenty workspace runs on.'),
+      screen.getByText('The base data model every Web3 CRM workspace runs on.'),
     ).toBeInTheDocument();
     expect(screen.getByTestId('markdown-renderer')).toHaveTextContent(
-      'Every Twenty workspace starts with this app.',
+      'Every Web3 CRM workspace starts with this app.',
     );
   });
 

@@ -781,7 +781,7 @@ plt.savefig('/home/user/output/analysis.png')
 print('Analysis complete!')
 \`\`\`
 
-## Calling Twenty Tools from Python (MCP Bridge)
+## Calling Web3 CRM Tools from Python (MCP Bridge)
 
 **A \`twenty\` variable is already bound in your code's scope.** Do NOT write
 \`import twenty\` — there is no Python package by that name. The helper is an

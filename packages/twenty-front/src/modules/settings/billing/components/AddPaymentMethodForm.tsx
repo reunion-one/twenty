@@ -99,7 +99,7 @@ const AddPaymentMethodFormContent = ({
       if (!isDefined(clientSecret)) {
         enqueueToast({
           status: 'error',
-          children: t`Subscription error. Please retry or contact Twenty team`,
+          children: t`Subscription error. Please retry or contact Web3 CRM team`,
         });
         setIsSubmitting(false);
         return;
@@ -132,7 +132,7 @@ const AddPaymentMethodFormContent = ({
       } else {
         enqueueToast({
           status: 'error',
-          children: t`Subscription error. Please retry or contact Twenty team`,
+          children: t`Subscription error. Please retry or contact Web3 CRM team`,
         });
       }
       setIsSubmitting(false);

@@ -15,7 +15,7 @@ export const frontComponentDraftSchema = z.object({
     .min(1)
     .max(50000)
     .describe(
-      'TSX exporting a named Component that takes no props, with no default export. Load records with CoreApiClient from twenty-client-sdk/core, using an object selection keyed by the workspace object plural name and selecting edges.node, totalCount and pageInfo.hasNextPage. Read the result directly by that plural name, without a data wrapper. The query must match the preview query. Twenty adds the theme and defineFrontComponent registration. Use React and supported twenty-ui imports.',
+      'TSX exporting a named Component that takes no props, with no default export. Load records with CoreApiClient from twenty-client-sdk/core, using an object selection keyed by the workspace object plural name and selecting edges.node, totalCount and pageInfo.hasNextPage. Read the result directly by that plural name, without a data wrapper. The query must match the preview query. Web3 CRM adds the theme and defineFrontComponent registration. Use React and supported twenty-ui imports.',
     ),
   query: frontComponentQuerySchema.describe(
     'Object and fields mocked during preview. Saved components load their own data through the app SDK; this query is not persisted in their source.',

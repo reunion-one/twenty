@@ -204,7 +204,7 @@ const useSettingsNavigationItems = (): SettingsNavigationSection[] => {
           label: t`Community`,
           path: SettingsPath.Community,
           Icon: IconUsers,
-          isHidden: !permissionFlagMap[PermissionFlagType.WORKSPACE],
+          isHidden: true,
         },
         {
           label: t`Support`,
@@ -219,6 +219,7 @@ const useSettingsNavigationItems = (): SettingsNavigationSection[] => {
               getDocumentationUrl({ locale: currentWorkspaceMember?.locale }),
             ),
           Icon: IconHelpCircle,
+          isHidden: true,
         },
         {
           label: t`Logout`,

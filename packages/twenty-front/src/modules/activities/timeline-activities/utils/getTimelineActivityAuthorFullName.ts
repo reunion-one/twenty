@@ -12,5 +12,5 @@ export const getTimelineActivityAuthorFullName = (
       ? t`You`
       : `${event.workspaceMember?.name.firstName} ${event.workspaceMember?.name.lastName}`;
   }
-  return 'Twenty';
+  return 'Web3 CRM';
 };

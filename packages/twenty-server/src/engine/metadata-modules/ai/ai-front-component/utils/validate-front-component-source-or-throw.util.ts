@@ -34,7 +34,7 @@ export const validateFrontComponentSourceOrThrow = (source: string): void => {
     if (isDefaultExport) {
       throw new FrontComponentBuildException({
         message:
-          'Export a named Component without a default export. Twenty adds the SDK registration.',
+          'Export a named Component without a default export. Web3 CRM adds the SDK registration.',
         code: 'INVALID_INPUT',
       });
     }

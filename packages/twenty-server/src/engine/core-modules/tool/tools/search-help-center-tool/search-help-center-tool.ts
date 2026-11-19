@@ -20,12 +20,12 @@ const HELP_CENTER_REQUEST_TIMEOUT_MS = 10_000;
 const HELP_CENTER_REQUEST_RETRIES = 2;
 
 const buildSearchFailedMessage = (query: string) =>
-  `Could not search Twenty's documentation for "${query}". Do not guess menus, buttons, options or steps from memory: say you could not confirm them and offer to do the task when your tools can.`;
+  `Could not search Web3 CRM's documentation for "${query}". Do not guess menus, buttons, options or steps from memory: say you could not confirm them and offer to do the task when your tools can.`;
 
 @Injectable()
 export class SearchHelpCenterTool implements Tool {
   description =
-    "Search Twenty's documentation before saying how to do something in Twenty, where it is or whether it exists. Name only the menus, buttons, options and steps its results show.";
+    "Search Web3 CRM's documentation before saying how to do something in Web3 CRM, where it is or whether it exists. Name only the menus, buttons, options and steps its results show.";
   inputSchema = SearchHelpCenterInputZodSchema;
 
   constructor(

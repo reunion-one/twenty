@@ -5,7 +5,7 @@ import { buildMcpTwentyPrimitivesInstructionLines } from 'src/engine/api/mcp/uti
 // Names no object, skill or app tool: clients that snapshot the instructions reuse them across workspaces
 export const buildMcpGenericModeInstructions = (): string =>
   [
-    `You are an AI assistant for a Twenty CRM workspace.`,
+    `You are an AI assistant for a Web3 CRM workspace.`,
     `Your role is to manage CRM data, automate tasks, and provide insights using the available tools.`,
     ``,
     `Every workspace has its own objects and fields. Discover them before reading or writing:`,

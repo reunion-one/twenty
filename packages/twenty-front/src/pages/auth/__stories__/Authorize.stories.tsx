@@ -137,7 +137,7 @@ export const VerifiedClient: Story = {
       timeout: 5000,
     });
     await canvas.findByText(
-      'Registered with Twenty as the official Twenty CLI',
+      'Registered with Web3 CRM as the official Twenty CLI',
     );
   },
 };
@@ -167,10 +167,10 @@ export const UnverifiedClientBorrowingAVerifiedName: Story = {
       timeout: 5000,
     });
     await canvas.findByText(
-      'This app calls itself Twenty CLI, but Twenty could not confirm it is. Only continue if you started this connection from Twenty CLI.',
+      'This app calls itself Twenty CLI, but Web3 CRM could not confirm it is. Only continue if you started this connection from Twenty CLI.',
     );
     expect(
-      canvas.queryByText(/Registered with Twenty as the official/),
+      canvas.queryByText(/Registered with Web3 CRM as the official/),
     ).not.toBeInTheDocument();
   },
 };
