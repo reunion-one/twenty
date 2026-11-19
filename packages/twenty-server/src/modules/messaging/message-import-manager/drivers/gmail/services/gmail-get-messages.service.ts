@@ -11,6 +11,7 @@ import { GoogleOAuth2ClientProvider } from 'src/modules/connected-account/oauth2
 import { type ConnectedAccountEntity } from 'src/engine/metadata-modules/connected-account/entities/connected-account.entity';
 import { MESSAGING_GMAIL_EXCLUDED_SYSTEM_LABELS } from 'src/modules/messaging/message-import-manager/drivers/gmail/constants/messaging-gmail-excluded-system-labels.constant';
 import { GmailMessagesImportErrorHandler } from 'src/modules/messaging/message-import-manager/drivers/gmail/services/gmail-messages-import-error-handler.service';
+import { buildGmailMessageRawContent } from 'src/modules/messaging/message-import-manager/drivers/gmail/utils/build-gmail-message-raw-content.util';
 import { filterGmailMessagesByFolderPolicy } from 'src/modules/messaging/message-import-manager/drivers/gmail/utils/filter-gmail-messages-by-folder-policy.util';
 import { parseAndFormatGmailMessage } from 'src/modules/messaging/message-import-manager/drivers/gmail/utils/parse-and-format-gmail-message.util';
 import { type MessageWithParticipants } from 'src/modules/messaging/message-import-manager/types/message.type';
@@ -49,10 +50,44 @@ export class GmailGetMessagesService {
       fetchImplementation: batchedFetchImplementation,
     });
 
+    const gmailMessagesById = new Map<string, gmailV1.Schema$Message>();
+    const attachRawContent = async (messages: MessageWithParticipants[]) => {
+      const messagesWithRawContent = await Promise.all(
+        messages.map(async (message) => {
+          try {
+            const gmailMessage = gmailMessagesById.get(message.externalId);
+
+            if (!isDefined(gmailMessage)) {
+              throw new Error(
+                `Missing fetched Gmail message ${message.externalId}`,
+              );
+            }
+
+            const rawContent = await buildGmailMessageRawContent({
+              gmailClient: batchedGmailClient,
+              message: gmailMessage,
+            });
+
+            return { ...message, rawContent };
+          } catch (error) {
+            this.gmailMessagesImportErrorHandler.handleError(
+              error,
+              message.externalId,
+            );
+
+            return undefined;
+          }
+        }),
+      );
+
+      return messagesWithRawContent.filter(isDefined);
+    };
+
     const fetchedMessages = await this.fetchMessages(
       batchedGmailClient,
       messageIds,
       connectedAccount,
+      gmailMessagesById,
     );
 
     const filteredMessages = filterGmailMessagesByFolderPolicy(
@@ -64,7 +99,7 @@ export class GmailGetMessagesService {
       messageChannel.messageFolderImportPolicy !==
       MessageFolderImportPolicy.SELECTED_FOLDERS
     ) {
-      return filteredMessages;
+      return attachRawContent(filteredMessages);
     }
 
     const syncedLabelIds = (messageChannel.messageFolders ?? [])
@@ -74,7 +109,7 @@ export class GmailGetMessagesService {
       .map((folder) => folder.externalId as string);
 
     if (syncedLabelIds.length === 0) {
-      return filteredMessages;
+      return attachRawContent(filteredMessages);
     }
 
     const fetchedMessageIds = new Set(
@@ -147,6 +182,7 @@ export class GmailGetMessagesService {
             batchedGmailClient,
             missingMessageIds,
             connectedAccount,
+            gmailMessagesById,
           )
         : [];
 
@@ -156,13 +192,14 @@ export class GmailGetMessagesService {
         matchingThreadIds.has(message.messageThreadExternalId),
     );
 
-    return [...includedMessages, ...threadSiblings];
+    return attachRawContent([...includedMessages, ...threadSiblings]);
   }
 
   private async fetchMessages(
     gmailClient: gmailV1.Gmail,
     messageIds: string[],
     connectedAccount: Pick<ConnectedAccountEntity, 'handle' | 'handleAliases'>,
+    gmailMessagesById: Map<string, gmailV1.Schema$Message>,
   ): Promise<MessageWithParticipants[]> {
     const results = await Promise.all(
       messageIds.map((messageId) =>
@@ -181,10 +218,17 @@ export class GmailGetMessagesService {
           return undefined;
         }
 
-        return parseAndFormatGmailMessage(
-          data as gmailV1.Schema$Message,
-          connectedAccount,
-        );
+        if (!isDefined(data)) {
+          return undefined;
+        }
+
+        const message = parseAndFormatGmailMessage(data, connectedAccount);
+
+        if (isDefined(message)) {
+          gmailMessagesById.set(message.externalId, data);
+        }
+
+        return message;
       })
       .filter(isDefined)
       .filter(

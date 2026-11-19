@@ -3,6 +3,7 @@ import { type ActorMetadata } from 'twenty-shared/types';
 import { type MessageDirection } from 'src/modules/messaging/common/enums/message-direction.enum';
 import { type MessageParticipantWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message-participant.workspace-entity';
 import { type MessageWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message.workspace-entity';
+import { type MessageRawContentInput } from 'src/modules/messaging/message-import-manager/types/message-raw-content-input.type';
 
 export type Message = Omit<
   MessageWorkspaceEntity,
@@ -11,6 +12,7 @@ export type Message = Omit<
   | 'deletedAt'
   | 'messageChannelMessageAssociations'
   | 'messageParticipants'
+  | 'messageRawContents'
   | 'messageThread'
   | 'messageThreadId'
   | 'messageFolders'
@@ -30,6 +32,7 @@ export type Message = Omit<
   attachmentFiles?: MessageAttachmentFile[];
   labelIds?: string[];
   messageHeaders?: MessageHeader[];
+  rawContent?: MessageRawContentInput;
 };
 
 export type MessageAttachmentFile = {
