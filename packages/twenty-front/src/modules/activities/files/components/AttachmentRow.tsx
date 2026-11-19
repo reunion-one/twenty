@@ -1,3 +1,4 @@
+import { AttachmentDocumentTypeTag } from '@/activities/files/components/AttachmentDocumentTypeTag';
 import { ActivityRow } from '@/activities/components/ActivityRow';
 import { AttachmentDropdown } from '@/activities/files/components/AttachmentDropdown';
 import { downloadFile } from '@/activities/files/utils/downloadFile';
@@ -235,12 +236,14 @@ export const AttachmentRow = ({
           )}
         </StyledLeftContent>
         <Card.Control render={<StyledRightContent />}>
+          <AttachmentDocumentTypeTag docType={attachment.docType} />
           <StyledCalendarIconContainer>
             <IconCalendar size={theme.icon.size.md} />
           </StyledCalendarIconContainer>
           {formatToHumanReadableDate(attachment.createdAt)}
           <AttachmentDropdown
             attachmentId={attachment.id}
+            docType={attachment.docType}
             onDelete={handleDelete}
             onDownload={handleDownload}
             onRename={handleRename}

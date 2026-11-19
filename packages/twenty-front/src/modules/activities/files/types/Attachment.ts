@@ -7,6 +7,7 @@ export type { AttachmentFileCategory };
 export type Attachment = {
   id: string;
   name: string;
+  docType?: string | null;
   /** @deprecated Use `file[0].url` field instead */
   fullPath: string;
   /** @deprecated Use `file[0].extension` field instead */
