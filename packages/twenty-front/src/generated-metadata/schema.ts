@@ -2802,6 +2802,16 @@ export type FieldsConfiguration = {
   viewId?: Maybe<Scalars['String']['output']>;
 };
 
+export type FieldsFromRelationConfiguration = {
+  __typename?: 'FieldsFromRelationConfiguration';
+  configurationType: WidgetConfigurationType;
+  isReadOnly?: Maybe<Scalars['Boolean']['output']>;
+  newFieldDefaultVisibility?: Maybe<Scalars['Boolean']['output']>;
+  relationFieldMetadataId: Scalars['String']['output'];
+  shouldAllowUserToSeeHiddenFields?: Maybe<Scalars['Boolean']['output']>;
+  viewId?: Maybe<Scalars['String']['output']>;
+};
+
 export type File = {
   __typename?: 'File';
   createdAt: Scalars['DateTime']['output'];
@@ -8976,7 +8986,7 @@ export type Webhook = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
-export type WidgetConfiguration = AggregateChartConfiguration | BarChartConfiguration | CalendarConfiguration | CallRecordingSummaryConfiguration | CallRecordingTranscriptConfiguration | ChatConfiguration | ChatThreadsConfiguration | EmailThreadConfiguration | EmailsConfiguration | FieldConfiguration | FieldRichTextConfiguration | FieldsConfiguration | FilesConfiguration | FormFieldConfiguration | FrontComponentConfiguration | IframeConfiguration | LineChartConfiguration | MessageCampaignBodyConfiguration | MessageCampaignDetailsConfiguration | NotesConfiguration | PieChartConfiguration | RecordTableConfiguration | StandaloneRichTextConfiguration | TasksConfiguration | TimelineConfiguration | ViewConfiguration | WorkflowConfiguration | WorkflowRunConfiguration | WorkflowVersionConfiguration;
+export type WidgetConfiguration = AggregateChartConfiguration | BarChartConfiguration | CalendarConfiguration | CallRecordingSummaryConfiguration | CallRecordingTranscriptConfiguration | ChatConfiguration | ChatThreadsConfiguration | EmailThreadConfiguration | EmailsConfiguration | FieldConfiguration | FieldRichTextConfiguration | FieldsConfiguration | FieldsFromRelationConfiguration | FilesConfiguration | FormFieldConfiguration | FrontComponentConfiguration | IframeConfiguration | LineChartConfiguration | MessageCampaignBodyConfiguration | MessageCampaignDetailsConfiguration | NotesConfiguration | PieChartConfiguration | RecordTableConfiguration | StandaloneRichTextConfiguration | TasksConfiguration | TimelineConfiguration | ViewConfiguration | WorkflowConfiguration | WorkflowRunConfiguration | WorkflowVersionConfiguration;
 
 export enum WidgetConfigurationType {
   AGGREGATE_CHART = 'AGGREGATE_CHART',
@@ -8990,6 +9000,7 @@ export enum WidgetConfigurationType {
   EMAIL_THREAD = 'EMAIL_THREAD',
   FIELD = 'FIELD',
   FIELDS = 'FIELDS',
+  FIELDS_FROM_RELATION = 'FIELDS_FROM_RELATION',
   FIELD_RICH_TEXT = 'FIELD_RICH_TEXT',
   FILES = 'FILES',
   FORM_FIELD = 'FORM_FIELD',
@@ -9020,6 +9031,7 @@ export enum WidgetType {
   EMAIL_THREAD = 'EMAIL_THREAD',
   FIELD = 'FIELD',
   FIELDS = 'FIELDS',
+  FIELDS_FROM_RELATION = 'FIELDS_FROM_RELATION',
   FIELD_RICH_TEXT = 'FIELD_RICH_TEXT',
   FILES = 'FILES',
   FORM_FIELD = 'FORM_FIELD',

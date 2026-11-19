@@ -947,6 +947,30 @@ export class PageLayoutUpdateService {
     const viewIdsToDelete = new Set<string>();
     const directlyRemovedWidgetIds = new Set<string>();
 
+    const updatedWidgetById = new Map(
+      widgetsToUpdate.map((widget) => [widget.id, widget]),
+    );
+    for (const updated of widgetsToUpdate) {
+      const widget = findFlatEntityByIdInFlatEntityMaps({
+        flatEntityId: updated.id,
+        flatEntityMaps: flatPageLayoutWidgetMaps,
+      });
+      if (
+        !isDefined(widget) ||
+        widget.configuration.configurationType !==
+          WidgetConfigurationType.FIELDS_FROM_RELATION
+      ) {
+        continue;
+      }
+      const oldViewId = this.getViewIdFromFieldsWidget(widget);
+      if (
+        isDefined(oldViewId) &&
+        oldViewId !== this.getViewIdFromFieldsWidget(updated)
+      ) {
+        viewIdsToDelete.add(oldViewId);
+      }
+    }
+
     for (const widget of widgetsToDelete) {
       directlyRemovedWidgetIds.add(widget.id);
       const viewId = this.getViewIdFromFieldsWidget(widget);
@@ -1013,7 +1037,9 @@ export class PageLayoutUpdateService {
         !directlyRemovedWidgetIds.has(widget.id) &&
         !removedTabIds.has(widget.pageLayoutTabId)
       ) {
-        const viewId = this.getViewIdFromFieldsWidget(widget);
+        const viewId = this.getViewIdFromFieldsWidget(
+          updatedWidgetById.get(widget.id) ?? widget,
+        );
 
         if (isDefined(viewId)) {
           viewIdsToDelete.delete(viewId);
@@ -1036,7 +1062,10 @@ export class PageLayoutUpdateService {
     widget: FlatPageLayoutWidget,
   ): string | undefined {
     if (
-      widget.configuration.configurationType !== WidgetConfigurationType.FIELDS
+      widget.configuration.configurationType !==
+        WidgetConfigurationType.FIELDS &&
+      widget.configuration.configurationType !==
+        WidgetConfigurationType.FIELDS_FROM_RELATION
     ) {
       return undefined;
     }

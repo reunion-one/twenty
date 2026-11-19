@@ -16,7 +16,8 @@ const getWidgetMinimumSize = (widget: PageLayoutWidget) => {
 
   if (
     isDefined(widget.configuration) &&
-    widget.configuration.__typename !== 'FieldsConfiguration'
+    widget.configuration.__typename !== 'FieldsConfiguration' &&
+    widget.configuration.__typename !== 'FieldsFromRelationConfiguration'
   ) {
     return getWidgetSize(widget.configuration.configurationType, 'minimum');
   }

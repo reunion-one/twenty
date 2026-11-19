@@ -11,6 +11,7 @@ import {
   type EmailsConfiguration,
   type FieldRichTextConfiguration,
   type FieldsConfiguration,
+  type FieldsFromRelationConfiguration,
   type FilesConfiguration,
   type FormFieldConfiguration,
   type FrontComponentConfiguration,
@@ -101,6 +102,12 @@ type WidgetConfigurationTypenameMap = {
     'configurationType'
   > & {
     configurationType: WidgetConfigurationType.FIELD_RICH_TEXT;
+  };
+  FieldsFromRelationConfiguration: Omit<
+    FieldsFromRelationConfiguration,
+    'configurationType'
+  > & {
+    configurationType: WidgetConfigurationType.FIELDS_FROM_RELATION;
   };
   FieldsConfiguration: Omit<FieldsConfiguration, 'configurationType'> & {
     configurationType: WidgetConfigurationType.FIELDS;

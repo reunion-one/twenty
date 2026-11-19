@@ -149,3 +149,25 @@ describe('fromPageLayoutWidgetConfigurationToUniversalConfiguration', () => {
     });
   });
 });
+
+describe('fields from relation configuration @custom', () => {
+  it('serializes the relation using its universal identifier', () => {
+    expect(
+      fromPageLayoutWidgetConfigurationToUniversalConfiguration({
+        configuration: {
+          configurationType: WidgetConfigurationType.FIELDS_FROM_RELATION,
+          relationFieldMetadataId: RELATION_FIELD_ID,
+          newFieldDefaultVisibility: false,
+          viewId: null,
+        },
+        fieldMetadataUniversalIdentifierById,
+      }),
+    ).toEqual({
+      configurationType: WidgetConfigurationType.FIELDS_FROM_RELATION,
+      relationFieldMetadataUniversalIdentifier:
+        RELATION_FIELD_UNIVERSAL_IDENTIFIER,
+      newFieldDefaultVisibility: false,
+      viewUniversalIdentifier: null,
+    });
+  });
+});

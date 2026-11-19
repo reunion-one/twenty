@@ -1,0 +1,167 @@
+import { getFieldPermissions } from '@/object-metadata/utils/getFieldPermissions';
+import { getObjectPermissionsForObject } from '@/object-metadata/utils/getObjectPermissionsForObject';
+import { useObjectMetadataItems } from '@/object-metadata/hooks/useObjectMetadataItems';
+import { type EnrichedObjectMetadataItem } from '@/object-metadata/types/EnrichedObjectMetadataItem';
+import { type FieldMetadataItem } from '@/object-metadata/types/FieldMetadataItem';
+import { formatFieldMetadataItemAsColumnDefinition } from '@/object-metadata/utils/formatFieldMetadataItemAsColumnDefinition';
+import { useRecordRestrictedFieldNames } from '@/object-record/record-store/hooks/useRecordRestrictedFieldNames';
+import { useObjectPermissions } from '@/object-record/hooks/useObjectPermissions';
+import { useUpdateOneRecord } from '@/object-record/hooks/useUpdateOneRecord';
+import { useIsRecordFieldReadOnly } from '@/object-record/read-only/hooks/useIsRecordFieldReadOnly';
+import {
+  FieldContext,
+  type RecordUpdateHook,
+  type RecordUpdateHookParams,
+} from '@/object-record/record-field/ui/contexts/FieldContext';
+import { FieldFocusStaticFocusedProvider } from '@/object-record/record-field/ui/contexts/FieldFocusContextProvider';
+import { RecordFieldComponentInstanceContext } from '@/object-record/record-field/ui/states/contexts/RecordFieldComponentInstanceContext';
+import { isJunctionRelationForbidden } from '@/object-record/record-field/ui/utils/junction/isJunctionRelationForbidden';
+import { RecordInlineCellAnchoredPortalContext } from '@/object-record/record-inline-cell/components/RecordInlineCellAnchoredPortalContext';
+import { RecordInlineCellCloseOnSidePanelOpeningEffect } from '@/object-record/record-inline-cell/components/RecordInlineCellCloseOnSidePanelOpeningEffect';
+import { getRecordFieldInputInstanceId } from '@/object-record/utils/getRecordFieldInputId';
+import { createPortal } from 'react-dom';
+import {
+  canAccessThroughAllRecordsOrRlsPermission,
+  isDefined,
+} from 'twenty-shared/utils';
+
+type FieldsFromRelationInlineCellAnchoredPortalProps = {
+  fieldMetadataItem: Pick<
+    FieldMetadataItem,
+    | 'id'
+    | 'universalIdentifier'
+    | 'name'
+    | 'type'
+    | 'createdAt'
+    | 'updatedAt'
+    | 'label'
+    | 'settings'
+    | 'relation'
+  >;
+  objectMetadataItem: EnrichedObjectMetadataItem;
+  recordId: string;
+  instanceIdPrefix: string;
+  children: React.ReactNode;
+  isReadOnly: boolean;
+  isEditing?: boolean;
+  onCloseEditMode?: () => void;
+};
+
+export const FieldsFromRelationInlineCellAnchoredPortal = ({
+  fieldMetadataItem,
+  objectMetadataItem,
+  recordId,
+  instanceIdPrefix,
+  children,
+  isReadOnly,
+  isEditing = false,
+  onCloseEditMode,
+}: FieldsFromRelationInlineCellAnchoredPortalProps) => {
+  const fieldInstanceId = getRecordFieldInputInstanceId({
+    recordId,
+    fieldName: fieldMetadataItem.name,
+    prefix: instanceIdPrefix,
+  });
+
+  const anchorElement = document.getElementById(fieldInstanceId);
+
+  const isRecordFieldReadOnly = useIsRecordFieldReadOnly({
+    fieldMetadataId: fieldMetadataItem.id,
+    objectMetadataId: objectMetadataItem.id,
+    recordId: recordId ?? '',
+  });
+
+  const { objectPermissionsByObjectMetadataId } = useObjectPermissions();
+  const { objectMetadataItems } = useObjectMetadataItems();
+
+  const restrictedFieldNames = useRecordRestrictedFieldNames(recordId ?? '');
+
+  const objectPermissions = getObjectPermissionsForObject(
+    objectPermissionsByObjectMetadataId,
+    objectMetadataItem.id,
+  );
+  const isFieldRestricted =
+    restrictedFieldNames.includes(fieldMetadataItem.name) ||
+    !canAccessThroughAllRecordsOrRlsPermission({
+      objectRecordsPermissions: objectPermissions,
+      operationType: 'read',
+    }) ||
+    !getFieldPermissions({
+      objectPermissions,
+      fieldMetadataId: fieldMetadataItem.id,
+    }).canReadField;
+
+  const isForbidden =
+    isFieldRestricted ||
+    isJunctionRelationForbidden({
+      fieldMetadataItem,
+      sourceObjectMetadataId: objectMetadataItem.id,
+      objectMetadataItems,
+      objectPermissionsByObjectMetadataId,
+    });
+
+  const { updateOneRecord } = useUpdateOneRecord();
+
+  const useUpdateOneObjectRecordMutation: RecordUpdateHook = () => {
+    const updateEntity = ({ variables }: RecordUpdateHookParams) => {
+      updateOneRecord({
+        objectNameSingular: objectMetadataItem.nameSingular,
+        idToUpdate: variables.where.id as string,
+        updateOneRecordInput: variables.updateOneRecordInput,
+      });
+    };
+
+    return [updateEntity, { loading: false }];
+  };
+
+  if (isEditing && (isReadOnly || isRecordFieldReadOnly || isForbidden)) {
+    return null;
+  }
+
+  if (!isDefined(anchorElement) || !isDefined(recordId)) {
+    return null;
+  }
+
+  return (
+    <FieldFocusStaticFocusedProvider>
+      <FieldContext.Provider
+        key={recordId + fieldMetadataItem.id}
+        value={{
+          recordId,
+          maxWidth: 200,
+          isLabelIdentifier: false,
+          fieldDefinition: formatFieldMetadataItemAsColumnDefinition({
+            field: fieldMetadataItem,
+            position: 0,
+            objectMetadataItem,
+            showLabel: true,
+            labelWidth: 90,
+          }),
+          useUpdateRecord: useUpdateOneObjectRecordMutation,
+          isDisplayModeFixHeight: true,
+          isRecordFieldReadOnly:
+            isReadOnly || isForbidden || isRecordFieldReadOnly,
+          isForbidden,
+          onCloseEditMode,
+        }}
+      >
+        <>
+          {createPortal(
+            <RecordFieldComponentInstanceContext.Provider
+              value={{
+                instanceId: fieldInstanceId,
+              }}
+            >
+              <RecordInlineCellAnchoredPortalContext>
+                {children}
+
+                <RecordInlineCellCloseOnSidePanelOpeningEffect />
+              </RecordInlineCellAnchoredPortalContext>
+            </RecordFieldComponentInstanceContext.Provider>,
+            anchorElement,
+          )}
+        </>
+      </FieldContext.Provider>
+    </FieldFocusStaticFocusedProvider>
+  );
+};
