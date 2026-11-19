@@ -7,6 +7,9 @@ const mockNavigateToMoreWidgets = jest.fn();
 const mockCreateRecordPageNoteWidget = jest.fn(() => ({ id: 'new-note' }));
 const mockCreateRecordPageFieldWidget = jest.fn(() => ({ id: 'new-field' }));
 const mockCreateRecordPageFieldsWidget = jest.fn(() => ({ id: 'new-fields' }));
+const mockCreateFieldsFromRelationWidget = jest.fn(() => ({
+  id: 'new-related-fields',
+}));
 const mockInsertCreatedWidgetAtContext = jest.fn();
 
 jest.mock('twenty-ui/icon', () => ({
@@ -35,6 +38,15 @@ jest.mock('@/page-layout/hooks/useCreateRecordPageFieldsWidget', () => ({
     createRecordPageFieldsWidget: mockCreateRecordPageFieldsWidget,
   }),
 }));
+
+jest.mock(
+  '@/page-layout/widgets/fields-from-relation/hooks/useCreateFieldsFromRelationWidget',
+  () => ({
+    useCreateFieldsFromRelationWidget: () => ({
+      createFieldsFromRelationWidget: mockCreateFieldsFromRelationWidget,
+    }),
+  }),
+);
 
 jest.mock('@/page-layout/hooks/useInsertCreatedWidgetAtContext', () => ({
   useInsertCreatedWidgetAtContext: () => ({
@@ -85,6 +97,7 @@ describe('RecordPageAddWidgetSection', () => {
 
   it.each([
     ['Fields group', 'new-fields'],
+    ['Fields from relation', 'new-related-fields'],
     ['Field', 'new-field'],
     ['Note', 'new-note'],
   ])(

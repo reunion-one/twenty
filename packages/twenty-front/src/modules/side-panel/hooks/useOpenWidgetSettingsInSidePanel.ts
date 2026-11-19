@@ -78,6 +78,18 @@ export const useOpenWidgetSettingsInSidePanel = (
         return;
       }
 
+      if (widgetType === WidgetType.FIELDS_FROM_RELATION) {
+        if (!isDashboardPageLayout) {
+          navigatePageLayoutSidePanel({
+            sidePanelPage: SidePanelPages.FieldsFromRelationSettings,
+            pageTitle: t`Fields from relation`,
+            resetNavigationStack: true,
+          });
+          setPageLayoutEditingWidgetId(widgetId);
+        }
+        return;
+      }
+
       if (widgetType === WidgetType.FIELDS) {
         if (!isDashboardPageLayout) {
           navigatePageLayoutSidePanel({

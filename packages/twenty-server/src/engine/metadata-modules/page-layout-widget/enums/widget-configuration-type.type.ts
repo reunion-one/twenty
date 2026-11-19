@@ -14,6 +14,7 @@ export enum WidgetConfigurationType {
   VIEW = 'VIEW',
   FIELD = 'FIELD',
   FIELDS = 'FIELDS',
+  FIELDS_FROM_RELATION = 'FIELDS_FROM_RELATION',
   TIMELINE = 'TIMELINE',
   TASKS = 'TASKS',
   NOTES = 'NOTES',

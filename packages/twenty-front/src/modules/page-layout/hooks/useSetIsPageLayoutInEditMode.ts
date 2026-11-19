@@ -1,3 +1,6 @@
+import { fieldsWidgetEditorModePersistedComponentState } from '@/page-layout/states/fieldsWidgetEditorModePersistedComponentState';
+import { fieldsWidgetUngroupedFieldsPersistedComponentState } from '@/page-layout/states/fieldsWidgetUngroupedFieldsPersistedComponentState';
+import { fieldsWidgetGroupsPersistedComponentState } from '@/page-layout/states/fieldsWidgetGroupsPersistedComponentState';
 import { isLayoutCustomizationModeEnabledState } from '@/layout-customization/states/isLayoutCustomizationModeEnabledState';
 import { PageLayoutComponentInstanceContext } from '@/page-layout/states/contexts/PageLayoutComponentInstanceContext';
 import { currentPageLayoutIdState } from '@/page-layout/states/currentPageLayoutIdState';
@@ -76,6 +79,24 @@ export const useSetIsPageLayoutInEditMode = (pageLayoutIdFromProps: string) => {
       if (value) {
         store.set(pageLayoutEditingWidgetIdState, null);
         store.set(fieldsWidgetGroupsDraftState, {});
+        store.set(
+          fieldsWidgetGroupsPersistedComponentState.atomFamily({
+            instanceId: pageLayoutId,
+          }),
+          {},
+        );
+        store.set(
+          fieldsWidgetUngroupedFieldsPersistedComponentState.atomFamily({
+            instanceId: pageLayoutId,
+          }),
+          {},
+        );
+        store.set(
+          fieldsWidgetEditorModePersistedComponentState.atomFamily({
+            instanceId: pageLayoutId,
+          }),
+          {},
+        );
         store.set(fieldsWidgetUngroupedFieldsDraftState, {});
         store.set(fieldsWidgetEditorModeDraftState, {});
         store.set(hasInitializedFieldsWidgetGroupsDraftState, {});

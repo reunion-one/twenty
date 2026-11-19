@@ -1,3 +1,6 @@
+import { fieldsWidgetEditorModePersistedComponentState } from '@/page-layout/states/fieldsWidgetEditorModePersistedComponentState';
+import { fieldsWidgetUngroupedFieldsPersistedComponentState } from '@/page-layout/states/fieldsWidgetUngroupedFieldsPersistedComponentState';
+import { fieldsWidgetGroupsPersistedComponentState } from '@/page-layout/states/fieldsWidgetGroupsPersistedComponentState';
 import { useApolloClient } from '@apollo/client/react';
 import { useStore } from 'jotai';
 import { useCallback } from 'react';
@@ -93,6 +96,24 @@ export const useRefreshPageLayoutAfterReset = (
     }
 
     store.set(fieldsWidgetGroupsDraftState, {});
+    store.set(
+      fieldsWidgetGroupsPersistedComponentState.atomFamily({
+        instanceId: pageLayoutId,
+      }),
+      {},
+    );
+    store.set(
+      fieldsWidgetUngroupedFieldsPersistedComponentState.atomFamily({
+        instanceId: pageLayoutId,
+      }),
+      {},
+    );
+    store.set(
+      fieldsWidgetEditorModePersistedComponentState.atomFamily({
+        instanceId: pageLayoutId,
+      }),
+      {},
+    );
     store.set(fieldsWidgetUngroupedFieldsDraftState, {});
     store.set(fieldsWidgetEditorModeDraftState, {});
     store.set(hasInitializedFieldsWidgetGroupsDraftState, {});

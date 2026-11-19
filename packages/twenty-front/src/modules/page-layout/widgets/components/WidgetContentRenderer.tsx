@@ -1,3 +1,4 @@
+import { FieldsFromRelationWidget } from '@/page-layout/widgets/fields-from-relation/components/FieldsFromRelationWidget';
 import { type PageLayoutWidget } from '@/page-layout/types/PageLayoutWidget';
 import { CalendarWidget } from '@/page-layout/widgets/calendar/components/CalendarWidget';
 import { CallRecordingWidget } from '@/page-layout/widgets/call-recording/components/CallRecordingWidget';
@@ -38,6 +39,9 @@ export const WidgetContentRenderer = ({
 
     case WidgetType.FIELD:
       return <FieldWidget widget={widget} />;
+
+    case WidgetType.FIELDS_FROM_RELATION:
+      return <FieldsFromRelationWidget widget={widget} />;
 
     case WidgetType.FIELDS:
       return <FieldsWidget widget={widget} />;
