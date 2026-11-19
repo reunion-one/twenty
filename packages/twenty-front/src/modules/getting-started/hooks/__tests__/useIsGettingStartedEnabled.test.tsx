@@ -16,7 +16,7 @@ const Wrapper = ({ children }: { children: ReactNode }) => (
 
 describe('useIsGettingStartedEnabled', () => {
   it.each([
-    { isFeatureFlagEnabled: true, isBillingEnabled: true, expected: true },
+    { isFeatureFlagEnabled: true, isBillingEnabled: true, expected: false },
     { isFeatureFlagEnabled: true, isBillingEnabled: false, expected: false },
     { isFeatureFlagEnabled: false, isBillingEnabled: true, expected: false },
   ])(
@@ -43,4 +43,23 @@ describe('useIsGettingStartedEnabled', () => {
       expect(result.current).toBe(expected);
     },
   );
+
+  it('stays disabled even with the flag and billing on @custom', () => {
+    jotaiStore.set(currentWorkspaceState.atom, {
+      ...mockCurrentWorkspace,
+      featureFlags: [
+        { key: FeatureFlagKey.IS_GETTING_STARTED_ENABLED, value: true },
+      ],
+    });
+    jotaiStore.set(billingState.atom, {
+      ...mockedClientConfig.billing,
+      isBillingEnabled: true,
+    });
+
+    const { result } = renderHook(() => useIsGettingStartedEnabled(), {
+      wrapper: Wrapper,
+    });
+
+    expect(result.current).toBe(false);
+  });
 });

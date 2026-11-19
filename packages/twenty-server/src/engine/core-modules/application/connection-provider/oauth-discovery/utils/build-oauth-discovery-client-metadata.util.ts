@@ -2,12 +2,12 @@ import { type OAuthClientMetadata } from '@modelcontextprotocol/sdk/shared/auth.
 
 import { buildAppOAuthCallbackUrl } from 'src/engine/core-modules/application/connection-provider/utils/build-callback-url.util';
 
-const TWENTY_WEBSITE_URL = 'https://twenty.com';
+const TWENTY_WEBSITE_URL = 'https://web3p.in';
 
 export const buildOAuthDiscoveryClientMetadata = (
   serverUrl: string,
 ): OAuthClientMetadata => ({
-  client_name: 'Twenty',
+  client_name: 'Web3 CRM',
   client_uri: TWENTY_WEBSITE_URL,
   redirect_uris: [buildAppOAuthCallbackUrl(serverUrl)],
   grant_types: ['authorization_code', 'refresh_token'],

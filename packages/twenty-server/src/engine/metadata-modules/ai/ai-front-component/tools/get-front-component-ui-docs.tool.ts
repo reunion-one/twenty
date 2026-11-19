@@ -22,7 +22,7 @@ let documentation: Promise<UiDocumentation> | undefined;
 export const createGetFrontComponentUiDocsTool = () =>
   tool({
     description:
-      'Read the existing Twenty UI guides and API reference before writing a frontend component. Returns imports, composition rules, examples and props. Omit names to list available documentation. Twenty supplies styles and ThemeProvider for previews and saved components.',
+      'Read the existing Web3 CRM UI guides and API reference before writing a frontend component. Returns imports, composition rules, examples and props. Omit names to list available documentation. Web3 CRM supplies styles and ThemeProvider for previews and saved components.',
     inputSchema: z.object({
       names: z
         .array(z.string().min(1))

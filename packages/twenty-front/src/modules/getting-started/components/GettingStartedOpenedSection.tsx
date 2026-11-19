@@ -1,3 +1,4 @@
+import { useIsGettingStartedEnabled } from '@/getting-started/hooks/useIsGettingStartedEnabled';
 import { NavigationDrawerAnimatedCollapseWrapper } from '@/ui/navigation/navigation-drawer/components/NavigationDrawerAnimatedCollapseWrapper';
 import { NavigationDrawerItem } from '@/ui/navigation/navigation-drawer/components/NavigationDrawerItem';
 import { NavigationDrawerSection } from '@/ui/navigation/navigation-drawer/components/NavigationDrawerSection';
@@ -10,11 +11,12 @@ import { IconRocket, type TablerIconsProps } from 'twenty-ui/icon';
 import { useTheme } from 'twenty-ui/theme';
 
 export const GettingStartedOpenedSection = () => {
+  const isGettingStartedEnabled = useIsGettingStartedEnabled();
   const { t } = useLingui();
   const theme = useTheme();
   const isGettingStartedPageOpen = isDefined(useMatch(AppPath.GettingStarted));
 
-  if (!isGettingStartedPageOpen) {
+  if (!isGettingStartedEnabled || !isGettingStartedPageOpen) {
     return null;
   }
 

@@ -47,7 +47,7 @@ export const AuthorizeClientIdentityNotice = ({
             <IconCircleCheck aria-hidden="true" size={theme.icon.size.sm} />
           </StyledVerifiedIcon>
           <Text size="sm" color="secondary">
-            <Trans>Registered with Twenty as the official {appName}</Trans>
+            <Trans>Registered with Web3 CRM as the official {appName}</Trans>
           </Text>
         </StyledVerifiedNotice>
       </Tooltip>
@@ -65,7 +65,7 @@ export const AuthorizeClientIdentityNotice = ({
         icon={<IconAlertTriangle aria-hidden="true" />}
       >
         <Trans>
-          This app calls itself {appName}, but Twenty could not confirm it is.
+          This app calls itself {appName}, but Web3 CRM could not confirm it is.
           Only continue if you started this connection from {appName}.
         </Trans>
       </InlineBanner>

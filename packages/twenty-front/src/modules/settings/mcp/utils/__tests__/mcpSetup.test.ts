@@ -73,14 +73,14 @@ describe('buildClaudeInstallLink', () => {
       true,
     );
     expect(params.get('modal')).toBe('add-custom-connector');
-    expect(params.get('connectorName')).toBe('Twenty');
+    expect(params.get('connectorName')).toBe('Web3 CRM');
     expect(params.get('connectorUrl')).toBe(mcpServerUrl);
   });
 
   it.each([
-    ['Acme', 'Twenty (Acme)'],
-    ['  Acme  ', 'Twenty (Acme)'],
-    ['   ', 'Twenty'],
+    ['Acme', 'Web3 CRM (Acme)'],
+    ['  Acme  ', 'Web3 CRM (Acme)'],
+    ['   ', 'Web3 CRM'],
   ])(
     'names the connector after the workspace "%s"',
     (workspaceName, connectorName) => {
@@ -132,7 +132,7 @@ describe('buildGooseInstallLink', () => {
     expect(link.startsWith('goose://extension?')).toBe(true);
     expect(params.get('type')).toBe('streamable_http');
     expect(params.get('id')).toBe('twenty');
-    expect(params.get('name')).toBe('Twenty');
+    expect(params.get('name')).toBe('Web3 CRM');
     expect(params.get('url')).toBe(mcpServerUrl);
     expect(params.get('header')).toBe('Authorization=Bearer <YOUR_API_KEY>');
   });
@@ -144,7 +144,7 @@ describe('buildReplitInstallLink', () => {
 
     expect(link.startsWith('https://replit.com/integrations?')).toBe(true);
     expect(decodeBase64JsonParam(link, 'mcp')).toEqual({
-      displayName: 'Twenty',
+      displayName: 'Web3 CRM',
       baseUrl: mcpServerUrl,
       headers: [
         {

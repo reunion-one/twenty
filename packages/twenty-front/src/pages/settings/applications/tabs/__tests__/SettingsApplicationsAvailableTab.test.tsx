@@ -14,7 +14,7 @@ jest.mock('@/marketplace/hooks/useMarketplaceApps', () => ({
         id: 'listed-app',
         name: 'Listed app',
         description: '',
-        author: 'Twenty',
+        author: 'Web3 CRM',
         category: '',
         logoUrl: null,
         sourcePackage: '@twentyhq/listed-app',
@@ -50,7 +50,7 @@ jest.mock(
 );
 
 const UNLISTED_WARNING =
-  'Applications below have not been reviewed by Twenty. Use at your own risk.';
+  'Applications below have not been reviewed by Web3 CRM. Use at your own risk.';
 
 const renderTab = () =>
   render(
