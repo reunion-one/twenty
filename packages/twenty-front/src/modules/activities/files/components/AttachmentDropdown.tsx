@@ -1,3 +1,4 @@
+import { AttachmentDocumentTypeSubmenu } from '@/activities/files/components/AttachmentDocumentTypeSubmenu';
 import { useLingui } from '@lingui/react/macro';
 import {
   IconDotsVertical,
@@ -13,6 +14,7 @@ import { Dropdown } from 'twenty-ui/components/navigation';
 
 type AttachmentDropdownProps = {
   attachmentId: string;
+  docType?: string | null;
   onDownload: () => void;
   onDelete: () => void;
   onRename: () => void;
@@ -21,6 +23,7 @@ type AttachmentDropdownProps = {
 
 export const AttachmentDropdown = ({
   attachmentId,
+  docType,
   onDownload,
   onDelete,
   onRename,
@@ -50,6 +53,10 @@ export const AttachmentDropdown = ({
               {t`Download`}
             </Dropdown.ActionItem>
           )}
+          <AttachmentDocumentTypeSubmenu
+            attachmentId={attachmentId}
+            docType={docType}
+          />
           <Dropdown.ActionItem startIcon={<IconPencil />} onClick={onRename}>
             {t`Rename`}
           </Dropdown.ActionItem>
