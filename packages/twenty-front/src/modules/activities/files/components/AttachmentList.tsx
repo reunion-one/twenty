@@ -27,6 +27,7 @@ import { useLingui } from '@lingui/react/macro';
 type AttachmentListProps = {
   targetableObject: ActivityTargetableObject;
   attachments: Attachment[];
+  onUploadFiles?: (files: File[]) => Promise<void>;
 };
 
 const StyledContainer = styled.div`
@@ -67,6 +68,7 @@ const PREVIEW_MODAL_ID = 'preview-modal';
 export const AttachmentList = ({
   targetableObject,
   attachments,
+  onUploadFiles: onUploadFilesOverride,
 }: AttachmentListProps) => {
   const { t } = useLingui();
   const { uploadAttachmentFile } = useUploadAttachmentFile();
@@ -131,7 +133,7 @@ export const AttachmentList = ({
             {isDraggingFile && hasUploadPermission ? (
               <DropZone
                 setIsDraggingFile={setIsDraggingFile}
-                onUploadFiles={onUploadFiles}
+                onUploadFiles={onUploadFilesOverride ?? onUploadFiles}
               />
             ) : (
               <ActivityList>

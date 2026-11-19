@@ -1,6 +1,6 @@
 import { SkeletonLoader } from '@/activities/components/SkeletonLoader';
 import { AttachmentList } from '@/activities/files/components/AttachmentList';
-import { AttachmentUploadTrigger } from '@/activities/files/components/AttachmentUploadTrigger';
+import { AttachmentDocumentTypeUploadTrigger } from '@/activities/files/components/AttachmentDocumentTypeUploadTrigger';
 import { DropZone } from '@/activities/files/components/DropZone';
 import { type Attachment } from '@/activities/files/types/Attachment';
 import { type ActivityTargetableObject } from '@/activities/types/ActivityTargetableEntity';
@@ -71,15 +71,19 @@ export const FilesCardContent = ({
               </EmptyState.Description>
             </EmptyState.Content>
             {canUploadFiles && (
-              <AttachmentUploadTrigger targetableObject={targetRecord}>
-                {({ openFilePicker }) => (
+              <AttachmentDocumentTypeUploadTrigger
+                targetableObject={targetRecord}
+              >
+                {({ openFilePicker, disabled, describedById }) => (
                   <Button
                     startIcon={<IconPlus />}
                     onClick={openFilePicker}
+                    disabled={disabled}
+                    aria-describedby={describedById}
                     variant="outline"
                   >{t`Add file`}</Button>
                 )}
-              </AttachmentUploadTrigger>
+              </AttachmentDocumentTypeUploadTrigger>
             )}
           </EmptyState.Root>
         )}
@@ -92,6 +96,7 @@ export const FilesCardContent = ({
       <AttachmentList
         targetableObject={targetRecord}
         attachments={attachments}
+        onUploadFiles={onUploadFiles}
       />
     </StyledAttachmentsContainer>
   );

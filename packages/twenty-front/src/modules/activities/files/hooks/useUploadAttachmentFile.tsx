@@ -29,6 +29,7 @@ export const useUploadAttachmentFile = () => {
   const uploadAttachmentFile = async (
     file: File,
     targetableObject: ActivityTargetableObject,
+    docType?: string | null,
   ) => {
     assertIsDefinedOrThrow(
       filesFieldMetadataId,
@@ -49,6 +50,7 @@ export const useUploadAttachmentFile = () => {
     });
 
     const attachmentToCreate = {
+      ...(docType !== undefined && { docType }),
       name: file.name,
       [targetableObjectFieldIdName]: targetableObject.id,
       file: [
