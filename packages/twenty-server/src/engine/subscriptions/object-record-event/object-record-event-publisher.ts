@@ -1,3 +1,4 @@
+import { CommonResultGettersService } from 'src/engine/api/common/common-result-getters/common-result-getters.service';
 import { type WorkspaceAuthContext } from 'src/engine/core-modules/auth/types/workspace-auth-context.type';
 import { Injectable, Logger } from '@nestjs/common';
 
@@ -53,6 +54,7 @@ export class ObjectRecordEventPublisher {
     private readonly subscriptionService: SubscriptionService,
     private readonly eventStreamService: EventStreamService,
     private readonly workspaceCacheService: WorkspaceCacheService,
+    private readonly commonResultGettersService: CommonResultGettersService,
     private readonly processNestedRelationsHelper: ProcessNestedRelationsHelper,
     private readonly workspaceManyOrAllFlatEntityMapsCacheService: WorkspaceManyOrAllFlatEntityMapsCacheService,
     private readonly commonSelectFieldsBuilder: CommonSelectFieldsBuilder,
@@ -342,6 +344,19 @@ export class ObjectRecordEventPublisher {
           selectedFields: selectedFieldsResult.select,
         }),
       resolvedSubscriberAuthContext,
+    );
+
+    const processedRecords =
+      await this.commonResultGettersService.processRecordArray(
+        allRecords,
+        objectMetadata,
+        flatObjectMetadataMaps,
+        flatFieldMetadataMaps,
+        workspaceId,
+      );
+
+    processedRecords.forEach((processedRecord, index) =>
+      Object.assign(allRecords[index], processedRecord),
     );
   }
 
