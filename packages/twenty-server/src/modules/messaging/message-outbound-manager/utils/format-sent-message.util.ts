@@ -63,6 +63,9 @@ export const formatSentMessage = ({
     attachmentFiles,
     participants,
     isDraft: false,
+    ...(isDefined(input.sendResult.rawContent)
+      ? { rawContent: input.sendResult.rawContent }
+      : {}),
     ...(isDefined(input.createdBy) ? { createdBy: input.createdBy } : {}),
   };
 };

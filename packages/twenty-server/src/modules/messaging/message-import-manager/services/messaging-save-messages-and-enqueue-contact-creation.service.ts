@@ -27,6 +27,7 @@ import {
 import { MessagingMessageAttachmentService } from 'src/modules/messaging/message-import-manager/services/messaging-message-attachment.service';
 import { MessagingMessageFolderAssociationService } from 'src/modules/messaging/message-import-manager/services/messaging-message-folder-association.service';
 import { MessagingMessageService } from 'src/modules/messaging/message-import-manager/services/messaging-message.service';
+import { MessagingMessageRawContentService } from 'src/modules/messaging/message-import-manager/services/messaging-message-raw-content.service';
 import { type MessageChannelMessageAssociationFolderAssociation } from 'src/modules/messaging/message-import-manager/types/message-channel-message-association-folder-association.type';
 import { type MessageFolderLinkUpdate } from 'src/modules/messaging/message-import-manager/types/message-folder-link-update.type';
 import { type MessageParticipantWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message-participant.workspace-entity';
@@ -45,6 +46,7 @@ export class MessagingSaveMessagesAndEnqueueContactCreationService {
     private readonly messageParticipantService: MessagingMessageParticipantService,
     private readonly messageFolderAssociationService: MessagingMessageFolderAssociationService,
     private readonly messageAttachmentService: MessagingMessageAttachmentService,
+    private readonly messageRawContentService: MessagingMessageRawContentService,
     private readonly workspaceOrmManager: WorkspaceOrmManager,
   ) {}
 
@@ -253,6 +255,13 @@ export class MessagingSaveMessagesAndEnqueueContactCreationService {
               ];
             }),
             workspaceId,
+            transactionScope,
+          });
+
+          await this.messageRawContentService.saveMessageRawContents({
+            messages: messagesToSave,
+            messageExternalIdsAndIdsMap,
+            messageExternalIdToMessageChannelMessageAssociationIdMap,
             transactionScope,
           });
 

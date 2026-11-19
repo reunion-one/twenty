@@ -1009,6 +1009,57 @@ export const STANDARD_FLAT_OBJECT_METADATA_BUILDERS_BY_OBJECT_NAME = {
       twentyStandardApplicationId,
       now,
     }),
+  messageRawContent: ({
+    now,
+    workspaceId,
+    standardObjectMetadataRelatedEntityIds,
+    twentyStandardApplicationId,
+    dependencyFlatEntityMaps,
+  }: Omit<
+    CreateStandardObjectArgs<'messageRawContent'>,
+    'context' | 'objectName'
+  >) =>
+    createStandardObjectFlatMetadata({
+      objectName: 'messageRawContent',
+      dependencyFlatEntityMaps,
+      context: {
+        universalIdentifier:
+          STANDARD_OBJECTS.messageRawContent.universalIdentifier,
+        nameSingular: 'messageRawContent',
+        namePlural: 'messageRawContents',
+        labelSingular: i18nLabel(
+          msg({
+            message: `Message Raw Content`,
+            context: 'objectMetadata.labelSingular',
+          }),
+        ),
+        labelPlural: i18nLabel(
+          msg({
+            message: `Message Raw Contents`,
+            context: 'objectMetadata.labelPlural',
+          }),
+        ),
+        description: i18nLabel(
+          msg({
+            message: `Provider raw content of a message for one message channel`,
+            context: 'objectMetadata.description',
+          }),
+        ),
+        icon: 'IconFileCode',
+        isSystem: true,
+        isSearchable: false,
+        isAuditLogged: false,
+        isUIEditable: false,
+        isUICreatable: false,
+        disabledObjectPermissionActions:
+          PLATFORM_WRITTEN_DISABLED_OBJECT_PERMISSION_ACTIONS,
+        labelIdentifierFieldMetadataName: 'id',
+      },
+      workspaceId,
+      standardObjectMetadataRelatedEntityIds,
+      twentyStandardApplicationId,
+      now,
+    }),
   messageParticipant: ({
     now,
     workspaceId,

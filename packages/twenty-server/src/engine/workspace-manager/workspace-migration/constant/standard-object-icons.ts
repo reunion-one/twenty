@@ -18,6 +18,7 @@ export const STANDARD_OBJECT_ICONS = {
   dashboard: 'IconLayoutDashboard',
   auditLog: 'IconTimelineEvent',
   messageChannelMessageAssociation: 'IconMessage',
+  messageRawContent: 'IconFileCode',
   messageParticipant: 'IconUserCircle',
   messageThread: 'IconMessage',
   messageThreadTarget: 'IconMessage',
