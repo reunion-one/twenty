@@ -11,6 +11,7 @@ import { RecordTableWidgetRendererContent } from '@/page-layout/widgets/record-t
 import { getFieldWidgetJunctionCreateThrough } from '@/page-layout/widgets/field/utils/getFieldWidgetJunctionCreateThrough';
 import { getFieldWidgetNestedRelationCreateThrough } from '@/page-layout/widgets/field/utils/getFieldWidgetNestedRelationCreateThrough';
 import { isFieldWidget } from '@/page-layout/widgets/field/utils/isFieldWidget';
+import { resolveFieldWidgetRelationTableObjectMetadataId } from '@/page-layout/widgets/field/utils/resolveFieldWidgetRelationTableObjectMetadataId';
 import { resolveFieldWidgetNestedRelation } from '@/page-layout/widgets/field/utils/resolveFieldWidgetNestedRelation';
 import { useCurrentWidget } from '@/page-layout/widgets/hooks/useCurrentWidget';
 import { useWorkspaceSurface } from '@/ui/layout/hooks/useWorkspaceSurface';
@@ -104,27 +105,16 @@ export const FieldWidgetRelationTable = ({
     isDefined(junctionTableObjectMetadataId) &&
     junctionTableObjectMetadataId === junctionTargetObjectMetadataId;
 
-  // A broken chain or a view of another object renders nothing, not records the title doesn't claim.
-  const directTableObjectMetadataId =
-    junctionTableObjectMetadataId ?? relationObjectMetadataId;
-
-  const isPersistedViewOnAnotherObject =
-    isDefined(persistedView) &&
-    persistedView.objectMetadataId !== directTableObjectMetadataId;
-
-  const getTableObjectMetadataId = () => {
-    if (isDefined(nestedRelationFieldMetadataId)) {
-      return resolvedNestedRelation?.nestedRelationTargetObjectMetadataItem.id;
-    }
-
-    if (isPersistedViewOnAnotherObject) {
-      return undefined;
-    }
-
-    return directTableObjectMetadataId;
-  };
-
-  const tableObjectMetadataId = getTableObjectMetadataId();
+  const tableObjectMetadataId = resolveFieldWidgetRelationTableObjectMetadataId(
+    {
+      relationObjectMetadataId,
+      junctionConfig,
+      viewObjectMetadataId: persistedView?.objectMetadataId,
+      nestedRelationFieldMetadataId,
+      nestedRelationTargetObjectMetadataId:
+        resolvedNestedRelation?.nestedRelationTargetObjectMetadataItem.id,
+    },
+  );
 
   const {
     targetFieldMetadataName,
