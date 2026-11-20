@@ -3,6 +3,7 @@ import { SkeletonLine } from '@/ui/feedback/skeleton/components/SkeletonLine';
 import { currentWorkspaceState } from '@/auth/states/currentWorkspaceState';
 import { useGetOneLogicFunction } from '@/logic-functions/hooks/useGetOneLogicFunction';
 import { usePersistLogicFunction } from '@/logic-functions/hooks/usePersistLogicFunction';
+import { SettingsAiToolAvailabilitySection } from '@/settings/ai/tool-availability/components/SettingsAiToolAvailabilitySection';
 import { SettingsPageContainer } from '@/settings/components/SettingsPageContainer';
 import { SettingsPageLayout } from '@/settings/components/layout/SettingsPageLayout';
 import { SettingsLogicFunctionLabelContainer } from '@/settings/logic-functions/components/SettingsLogicFunctionLabelContainer';
@@ -237,6 +238,15 @@ export const SettingsToolDetail = () => {
                 disabled={isReadOnly}
               />
             </Section.Root>
+
+            {isDefined(toolIdentifier) && (
+              <SettingsAiToolAvailabilitySection
+                toolIdentifier={toolIdentifier}
+                toolName={
+                  isCustomTool ? null : (systemTool?.name ?? toolIdentifier)
+                }
+              />
+            )}
 
             {isCustomTool && !isManaged && (
               <Section.Root>

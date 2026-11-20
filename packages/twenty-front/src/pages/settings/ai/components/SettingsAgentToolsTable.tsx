@@ -1,6 +1,7 @@
 import { SkeletonLine } from '@/ui/feedback/skeleton/components/SkeletonLine';
 
 import { type CurrentWorkspace } from '@/auth/states/currentWorkspaceState';
+import { SettingsAiToolAvailabilityTags } from '@/settings/ai/tool-availability/components/SettingsAiToolAvailabilityTags';
 import { Table } from '@/ui/layout/table/components/Table';
 import { TableHeader } from '@/ui/layout/table/components/TableHeader';
 import { TableRow } from '@/ui/layout/table/components/TableRow';
@@ -81,6 +82,11 @@ export const SettingsAgentToolsTable = ({
                   />
                 }
                 name={tool.label ?? tool.name}
+                tags={
+                  <SettingsAiToolAvailabilityTags
+                    toolIdentifier={tool.identifier}
+                  />
+                }
                 applicationId={getToolApplicationId(tool, currentWorkspace)}
                 action={
                   <IconChevronRight

@@ -1,6 +1,7 @@
 import { useGetToolIndex } from '@/ai/hooks/useGetToolIndex';
 import { FormSingleRecordPicker } from '@/object-record/record-field/ui/form-types/components/FormSingleRecordPicker';
 import { FormTextFieldInput } from '@/object-record/record-field/ui/form-types/components/FormTextFieldInput';
+import { useAiToolAvailabilities } from '@/settings/ai/tool-availability/hooks/useAiToolAvailabilities';
 import { Select } from '@/ui/input/components/Select';
 import { GenericDropdownContentWidth } from '@/ui/layout/dropdown/constants/GenericDropdownContentWidth';
 import { type WorkflowSendChatMessageAction } from '@/workflow/types/Workflow';
@@ -40,6 +41,7 @@ export const WorkflowEditActionSendChatMessage = ({
 }: WorkflowEditActionSendChatMessageProps) => {
   const { t } = useLingui();
   const { toolIndex } = useGetToolIndex();
+  const { availabilityByToolName } = useAiToolAvailabilities();
   const [formData, setFormData] = useState<SendChatMessageFormData>(
     action.settings.input,
   );
@@ -104,10 +106,15 @@ export const WorkflowEditActionSendChatMessage = ({
 
   const storedToolName = formData.toolCall?.toolName;
   const toolOptions = useMemo(() => {
-    const indexedToolOptions = toolIndex.map((toolIndexEntry) => ({
-      label: toolIndexEntry.label,
-      value: toolIndexEntry.name,
-    }));
+    const indexedToolOptions = toolIndex
+      .filter(
+        ({ name }) =>
+          availabilityByToolName.get(name)?.isAgentEnabled !== false,
+      )
+      .map((toolIndexEntry) => ({
+        label: toolIndexEntry.label,
+        value: toolIndexEntry.name,
+      }));
 
     // a saved tool the editor cannot see still runs, so it stays shown rather than reading as none
     const noneOption = { label: t`None, only send the message`, value: '' };
@@ -123,7 +130,7 @@ export const WorkflowEditActionSendChatMessage = ({
           },
         ]
       : [noneOption, ...indexedToolOptions];
-  }, [toolIndex, storedToolName, t]);
+  }, [toolIndex, availabilityByToolName, storedToolName, t]);
 
   return (
     <>
