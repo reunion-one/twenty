@@ -410,6 +410,15 @@ export type AiRunUsage = {
   outputTokens: Scalars['Int']['output'];
 };
 
+export type AiSystemPromptOverrideSection = {
+  __typename?: 'AiSystemPromptOverrideSection';
+  defaultTemplate: Scalars['String']['output'];
+  isDefaultChanged: Scalars['Boolean']['output'];
+  overrideContent?: Maybe<Scalars['String']['output']>;
+  sectionKey: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
 export type AiSystemPromptPreview = {
   __typename?: 'AiSystemPromptPreview';
   estimatedTokenCount: Scalars['Int']['output'];
@@ -3815,6 +3824,7 @@ export type Mutation = {
   createWebhook: Webhook;
   deactivateSkill: Skill;
   deleteAgentChatChannel: Scalars['Boolean']['output'];
+  deleteAiSystemPromptOverride: Scalars['Boolean']['output'];
   deleteAppKeyValue: Scalars['Boolean']['output'];
   deleteAppMessageChannel: MessageChannel;
   deleteApplicationRegistration: Scalars['Boolean']['output'];
@@ -4042,6 +4052,7 @@ export type Mutation = {
   uploadWorkspaceLogo: FileWithSignedUrl;
   /** @deprecated Use createFileUpload with the CorePicture folder and completeWorkspaceMemberProfilePictureUpload, which send the picture straight to file storage. */
   uploadWorkspaceMemberProfilePicture: FileWithSignedUrl;
+  upsertAiSystemPromptOverride: Scalars['Boolean']['output'];
   upsertFieldPermissions: Array<FieldPermission>;
   upsertFieldsWidget: View;
   upsertObjectPermissions: Array<ObjectPermission>;
@@ -4457,6 +4468,11 @@ export type MutationDeactivateSkillArgs = {
 export type MutationDeleteAgentChatChannelArgs = {
   channelId: Scalars['UUID']['input'];
   destinationChannelId?: InputMaybe<Scalars['UUID']['input']>;
+};
+
+
+export type MutationDeleteAiSystemPromptOverrideArgs = {
+  sectionKey: Scalars['String']['input'];
 };
 
 
@@ -5561,6 +5577,11 @@ export type MutationUploadWorkspaceMemberProfilePictureArgs = {
 };
 
 
+export type MutationUpsertAiSystemPromptOverrideArgs = {
+  input: UpsertAiSystemPromptOverrideInput;
+};
+
+
 export type MutationUpsertFieldPermissionsArgs = {
   upsertFieldPermissionsInput: UpsertFieldPermissionsInput;
 };
@@ -6202,6 +6223,7 @@ export type Query = {
   agentRuns: Array<AgentRun>;
   aiChatUsage?: Maybe<AiChatUsage>;
   aiChatUserCreditsUsage?: Maybe<AiChatUserCreditsUsage>;
+  aiSystemPromptOverrideSections: Array<AiSystemPromptOverrideSection>;
   apiKey?: Maybe<ApiKey>;
   apiKeys: Array<ApiKey>;
   appConnection: AppConnection;
@@ -8338,6 +8360,11 @@ export type UpdateWorkspaceInput = {
 export type UpdateWorkspaceMemberSettingsInput = {
   update: Scalars['JSON']['input'];
   workspaceMemberId: Scalars['UUID']['input'];
+};
+
+export type UpsertAiSystemPromptOverrideInput = {
+  content: Scalars['String']['input'];
+  sectionKey: Scalars['String']['input'];
 };
 
 export type UpsertFieldPermissionsInput = {

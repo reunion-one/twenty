@@ -1,0 +1,15 @@
+export const AI_SYSTEM_PROMPT_VARIABLE_NAMES: readonly string[] = [
+  'assistant.displayName',
+  'user.firstName',
+  'user.lastName',
+  'user.jobTitle',
+  'user.locale',
+  'user.timezone',
+  'user.userWorkspaceId',
+  'workspace.name',
+  'workspace.id',
+  'currentDate',
+  'toolCatalog',
+  'skillCatalog',
+  'userContext',
+];
