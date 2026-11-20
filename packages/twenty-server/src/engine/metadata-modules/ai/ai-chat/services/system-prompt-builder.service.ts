@@ -9,7 +9,8 @@ import { ToolRegistryService } from 'src/engine/core-modules/tool-provider/servi
 import { AgentActorContextService } from 'src/engine/metadata-modules/ai/ai-agent-execution/services/agent-actor-context.service';
 import { AI_CHAT_EXCLUDED_TOOL_NAMES } from 'src/engine/metadata-modules/ai/ai-chat/constants/ai-chat-excluded-tool-names.const';
 import { AI_CHAT_TOOL_NAMES_TO_PRELOAD } from 'src/engine/metadata-modules/ai/ai-chat/constants/ai-chat-tool-names-to-preload.const';
-import { buildSystemPromptSections } from 'src/engine/metadata-modules/ai/ai-chat/utils/build-system-prompt-sections.util';
+import { type BuildSystemPromptArguments } from 'src/engine/metadata-modules/ai/ai-chat/types/build-system-prompt-arguments.type';
+import { AiSystemPromptOverrideService } from 'src/engine/metadata-modules/ai/ai-system-prompt-override/services/ai-system-prompt-override.service';
 import { type SystemPromptSection } from 'src/engine/metadata-modules/ai/ai-chat/types/system-prompt-section.type';
 import { SkillService } from 'src/engine/metadata-modules/skill/skill.service';
 
@@ -28,15 +29,18 @@ export class SystemPromptBuilderService {
     private readonly skillService: SkillService,
     private readonly agentActorContextService: AgentActorContextService,
     private readonly featureFlagService: FeatureFlagService,
+    private readonly aiSystemPromptOverrideService: AiSystemPromptOverrideService,
   ) {}
 
   async buildPreview({
     workspaceId,
+    workspaceName,
     userWorkspaceId,
     workspaceInstructions,
     assistantProfile,
   }: {
     workspaceId: string;
+    workspaceName?: string;
     userWorkspaceId: string;
     workspaceInstructions?: string;
     assistantProfile: Pick<AiChatAssistantProfile, 'displayName'>;
@@ -63,7 +67,10 @@ export class SystemPromptBuilderService {
       ],
     );
 
-    const sections = buildSystemPromptSections({
+    const buildSectionsWithOverrides = (args: BuildSystemPromptArguments) =>
+      this.aiSystemPromptOverrideService.buildSections(args, workspaceName);
+
+    const builtSections = await buildSectionsWithOverrides({
       assistantDisplayName: isAiChatInboxEnabled
         ? assistantProfile.displayName
         : undefined,
@@ -75,7 +82,9 @@ export class SystemPromptBuilderService {
       userWorkspaceId,
       workspaceId,
       canAttachConversationToRecords: isAiChatInboxEnabled,
-    }).map((section) => ({
+    });
+
+    const sections = builtSections.map((section) => ({
       ...section,
       estimatedTokenCount: estimateTokenCount(section.content),
     }));
