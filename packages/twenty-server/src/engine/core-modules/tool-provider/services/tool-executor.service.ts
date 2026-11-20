@@ -36,6 +36,7 @@ import { buildToolNotAvailableOutput } from 'src/engine/core-modules/tool-provid
 import { withResolvedToolAuthContext } from 'src/engine/core-modules/tool-provider/utils/with-resolved-tool-auth-context.util';
 import { type ToolOutput } from 'src/engine/core-modules/tool/types/tool-output.type';
 import { UserEntity } from 'src/engine/core-modules/user/user.entity';
+import { AiToolAvailabilityService } from 'src/engine/metadata-modules/ai/ai-tool-availability/services/ai-tool-availability.service';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 
 @Injectable()
@@ -61,6 +62,7 @@ export class ToolExecutorService {
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     private readonly exceptionHandlerService: ExceptionHandlerService,
+    private readonly aiToolAvailabilityService: AiToolAvailabilityService,
   ) {}
 
   async dispatch(
@@ -69,6 +71,12 @@ export class ToolExecutorService {
     context: ToolProviderContext,
   ): Promise<ToolOutput> {
     try {
+      if (
+        await this.aiToolAvailabilityService.isDisabled(descriptor, context)
+      ) {
+        return buildToolNotAvailableOutput(descriptor.name);
+      }
+
       const executionContext = await (context.resolveExecutionContext?.() ??
         context);
 

@@ -432,6 +432,14 @@ export type AiSystemPromptSection = {
   title: Scalars['String']['output'];
 };
 
+export type AiToolAvailability = {
+  __typename?: 'AiToolAvailability';
+  isAgentEnabled: Scalars['Boolean']['output'];
+  isMcpEnabled: Scalars['Boolean']['output'];
+  toolIdentifier: Scalars['String']['output'];
+  toolName?: Maybe<Scalars['String']['output']>;
+};
+
 export enum AllMetadataName {
   agent = 'agent',
   agentChatChannel = 'agentChatChannel',
@@ -3951,6 +3959,7 @@ export type Mutation = {
   sendInvitations: SendInvitations;
   sendMessageCampaign: SendMessageCampaignOutputDto;
   sendMessageCampaignTest: SendEmailViaDomainOutput;
+  setAiToolAvailability: AiToolAvailability;
   setAppKeyValue: AppKeyValue;
   setBillingPartnerCode: BillingPartnerCode;
   setEnterpriseKey: EnterpriseLicenseInfoDto;
@@ -5074,6 +5083,11 @@ export type MutationSendMessageCampaignArgs = {
 
 export type MutationSendMessageCampaignTestArgs = {
   input: SendMessageCampaignTestInput;
+};
+
+
+export type MutationSetAiToolAvailabilityArgs = {
+  input: SetAiToolAvailabilityInput;
 };
 
 
@@ -6224,6 +6238,7 @@ export type Query = {
   aiChatUsage?: Maybe<AiChatUsage>;
   aiChatUserCreditsUsage?: Maybe<AiChatUserCreditsUsage>;
   aiSystemPromptOverrideSections: Array<AiSystemPromptOverrideSection>;
+  aiToolAvailabilities: Array<AiToolAvailability>;
   apiKey?: Maybe<ApiKey>;
   apiKeys: Array<ApiKey>;
   appConnection: AppConnection;
@@ -7437,6 +7452,12 @@ export type Sentry = {
   environment?: Maybe<Scalars['String']['output']>;
   release?: Maybe<Scalars['String']['output']>;
   tracesSampleRate?: Maybe<Scalars['Float']['output']>;
+};
+
+export type SetAiToolAvailabilityInput = {
+  isAgentEnabled: Scalars['Boolean']['input'];
+  isMcpEnabled: Scalars['Boolean']['input'];
+  toolIdentifier: Scalars['String']['input'];
 };
 
 export type SetAppKeyValueInput = {

@@ -11,6 +11,7 @@ import { themeCssVariables } from 'twenty-ui/theme';
 export type SettingsToolTableRowProps = {
   leftIcon: ReactNode;
   name: string;
+  tags?: ReactNode;
   applicationId: string;
   action?: ReactNode;
   link?: string;
@@ -27,6 +28,7 @@ const StyledIconContainer = styled.div`
 export const SettingsToolTableRow = ({
   leftIcon,
   name,
+  tags,
   applicationId,
   action,
   link,
@@ -44,6 +46,7 @@ export const SettingsToolTableRow = ({
       >
         <StyledIconContainer>{leftIcon}</StyledIconContainer>
         <OverflowingTextWithTooltip text={name} />
+        {tags}
       </TableCell>
       <StyledNameTableCell minWidth="0" overflow="hidden">
         <AppChip applicationId={applicationId} />

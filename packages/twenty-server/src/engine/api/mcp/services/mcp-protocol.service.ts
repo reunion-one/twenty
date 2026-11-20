@@ -189,6 +189,7 @@ export class McpProtocolService {
     );
 
     const toolContext: ToolProviderContext = {
+      toolAvailabilityChannel: 'mcp',
       workspaceId: workspace.id,
       authContext: options?.authContext,
       application: options?.application,
@@ -207,6 +208,7 @@ export class McpProtocolService {
       ...annotatePreloadedMcpTools(preloadedTools),
       [GET_TOOL_CATALOG_TOOL_NAME]: {
         ...createGetToolCatalogTool(this.toolRegistry, workspace.id, {
+          toolAvailabilityChannel: 'mcp',
           userId: options?.userId,
           userWorkspaceId: options?.userWorkspaceId,
           excludeTools: MCP_EXCLUDED_TOOL_NAMES,

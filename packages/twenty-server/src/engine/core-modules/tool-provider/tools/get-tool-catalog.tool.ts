@@ -6,6 +6,7 @@ import { type FlatApplication } from 'src/engine/core-modules/application/types/
 import { type WorkspaceAuthContext } from 'src/engine/core-modules/auth/types/workspace-auth-context.type';
 import { type ToolRegistryService } from 'src/engine/core-modules/tool-provider/services/tool-registry.service';
 import { type ToolIndexEntry } from 'src/engine/core-modules/tool-provider/types/tool-index-entry.type';
+import { type AiToolAvailabilityChannel } from 'src/engine/metadata-modules/ai/ai-tool-availability/types/ai-tool-availability-channel.type';
 
 export const GET_TOOL_CATALOG_TOOL_NAME = 'get_tool_catalog';
 
@@ -33,6 +34,7 @@ export const createGetToolCatalogTool = (
   toolRegistry: ToolRegistryService,
   workspaceId: string,
   options: {
+    toolAvailabilityChannel?: AiToolAvailabilityChannel;
     userId?: string;
     userWorkspaceId?: string;
     excludeTools?: Set<string>;

@@ -30,6 +30,7 @@ import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.ent
 import { AiAgentExecutionModule } from 'src/engine/metadata-modules/ai/ai-agent-execution/ai-agent-execution.module';
 import { MetricsModule } from 'src/engine/core-modules/metrics/metrics.module';
 import { AiBillingModule } from 'src/engine/metadata-modules/ai/ai-billing/ai-billing.module';
+import { AiToolAvailabilityApiModule } from 'src/engine/metadata-modules/ai/ai-tool-availability/ai-tool-availability-api.module';
 import { PermissionsModule } from 'src/engine/permissions/permissions.module';
 import { SkillModule } from 'src/engine/metadata-modules/skill/skill.module';
 import { provideWorkspaceScopedRepository } from 'src/engine/twenty-orm/workspace-scoped-repository/provide-workspace-scoped-repository';
@@ -65,6 +66,7 @@ import { AgentInboxAccessService } from 'src/engine/metadata-modules/ai/ai-chat/
 @Module({
   imports: [
     AiSystemPromptOverrideModule,
+    AiToolAvailabilityApiModule,
     ApplicationGrantRoleLookupModule,
     CoreEntityCacheModule,
     AgentChatStreamStateModule,

@@ -30,6 +30,8 @@ import { findDatabaseCrudToolIndexEntry } from 'src/engine/core-modules/tool-pro
 import { findSimilarToolNames } from 'src/engine/core-modules/tool-provider/utils/find-similar-tool-names.util';
 import { ToolOutputSpillService } from 'src/engine/core-modules/tool/services/tool-output-spill.service';
 import { type ToolOutput } from 'src/engine/core-modules/tool/types/tool-output.type';
+import { AiToolAvailabilityService } from 'src/engine/metadata-modules/ai/ai-tool-availability/services/ai-tool-availability.service';
+import { type AiToolAvailabilityChannel } from 'src/engine/metadata-modules/ai/ai-tool-availability/types/ai-tool-availability-channel.type';
 
 @Injectable()
 export class ToolRegistryService {
@@ -42,6 +44,7 @@ export class ToolRegistryService {
     private readonly toolExecutorService: ToolExecutorService,
     private readonly toolOutputSpillService: ToolOutputSpillService,
     private readonly exceptionHandlerService: ExceptionHandlerService,
+    private readonly aiToolAvailabilityService: AiToolAvailabilityService,
   ) {}
 
   getCatalog(
@@ -74,8 +77,11 @@ export class ToolRegistryService {
       ),
     ]);
 
-    return [...providerDescriptors, ...definedToolDescriptors].filter(
-      (entry) => !excludeTools?.has(entry.name),
+    return this.aiToolAvailabilityService.filterCatalog(
+      context,
+      [...providerDescriptors, ...definedToolDescriptors].filter(
+        (entry) => !excludeTools?.has(entry.name),
+      ),
     );
   }
 
@@ -204,6 +210,7 @@ export class ToolRegistryService {
       excludeTools?: Set<string>;
       authContext?: WorkspaceAuthContext;
       application?: FlatApplication;
+      toolAvailabilityChannel?: AiToolAvailabilityChannel;
     },
   ): Promise<ToolIndexEntry[]> {
     const context = this.buildContextFromToolContext({
@@ -213,6 +220,7 @@ export class ToolRegistryService {
       locale: options.locale,
       authContext: options.authContext,
       application: options.application,
+      toolAvailabilityChannel: options.toolAvailabilityChannel,
     });
 
     return this.getCatalog(context, {
@@ -620,6 +628,7 @@ export class ToolRegistryService {
     return {
       ...(await context.resolveExecutionContext()),
       explicitObjectGrants: context.explicitObjectGrants,
+      toolAvailabilityChannel: context.toolAvailabilityChannel,
     };
   }
 
@@ -634,6 +643,7 @@ export class ToolRegistryService {
             )
         : undefined,
       workspaceId: context.workspaceId,
+      toolAvailabilityChannel: context.toolAvailabilityChannel,
       approvedToolName: context.approvedToolName,
       authContext: context.authContext,
       application: context.application,

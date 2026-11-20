@@ -20,6 +20,7 @@ import { ToolExecutorService } from 'src/engine/core-modules/tool-provider/servi
 import { ToolModule } from 'src/engine/core-modules/tool/tool.module';
 import { UserEntity } from 'src/engine/core-modules/user/user.entity';
 import { AgentToolsModule } from 'src/engine/metadata-modules/ai/ai-agent/tools/agent-tools.module';
+import { AiToolAvailabilityModule } from 'src/engine/metadata-modules/ai/ai-tool-availability/ai-tool-availability.module';
 import { ApplicationTranslationCatalogModule } from 'src/engine/metadata-modules/application-translation-catalog/application-translation-catalog.module';
 import { WorkspaceManyOrAllFlatEntityMapsCacheModule } from 'src/engine/metadata-modules/flat-entity/services/workspace-many-or-all-flat-entity-maps-cache.module';
 import { McpServerClientModule } from 'src/engine/metadata-modules/mcp-server/mcp-server-client.module';
@@ -41,6 +42,7 @@ import { ToolRegistryService } from './services/tool-registry.service';
 
 @Module({
   imports: [
+    AiToolAvailabilityModule,
     DiscoveryModule,
     ApplicationTranslationCatalogModule,
     ToolModule,

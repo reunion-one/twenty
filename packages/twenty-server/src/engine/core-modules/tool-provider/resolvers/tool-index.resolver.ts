@@ -77,6 +77,7 @@ export class ToolIndexResolver {
     @RequestLocale() locale: keyof typeof APP_LOCALES | undefined,
   ): Promise<ToolIndexEntryDTO[]> {
     return this.toolRegistryService.buildToolIndex(workspace.id, {
+      toolAvailabilityChannel: 'unfiltered',
       userId: user?.id,
       userWorkspaceId,
       locale,
@@ -98,6 +99,7 @@ export class ToolIndexResolver {
     const schemas = await this.toolRegistryService.resolveSchemas({
       toolNames: [toolName],
       context: {
+        toolAvailabilityChannel: 'unfiltered',
         workspaceId: workspace.id,
         userId: user?.id,
         userWorkspaceId,
