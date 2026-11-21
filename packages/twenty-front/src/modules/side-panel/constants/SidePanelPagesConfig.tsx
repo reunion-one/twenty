@@ -1,3 +1,4 @@
+import { FieldsFromRelationWidgetSettings } from '@/page-layout/widgets/fields-from-relation/components/FieldsFromRelationWidgetSettings';
 import { SidePanelCommandMenuItemDisplayPage } from '@/command-menu-item/display/components/SidePanelCommandMenuItemDisplayPage';
 import { SidePanelCommandMenuItemEditPage } from '@/command-menu-item/edit/components/SidePanelCommandMenuItemEditPage';
 import { SidePanelCoreAgentDataAccessPage } from '@/object-core/agents/components/SidePanelCoreAgentDataAccessPage';
@@ -90,6 +91,10 @@ export const SIDE_PANEL_PAGES_CONFIG = new Map<
   [
     SidePanelPages.DashboardRecordTableSettings,
     <SidePanelDashboardRecordTableSettings />,
+  ],
+  [
+    SidePanelPages.FieldsFromRelationSettings,
+    <FieldsFromRelationWidgetSettings />,
   ],
   [
     SidePanelPages.RecordPageFieldsSettings,

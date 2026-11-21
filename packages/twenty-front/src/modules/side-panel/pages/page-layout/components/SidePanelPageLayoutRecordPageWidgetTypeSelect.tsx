@@ -1,3 +1,4 @@
+import { useCreateFieldsFromRelationWidgetFromPicker } from '@/page-layout/widgets/fields-from-relation/hooks/useCreateFieldsFromRelationWidgetFromPicker';
 import { AppMenuItemIcon } from '@/applications/components/AppMenuItemIcon';
 import { CommandMenuItem } from '@/command-menu/components/CommandMenuItem';
 import { FIND_MANY_FRONT_COMPONENTS } from '@/front-components/graphql/queries/findManyFrontComponents';
@@ -38,6 +39,7 @@ import {
 import {
   IconApps,
   IconListDetails,
+  IconRelationManyToOne,
   IconListSearch,
   IconNotes,
 } from 'twenty-ui/icon';
@@ -213,6 +215,15 @@ export const SidePanelPageLayoutRecordPageWidgetTypeSelect = () => {
     tabId,
   ]);
 
+  const { handleCreateFieldsFromRelationWidget } =
+    useCreateFieldsFromRelationWidgetFromPicker({
+      pageLayoutId,
+      tabId,
+      objectMetadataId: objectMetadataItem.id,
+      getExistingWidgetPositionIndex,
+      removeExistingWidgetIfReplacing,
+    });
+
   const handleCreateFieldWidget = useCallback(() => {
     const replacePositionIndex = getExistingWidgetPositionIndex();
     removeExistingWidgetIfReplacing();
@@ -359,6 +370,7 @@ export const SidePanelPageLayoutRecordPageWidgetTypeSelect = () => {
   const selectableItemIds = [
     'fields',
     'field',
+    'fields-from-relation',
     'note',
     ...frontComponentsWithSelectItemId.map(({ selectItemId }) => selectItemId),
   ];
@@ -380,6 +392,17 @@ export const SidePanelPageLayoutRecordPageWidgetTypeSelect = () => {
             label={t`Field`}
             id="field"
             onClick={handleCreateFieldWidget}
+          />
+        </SelectableListItem>
+        <SelectableListItem
+          itemId="fields-from-relation"
+          onEnter={handleCreateFieldsFromRelationWidget}
+        >
+          <CommandMenuItem
+            Icon={IconRelationManyToOne}
+            label={t`Fields from relation`}
+            id="fields-from-relation"
+            onClick={handleCreateFieldsFromRelationWidget}
           />
         </SelectableListItem>
         <SelectableListItem itemId="note" onEnter={handleCreateNoteWidget}>

@@ -1,3 +1,4 @@
+import { validateFieldsFromRelationFlatPageLayoutWidget } from 'src/engine/metadata-modules/flat-page-layout-widget/validators/utils/validate-fields-from-relation-flat-page-layout-widget.util';
 import { Injectable } from '@nestjs/common';
 
 import { msg } from '@lingui/core/macro';
@@ -55,6 +56,7 @@ export class FlatPageLayoutWidgetTypeValidatorService {
         WidgetConfigurationType.FIELD,
       ),
       FIELDS: validateFieldsFlatPageLayoutWidgetForCreation,
+      FIELDS_FROM_RELATION: validateFieldsFromRelationFlatPageLayoutWidget,
       GRAPH: validateGraphFlatPageLayoutWidgetForCreation,
       STANDALONE_RICH_TEXT:
         validateStandaloneRichTextFlatPageLayoutWidgetForCreation,
@@ -130,6 +132,7 @@ export class FlatPageLayoutWidgetTypeValidatorService {
         WidgetConfigurationType.FIELD,
       ),
       FIELDS: () => [],
+      FIELDS_FROM_RELATION: validateFieldsFromRelationFlatPageLayoutWidget,
       GRAPH: validateGraphFlatPageLayoutWidgetForUpdate,
       STANDALONE_RICH_TEXT:
         validateStandaloneRichTextFlatPageLayoutWidgetForUpdate,

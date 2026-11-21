@@ -1,3 +1,4 @@
+import { useCreateFieldsFromRelationWidget } from '@/page-layout/widgets/fields-from-relation/hooks/useCreateFieldsFromRelationWidget';
 import { ListItemIconContainer } from '@/ui/navigation/list-item/components/ListItemIconContainer';
 import { usePageLayoutContentContext } from '@/page-layout/contexts/PageLayoutContentContext';
 import { useCreateRecordPageFieldWidget } from '@/page-layout/hooks/useCreateRecordPageFieldWidget';
@@ -11,6 +12,7 @@ import { styled } from '@linaria/react';
 import { ListItemButton } from 'twenty-ui/components/navigation';
 import {
   IconListDetails,
+  IconRelationManyToOne,
   IconListSearch,
   IconNotes,
   IconPlus,
@@ -59,6 +61,9 @@ export const RecordPageAddWidgetSection = ({
   const theme = useTheme();
   const { tabId } = usePageLayoutContentContext();
 
+  const { createFieldsFromRelationWidget } =
+    useCreateFieldsFromRelationWidget();
+
   const { createRecordPageFieldsWidget } = useCreateRecordPageFieldsWidget();
 
   const { createRecordPageFieldWidget } = useCreateRecordPageFieldWidget();
@@ -105,6 +110,20 @@ export const RecordPageAddWidgetSection = ({
           onClick={() => handleCreateWidget(createRecordPageFieldWidget)}
         >
           {t`Field`}
+        </ListItemButton>
+        <ListItemButton
+          startIcon={
+            <ListItemIconContainer>
+              <IconRelationManyToOne
+                size={theme.icon.size.md}
+                stroke={theme.icon.stroke.sm}
+              />
+            </ListItemIconContainer>
+          }
+          description={t`Fields of the record this one points to, e.g. a person's company`}
+          onClick={() => handleCreateWidget(createFieldsFromRelationWidget)}
+        >
+          {t`Fields from relation`}
         </ListItemButton>
         <ListItemButton
           startIcon={

@@ -230,6 +230,7 @@ export type {
   FieldConfiguration,
   FormFieldConfiguration,
   FieldsConfiguration,
+  FieldsFromRelationConfiguration,
   FieldRichTextConfiguration,
   StandaloneRichTextConfiguration,
   IframeConfiguration,

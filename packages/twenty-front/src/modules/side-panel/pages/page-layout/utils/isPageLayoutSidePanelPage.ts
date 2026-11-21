@@ -10,6 +10,7 @@ const PAGE_LAYOUT_SIDE_PANEL_PAGES: PageLayoutSidePanelPage[] = [
   SidePanelPages.DashboardIframeSettings,
   SidePanelPages.DashboardRecordTableSettings,
   SidePanelPages.RecordPageFieldsSettings,
+  SidePanelPages.FieldsFromRelationSettings,
   SidePanelPages.RecordPageFieldSettings,
   SidePanelPages.PageLayoutRecordPageWidgetTypeSelect,
 ];

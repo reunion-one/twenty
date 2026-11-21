@@ -71,7 +71,10 @@ export const useDuplicateFieldsWidgetForPageLayout = ({
       sourceWidget,
       newWidgetId,
     }: DuplicateFieldsWidgetParams): DuplicateFieldsWidgetResult | null => {
-      if (sourceWidget.type !== WidgetType.FIELDS) {
+      if (
+        sourceWidget.type !== WidgetType.FIELDS &&
+        sourceWidget.type !== WidgetType.FIELDS_FROM_RELATION
+      ) {
         return null;
       }
 
@@ -119,7 +122,8 @@ export const useDuplicateFieldsWidgetForPageLayout = ({
         }
       } else {
         const pageLayoutDraft = store.get(pageLayoutDraftState);
-        const objectMetadataId = pageLayoutDraft.objectMetadataId;
+        const objectMetadataId =
+          sourceWidget.objectMetadataId ?? pageLayoutDraft.objectMetadataId;
         const objectMetadataItems = store.get(objectMetadataItemsSelector.atom);
         const fieldMetadataItems = isDefined(objectMetadataId)
           ? (objectMetadataItems.find((item) => item.id === objectMetadataId)

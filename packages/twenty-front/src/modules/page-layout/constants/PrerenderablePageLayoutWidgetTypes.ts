@@ -4,6 +4,7 @@ import { WidgetType } from '~/generated-metadata/graphql';
 // Excluded: GRAPH and RECORD_TABLE measure their container, which is zero-sized while hidden.
 export const PRERENDERABLE_PAGE_LAYOUT_WIDGET_TYPES: WidgetType[] = [
   WidgetType.FIELDS,
+  WidgetType.FIELDS_FROM_RELATION,
   WidgetType.TIMELINE,
   WidgetType.TASKS,
   WidgetType.NOTES,

@@ -26,7 +26,10 @@ export const useGetNewFieldDefaultVisibility = ({
 
   const fieldsConfiguration =
     isDefined(widget?.configuration) &&
-    widget.configuration.configurationType === WidgetConfigurationType.FIELDS
+    (widget.configuration.configurationType ===
+      WidgetConfigurationType.FIELDS ||
+      widget.configuration.configurationType ===
+        WidgetConfigurationType.FIELDS_FROM_RELATION)
       ? (widget.configuration as FieldsConfiguration)
       : null;
 

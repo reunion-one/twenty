@@ -2664,6 +2664,15 @@ type FieldsConfiguration {
   viewId: String
 }
 
+type FieldsFromRelationConfiguration {
+  configurationType: WidgetConfigurationType!
+  isReadOnly: Boolean
+  newFieldDefaultVisibility: Boolean
+  relationFieldMetadataId: String!
+  shouldAllowUserToSeeHiddenFields: Boolean
+  viewId: String
+}
+
 type File {
   createdAt: DateTime!
   id: UUID!
@@ -6562,7 +6571,7 @@ type Webhook {
   updatedAt: DateTime!
 }
 
-union WidgetConfiguration = AggregateChartConfiguration | BarChartConfiguration | CalendarConfiguration | CallRecordingSummaryConfiguration | CallRecordingTranscriptConfiguration | ChatConfiguration | ChatThreadsConfiguration | EmailThreadConfiguration | EmailsConfiguration | FieldConfiguration | FieldRichTextConfiguration | FieldsConfiguration | FilesConfiguration | FormFieldConfiguration | FrontComponentConfiguration | IframeConfiguration | LineChartConfiguration | MessageCampaignBodyConfiguration | MessageCampaignDetailsConfiguration | NotesConfiguration | PieChartConfiguration | RecordTableConfiguration | StandaloneRichTextConfiguration | TasksConfiguration | TimelineConfiguration | ViewConfiguration | WorkflowConfiguration | WorkflowRunConfiguration | WorkflowVersionConfiguration
+union WidgetConfiguration = AggregateChartConfiguration | BarChartConfiguration | CalendarConfiguration | CallRecordingSummaryConfiguration | CallRecordingTranscriptConfiguration | ChatConfiguration | ChatThreadsConfiguration | EmailThreadConfiguration | EmailsConfiguration | FieldConfiguration | FieldRichTextConfiguration | FieldsConfiguration | FieldsFromRelationConfiguration | FilesConfiguration | FormFieldConfiguration | FrontComponentConfiguration | IframeConfiguration | LineChartConfiguration | MessageCampaignBodyConfiguration | MessageCampaignDetailsConfiguration | NotesConfiguration | PieChartConfiguration | RecordTableConfiguration | StandaloneRichTextConfiguration | TasksConfiguration | TimelineConfiguration | ViewConfiguration | WorkflowConfiguration | WorkflowRunConfiguration | WorkflowVersionConfiguration
 
 enum WidgetConfigurationType {
   AGGREGATE_CHART
@@ -6576,6 +6585,7 @@ enum WidgetConfigurationType {
   EMAIL_THREAD
   FIELD
   FIELDS
+  FIELDS_FROM_RELATION
   FIELD_RICH_TEXT
   FILES
   FORM_FIELD
@@ -6606,6 +6616,7 @@ enum WidgetType {
   EMAIL_THREAD
   FIELD
   FIELDS
+  FIELDS_FROM_RELATION
   FIELD_RICH_TEXT
   FILES
   FORM_FIELD
