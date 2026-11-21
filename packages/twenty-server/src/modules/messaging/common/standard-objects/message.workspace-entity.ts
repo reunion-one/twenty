@@ -1,3 +1,4 @@
+import { type MessageRawContentWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message-raw-content.workspace-entity';
 import { type ActorMetadata } from 'twenty-shared/types';
 
 import { BaseWorkspaceEntity } from 'src/engine/twenty-orm/base.workspace-entity';
@@ -9,6 +10,7 @@ import { type MessageParticipantWorkspaceEntity } from 'src/modules/messaging/co
 import { type MessageThreadWorkspaceEntity } from 'src/modules/messaging/common/standard-objects/message-thread.workspace-entity';
 
 export class MessageWorkspaceEntity extends BaseWorkspaceEntity {
+  messageRawContents: EntityRelation<MessageRawContentWorkspaceEntity[]>;
   headerMessageId: string | null;
   subject: string | null;
   text: string | null;

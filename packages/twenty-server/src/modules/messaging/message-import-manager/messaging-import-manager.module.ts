@@ -46,6 +46,7 @@ import { MessagingMessageAttachmentService } from 'src/modules/messaging/message
 import { MessagingMessageFolderAssociationService } from 'src/modules/messaging/message-import-manager/services/messaging-message-folder-association.service';
 import { MessagingMessageListFetchService } from 'src/modules/messaging/message-import-manager/services/messaging-message-list-fetch.service';
 import { MessagingMessageService } from 'src/modules/messaging/message-import-manager/services/messaging-message.service';
+import { MessagingMessageRawContentService } from 'src/modules/messaging/message-import-manager/services/messaging-message-raw-content.service';
 import { MessagingMessagesImportService } from 'src/modules/messaging/message-import-manager/services/messaging-messages-import.service';
 import { MessagingProcessFolderActionsService } from 'src/modules/messaging/message-import-manager/services/messaging-process-folder-actions.service';
 import { MessagingProcessGroupEmailActionsService } from 'src/modules/messaging/message-import-manager/services/messaging-process-group-email-actions.service';
@@ -100,6 +101,7 @@ import { BlocklistRepository } from 'src/modules/blocklist/repositories/blocklis
     MessagingMessageService,
     MessagingMessageFolderAssociationService,
     MessagingMessageAttachmentService,
+    MessagingMessageRawContentService,
     MessagingMessageListFetchService,
     MessagingMessagesImportService,
     MessagingSaveMessagesAndEnqueueContactCreationService,

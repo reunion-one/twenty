@@ -24,7 +24,7 @@ const buildInput = (
   ...overrides,
 });
 
-describe('formatSentMessage', () => {
+describe('formatSentMessage @custom', () => {
   it('should carry the sending actor when one is given', () => {
     const createdBy = {
       source: FieldActorSource.WORKFLOW,
@@ -126,5 +126,25 @@ describe('formatSentMessage', () => {
     const message = formatSentMessage({ input: buildInput(), attachmentFiles });
 
     expect(message.attachmentFiles).toEqual(attachmentFiles);
+  });
+
+  it('forwards raw content from the send result when present', () => {
+    const input = buildInput();
+    const rawContent = {
+      provider: 'gmail',
+      contentFormat: 'email-semantic-snapshot/1',
+      content: '{"schema_version":1}',
+      metadata: null,
+    };
+
+    expect(
+      formatSentMessage({
+        input: {
+          ...input,
+          sendResult: { ...input.sendResult, rawContent },
+        },
+      }).rawContent,
+    ).toBe(rawContent);
+    expect(formatSentMessage({ input })).not.toHaveProperty('rawContent');
   });
 });
