@@ -17,7 +17,18 @@ describe('@custom AiToolAvailabilityService', () => {
     set: jest.fn(),
     delete: jest.fn(),
   };
-  const repository = { delete: jest.fn() };
+  const queryRunner = {
+    connect: jest.fn(),
+    startTransaction: jest.fn(),
+    commitTransaction: jest.fn(),
+    rollbackTransaction: jest.fn(),
+    release: jest.fn(),
+    isTransactionActive: true,
+  };
+  const repository = {
+    delete: jest.fn(),
+    manager: { connection: { createQueryRunner: jest.fn() } },
+  };
   const workspaceCacheService = { getOrRecompute: jest.fn() };
   const service = new AiToolAvailabilityService(
     keyValuePairService as unknown as KeyValuePairService<AiToolAvailabilityValueMap>,
@@ -40,6 +51,9 @@ describe('@custom AiToolAvailabilityService', () => {
   ];
   beforeEach(() => {
     jest.resetAllMocks();
+    repository.manager.connection.createQueryRunner.mockReturnValue(
+      queryRunner,
+    );
     keyValuePairService.get.mockResolvedValue(rows);
     workspaceCacheService.getOrRecompute.mockResolvedValue({
       flatObjectMetadataMaps: {
@@ -168,7 +182,7 @@ describe('@custom AiToolAvailabilityService', () => {
       isAgentEnabled: true,
       isMcpEnabled: true,
     });
-    expect(keyValuePairService.delete).toHaveBeenCalledWith(scope);
+    expect(keyValuePairService.delete).toHaveBeenCalledWith(scope, queryRunner);
     expect(keyValuePairService.set).not.toHaveBeenCalled();
     for (const value of [
       { isAgentEnabled: false, isMcpEnabled: true },
@@ -176,11 +190,64 @@ describe('@custom AiToolAvailabilityService', () => {
       { isAgentEnabled: false, isMcpEnabled: false },
     ]) {
       await service.set('workspace', 'tool:search', value);
-      expect(keyValuePairService.set).toHaveBeenLastCalledWith({
-        ...scope,
-        value,
-      });
+      expect(keyValuePairService.set).toHaveBeenLastCalledWith(
+        { ...scope, value },
+        queryRunner,
+      );
     }
+  });
+  it('writes all entries with one query runner, then commits and releases', async () => {
+    const availability = { isAgentEnabled: false, isMcpEnabled: true };
+    await service.setMany('workspace', [
+      {
+        stableKey: 'tool:search',
+        availability: { isAgentEnabled: true, isMcpEnabled: true },
+      },
+      { stableKey: 'tool:other', availability },
+    ]);
+    const scope = {
+      workspaceId: 'workspace',
+      userId: null,
+      type: KeyValuePairType.AI_TOOL_AVAILABILITY,
+    };
+    expect(
+      repository.manager.connection.createQueryRunner,
+    ).toHaveBeenCalledTimes(1);
+    expect(queryRunner.connect).toHaveBeenCalledTimes(1);
+    expect(queryRunner.startTransaction).toHaveBeenCalledTimes(1);
+    expect(keyValuePairService.delete).toHaveBeenCalledWith(
+      { ...scope, key: 'aiToolAvailability:tool:search' },
+      queryRunner,
+    );
+    expect(keyValuePairService.set).toHaveBeenCalledWith(
+      { ...scope, key: 'aiToolAvailability:tool:other', value: availability },
+      queryRunner,
+    );
+    expect(queryRunner.commitTransaction).toHaveBeenCalledTimes(1);
+    expect(
+      queryRunner.commitTransaction.mock.invocationCallOrder[0],
+    ).toBeGreaterThan(keyValuePairService.set.mock.invocationCallOrder[0]);
+    expect(queryRunner.rollbackTransaction).not.toHaveBeenCalled();
+    expect(queryRunner.release).toHaveBeenCalledTimes(1);
+  });
+  it('rolls back and releases when a write fails and rethrows the error', async () => {
+    const error = new Error('write failed');
+    keyValuePairService.set.mockRejectedValueOnce(error);
+    await expect(
+      service.setMany('workspace', [
+        {
+          stableKey: 'tool:search',
+          availability: { isAgentEnabled: true, isMcpEnabled: true },
+        },
+        {
+          stableKey: 'tool:other',
+          availability: { isAgentEnabled: false, isMcpEnabled: true },
+        },
+      ]),
+    ).rejects.toBe(error);
+    expect(queryRunner.commitTransaction).not.toHaveBeenCalled();
+    expect(queryRunner.rollbackTransaction).toHaveBeenCalledTimes(1);
+    expect(queryRunner.release).toHaveBeenCalledTimes(1);
   });
   it('escapes LIKE metacharacters and isolates workspace core rows', async () => {
     await service.deleteByKeyPrefix('workspace', 'mcpServer:id:remote_%\\');

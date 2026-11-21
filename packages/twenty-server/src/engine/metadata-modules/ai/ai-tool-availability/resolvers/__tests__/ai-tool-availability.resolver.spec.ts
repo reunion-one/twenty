@@ -75,7 +75,7 @@ describe('@custom AiToolAvailabilityResolver', () => {
   const service = {
     findAll: jest.fn(),
     getStableKeysByToolName: jest.fn(),
-    set: jest.fn(),
+    setMany: jest.fn(),
   };
   const registry = { buildToolIndex: jest.fn() };
   const resolver = new AiToolAvailabilityResolver(
@@ -127,11 +127,9 @@ describe('@custom AiToolAvailabilityResolver', () => {
         'workspace',
         [catalog[catalogIndex]],
       );
-      expect(service.set).toHaveBeenCalledWith(
-        'workspace',
-        stableKey,
-        availability,
-      );
+      expect(service.setMany).toHaveBeenCalledWith('workspace', [
+        { stableKey, availability },
+      ]);
     },
   );
 
@@ -151,7 +149,7 @@ describe('@custom AiToolAvailabilityResolver', () => {
           userFriendlyMessage: msg`Tool not found.`,
         },
       });
-      expect(service.set).not.toHaveBeenCalled();
+      expect(service.setMany).not.toHaveBeenCalled();
     },
   );
 
@@ -167,7 +165,69 @@ describe('@custom AiToolAvailabilityResolver', () => {
         'user-workspace',
       ),
     ).rejects.toBeInstanceOf(UserInputError);
-    expect(service.set).not.toHaveBeenCalled();
+    expect(service.setMany).not.toHaveBeenCalled();
+  });
+
+  it('resolves a batch once and returns each item in input order', async () => {
+    const items = [
+      { toolIdentifier: logicFunctionId, ...availability },
+      {
+        toolIdentifier: catalog[2].name,
+        isAgentEnabled: true,
+        isMcpEnabled: false,
+      },
+      { toolIdentifier: 'search', ...availability },
+    ];
+    expect(
+      await resolver.setAiToolAvailabilities(
+        { items },
+        workspace,
+        user,
+        'user-workspace',
+      ),
+    ).toEqual(
+      items.map((input, index) => ({
+        ...input,
+        toolName: [catalog[0].name, catalog[2].name, 'search'][index],
+      })),
+    );
+    expect(registry.buildToolIndex).toHaveBeenCalledTimes(1);
+    expect(registry.buildToolIndex).toHaveBeenCalledWith(
+      'workspace',
+      buildOptions,
+    );
+    expect(service.getStableKeysByToolName).toHaveBeenCalledTimes(1);
+    expect(service.getStableKeysByToolName).toHaveBeenCalledWith('workspace', [
+      catalog[0],
+      catalog[2],
+      catalog[1],
+    ]);
+    expect(service.setMany).toHaveBeenCalledTimes(1);
+    expect(service.setMany).toHaveBeenCalledWith('workspace', [
+      { stableKey: `logicFunction:${logicFunctionId}`, availability },
+      {
+        stableKey: 'object:object-id:find_many',
+        availability: { isAgentEnabled: true, isMcpEnabled: false },
+      },
+      { stableKey: 'tool:search', availability },
+    ]);
+  });
+
+  it('rejects an entire batch when one identifier is unknown', async () => {
+    await expect(
+      resolver.setAiToolAvailabilities(
+        {
+          items: [
+            { toolIdentifier: 'search', ...availability },
+            { toolIdentifier: 'missing', ...availability },
+          ],
+        },
+        workspace,
+        user,
+        'user-workspace',
+      ),
+    ).rejects.toThrow('Tool not found.');
+    expect(service.setMany).not.toHaveBeenCalled();
   });
 
   it('maps all row kinds to current names once, retains missing functions and skips unresolved objects', async () => {

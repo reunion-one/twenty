@@ -3965,6 +3965,7 @@ export type Mutation = {
   sendInvitations: SendInvitations;
   sendMessageCampaign: SendMessageCampaignOutputDto;
   sendMessageCampaignTest: SendEmailViaDomainOutput;
+  setAiToolAvailabilities: Array<AiToolAvailability>;
   setAiToolAvailability: AiToolAvailability;
   setAppKeyValue: AppKeyValue;
   setBillingPartnerCode: BillingPartnerCode;
@@ -5089,6 +5090,11 @@ export type MutationSendMessageCampaignArgs = {
 
 export type MutationSendMessageCampaignTestArgs = {
   input: SendMessageCampaignTestInput;
+};
+
+
+export type MutationSetAiToolAvailabilitiesArgs = {
+  input: SetAiToolAvailabilitiesInput;
 };
 
 
@@ -7459,6 +7465,10 @@ export type Sentry = {
   environment?: Maybe<Scalars['String']['output']>;
   release?: Maybe<Scalars['String']['output']>;
   tracesSampleRate?: Maybe<Scalars['Float']['output']>;
+};
+
+export type SetAiToolAvailabilitiesInput = {
+  items: Array<SetAiToolAvailabilityInput>;
 };
 
 export type SetAiToolAvailabilityInput = {

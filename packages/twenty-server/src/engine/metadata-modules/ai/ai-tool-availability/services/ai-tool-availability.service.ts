@@ -85,17 +85,50 @@ export class AiToolAvailabilityService {
     stableKey: string,
     availability: AiToolAvailability,
   ): Promise<void> {
-    const scope = {
-      workspaceId,
-      userId: null,
-      type: KeyValuePairType.AI_TOOL_AVAILABILITY,
-      key: `${AI_TOOL_AVAILABILITY_KEY_PREFIX}${stableKey}` as const,
-    };
-    if (availability.isAgentEnabled && availability.isMcpEnabled) {
-      await this.keyValuePairService.delete(scope);
+    return this.setMany(workspaceId, [{ stableKey, availability }]);
+  }
+
+  async setMany(
+    workspaceId: string,
+    entries: Array<{ stableKey: string; availability: AiToolAvailability }>,
+  ): Promise<void> {
+    if (entries.length === 0) {
       return;
     }
-    await this.keyValuePairService.set({ ...scope, value: availability });
+
+    const queryRunner =
+      this.keyValuePairRepository.manager.connection.createQueryRunner();
+
+    try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      for (const { stableKey, availability } of entries) {
+        const scope = {
+          workspaceId,
+          userId: null,
+          type: KeyValuePairType.AI_TOOL_AVAILABILITY,
+          key: `${AI_TOOL_AVAILABILITY_KEY_PREFIX}${stableKey}` as const,
+        };
+        if (availability.isAgentEnabled && availability.isMcpEnabled) {
+          await this.keyValuePairService.delete(scope, queryRunner);
+        } else {
+          await this.keyValuePairService.set(
+            { ...scope, value: availability },
+            queryRunner,
+          );
+        }
+      }
+
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      if (queryRunner.isTransactionActive) {
+        await queryRunner.rollbackTransaction();
+      }
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async deleteByKeyPrefix(

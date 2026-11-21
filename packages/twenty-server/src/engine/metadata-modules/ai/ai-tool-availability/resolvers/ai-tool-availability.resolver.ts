@@ -24,6 +24,7 @@ import {
 } from 'src/engine/metadata-modules/ai/ai-tool-availability/constants/ai-tool-never-offered-tool-names.constant';
 import { AiToolAvailabilityLimitsDTO } from 'src/engine/metadata-modules/ai/ai-tool-availability/dtos/ai-tool-availability-limits.dto';
 import { AiToolAvailabilityDTO } from 'src/engine/metadata-modules/ai/ai-tool-availability/dtos/ai-tool-availability.dto';
+import { SetAiToolAvailabilitiesInput } from 'src/engine/metadata-modules/ai/ai-tool-availability/dtos/set-ai-tool-availabilities.input';
 import { SetAiToolAvailabilityInput } from 'src/engine/metadata-modules/ai/ai-tool-availability/dtos/set-ai-tool-availability.input';
 import { AiToolAvailabilityService } from 'src/engine/metadata-modules/ai/ai-tool-availability/services/ai-tool-availability.service';
 import { PermissionsGraphqlApiExceptionFilter } from 'src/engine/permissions/utils/permissions-graphql-api-exception.filter';
@@ -159,6 +160,53 @@ export class AiToolAvailabilityResolver {
     @AuthUser() user: UserEntity,
     @AuthUserWorkspaceId() userWorkspaceId: string,
   ): Promise<AiToolAvailabilityDTO> {
+    const [availability] = await this.setAvailabilities(
+      workspace,
+      user,
+      userWorkspaceId,
+      [input],
+    );
+
+    return availability;
+  }
+
+  @Mutation(() => [AiToolAvailabilityDTO])
+  @UseGuards(
+    AccessPolicyGuard({
+      authPrincipals: {
+        userSession: {
+          standard: true,
+          impersonated: true,
+          playground: true,
+          workspaceAgnostic: false,
+        },
+        apiKey: false,
+        oauthClient: false,
+        application: false,
+      },
+      requiredPermissionFlags: [PermissionFlagType.AI_SETTINGS],
+    }),
+  )
+  async setAiToolAvailabilities(
+    @Args('input') input: SetAiToolAvailabilitiesInput,
+    @AuthWorkspace() workspace: WorkspaceEntity,
+    @AuthUser() user: UserEntity,
+    @AuthUserWorkspaceId() userWorkspaceId: string,
+  ): Promise<AiToolAvailabilityDTO[]> {
+    return this.setAvailabilities(
+      workspace,
+      user,
+      userWorkspaceId,
+      input.items,
+    );
+  }
+
+  private async setAvailabilities(
+    workspace: WorkspaceEntity,
+    user: UserEntity,
+    userWorkspaceId: string,
+    items: SetAiToolAvailabilityInput[],
+  ): Promise<AiToolAvailabilityDTO[]> {
     const catalog = await this.toolRegistryService.buildToolIndex(
       workspace.id,
       {
@@ -168,45 +216,47 @@ export class AiToolAvailabilityResolver {
         userWorkspaceId,
       },
     );
-    const entry = isValidUuid(input.toolIdentifier)
-      ? catalog.find(
-          ({ executionRef }) =>
-            executionRef.kind === 'logic_function' &&
-            executionRef.logicFunctionId === input.toolIdentifier,
-        )
-      : catalog.find(({ name }) => name === input.toolIdentifier);
+    const entries = items.map((input) => {
+      const entry = isValidUuid(input.toolIdentifier)
+        ? catalog.find(
+            ({ executionRef }) =>
+              executionRef.kind === 'logic_function' &&
+              executionRef.logicFunctionId === input.toolIdentifier,
+          )
+        : catalog.find(({ name }) => name === input.toolIdentifier);
 
-    if (!isDefined(entry)) {
-      throw new UserInputError('Tool not found.', {
-        userFriendlyMessage: msg`Tool not found.`,
-      });
-    }
+      if (!isDefined(entry)) {
+        throw new UserInputError('Tool not found.', {
+          userFriendlyMessage: msg`Tool not found.`,
+        });
+      }
 
+      return entry;
+    });
     const stableKeysByToolName =
       await this.aiToolAvailabilityService.getStableKeysByToolName(
         workspace.id,
-        [entry],
+        entries,
       );
-    const stableKey = stableKeysByToolName.get(entry.name);
+    const resolvedEntries = entries.map((entry, index) => {
+      const stableKey = stableKeysByToolName.get(entry.name);
 
-    if (!isDefined(stableKey)) {
-      throw new UserInputError('Tool not found.', {
-        userFriendlyMessage: msg`Tool not found.`,
-      });
-    }
+      if (!isDefined(stableKey)) {
+        throw new UserInputError('Tool not found.', {
+          userFriendlyMessage: msg`Tool not found.`,
+        });
+      }
 
-    const { isAgentEnabled, isMcpEnabled } = input;
+      const { isAgentEnabled, isMcpEnabled } = items[index];
 
-    await this.aiToolAvailabilityService.set(workspace.id, stableKey, {
-      isAgentEnabled,
-      isMcpEnabled,
+      return { stableKey, availability: { isAgentEnabled, isMcpEnabled } };
     });
 
-    return {
-      toolIdentifier: input.toolIdentifier,
-      toolName: entry.name,
-      isAgentEnabled,
-      isMcpEnabled,
-    };
+    await this.aiToolAvailabilityService.setMany(workspace.id, resolvedEntries);
+
+    return items.map((input, index) => ({
+      ...input,
+      toolName: entries[index].name,
+    }));
   }
 }
