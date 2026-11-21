@@ -12,7 +12,11 @@ describe('@custom AI system prompt variable suggestions', () => {
         (item) => item.id,
       ),
     ).toEqual(['workspace.name', 'workspace.id']);
-    expect(getAiSystemPromptVariableSuggestionItems('')).toHaveLength(13);
+    expect(
+      getAiSystemPromptVariableSuggestionItems('workflow tool names').map(
+        (item) => item.id,
+      ),
+    ).toEqual(['tools.workflow.names']);
     expect(getAiSystemPromptVariableSuggestionItems('unknown')).toEqual([]);
   });
 });

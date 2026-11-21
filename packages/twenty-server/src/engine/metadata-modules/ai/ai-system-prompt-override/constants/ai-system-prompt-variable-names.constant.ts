@@ -1,3 +1,5 @@
+import { AI_SYSTEM_PROMPT_TOOL_CATEGORY_PATHS } from 'src/engine/metadata-modules/ai/ai-system-prompt-override/constants/ai-system-prompt-tool-category-paths.constant';
+
 export const AI_SYSTEM_PROMPT_VARIABLE_NAMES: readonly string[] = [
   'assistant.displayName',
   'user.firstName',
@@ -12,4 +14,17 @@ export const AI_SYSTEM_PROMPT_VARIABLE_NAMES: readonly string[] = [
   'toolCatalog',
   'skillCatalog',
   'userContext',
+  'objects.names',
+  'objects.count',
+  'tools.names',
+  'tools.count',
+  'tools.direct.names',
+  'tools.discovery.names',
+  'tools.record.patterns',
+  ...Object.values(AI_SYSTEM_PROMPT_TOOL_CATEGORY_PATHS).map(
+    (category) => 'tools.' + category + '.names',
+  ),
+  'skills.names',
+  'skills.summaries',
+  'skills.count',
 ];

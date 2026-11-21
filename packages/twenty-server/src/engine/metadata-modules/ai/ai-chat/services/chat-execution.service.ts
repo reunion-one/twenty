@@ -256,6 +256,7 @@ export class ChatExecutionService {
           this.aiSystemPromptOverrideService.buildFullSystemPrompt(
             args,
             workspace.displayName,
+            { availableToolNames: Object.keys(toolset.tools) },
           );
 
         return {
