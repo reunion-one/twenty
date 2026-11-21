@@ -16,7 +16,9 @@ export const useGettingStartedProgress = ({
   );
 
   return {
-    progress: data?.gettingStartedProgress,
+    progress: isGettingStartedEnabled
+      ? data?.gettingStartedProgress
+      : undefined,
     loading,
     error,
     refetch,

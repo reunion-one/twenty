@@ -84,7 +84,7 @@ describe('WORKSPACE_SETUP_SYSTEM_PROMPT', () => {
     expect(prompt).toContain(
       'the two most widely used when you know nothing about them',
     );
-    expect(prompt).toContain('what they want to use Twenty for');
+    expect(prompt).toContain('what they want to use Web3 CRM for');
   });
 
   it('should fold at most one person detail into the framing without reciting it', () => {

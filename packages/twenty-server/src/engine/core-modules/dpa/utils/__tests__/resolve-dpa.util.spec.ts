@@ -136,6 +136,10 @@ describe('resolveDpa', () => {
 
     expect(cloud.notice).toBeUndefined();
     expect(selfHosted.notice).toContain('NOT A VALID AGREEMENT');
+    expect(selfHosted.title).toBe(cloud.title);
+    expect(selfHosted.blocks).toEqual(cloud.blocks);
+    expect(selfHosted.blocks.length).toBeGreaterThan(0);
+    expect(selfHosted.values).toEqual(cloud.values);
   });
 
   it('records the template version so we can prove what was agreed', () => {

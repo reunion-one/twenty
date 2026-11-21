@@ -91,7 +91,7 @@ CRITICAL SCHEMA REQUIREMENTS:
 - RICH_TEXT fields (e.g. a note/task "body") MUST be an object, not a string: { "markdown": "your text, may contain {{variables}}" }. A bare string is rejected.
 - Use "trigger" as the id for the trigger step in edges
 - Step positions are computed automatically; do not provide coordinates
-- settings.outputSchema can be {}: Twenty computes it for ITERATOR steps and derives it for record, form and trigger steps. For HTTP_REQUEST steps, set settings.expectedOutputSchema to an example response so later steps can reference its fields
+- settings.outputSchema can be {}: Web3 CRM computes it for ITERATOR steps and derives it for record, form and trigger steps. For HTTP_REQUEST steps, set settings.expectedOutputSchema to an example response so later steps can reference its fields
 
 ITERATOR steps (loops):
 - An edge leaving an ITERATOR only enters the loop body when it carries sourceConnectionOptions: { connectedStepType: "ITERATOR", settings: { isConnectedToLoop: true } }. Without it the target is placed after the loop instead.
@@ -109,7 +109,7 @@ IMPORTANT: The tool schema provides comprehensive field descriptions, examples, 
 - Field requirements and data types
 - Common object patterns and field structures
 - Proper relationship field formats
-- Variable reference syntax: {{trigger.properties.after.fieldName}} for a DATABASE_EVENT trigger's record ({{trigger.properties.before.fieldName}} for deleted events), {{trigger.payload.fieldName}} for a MANUAL trigger's selected record, {{trigger.fieldName}} for a WEBHOOK trigger's request body, {{<step-id>.fieldName}} for step outputs (step-id is the step's UUID, not its name). The path mirrors the step's output schema exactly and is addressed directly; Twenty does not add a "result" wrapper. A FIND_RECORDS step exposes {{<find-step-id>.all}} and {{<find-step-id>.first.id}}, not {{<find-step-id>.result.all}}.
+- Variable reference syntax: {{trigger.properties.after.fieldName}} for a DATABASE_EVENT trigger's record ({{trigger.properties.before.fieldName}} for deleted events), {{trigger.payload.fieldName}} for a MANUAL trigger's selected record, {{trigger.fieldName}} for a WEBHOOK trigger's request body, {{<step-id>.fieldName}} for step outputs (step-id is the step's UUID, not its name). The path mirrors the step's output schema exactly and is addressed directly; Web3 CRM does not add a "result" wrapper. A FIND_RECORDS step exposes {{<find-step-id>.all}} and {{<find-step-id>.first.id}}, not {{<find-step-id>.result.all}}.
 - Error handling options
 
 This is the most efficient way for AI to create workflows as it handles all the complexity in one call.

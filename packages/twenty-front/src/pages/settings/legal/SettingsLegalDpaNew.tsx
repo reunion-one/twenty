@@ -93,7 +93,7 @@ export const SettingsLegalDpaNew = () => {
 
       await downloadFile(
         result.downloadUrl,
-        `Twenty-DPA-${result.agreement.templateVersion}-${safeLegalEntityName}.pdf`,
+        `Web3-CRM-DPA-${result.agreement.templateVersion}-${safeLegalEntityName}.pdf`,
       );
 
       enqueueToast({
@@ -142,7 +142,7 @@ export const SettingsLegalDpaNew = () => {
         <Section.Root>
           <Section.Header
             title={t`Your details`}
-            description={t`The PDF is pre-signed by Twenty and executed with your legal entity and authorized signatory.`}
+            description={t`The PDF contains the provider agreement and your legal entity and authorized signatory.`}
           />
           <SettingsTextInput
             instanceId="dpa-legal-entity-name"

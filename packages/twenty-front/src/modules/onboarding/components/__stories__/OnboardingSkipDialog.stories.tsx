@@ -58,7 +58,7 @@ const meta: Meta<typeof OnboardingSkipDialogExample> = {
     ),
     title: 'Start with your whole network',
     description:
-      'Twenty adds the people you email and meet, and keeps them up to date without manual data entry.',
+      'Web3 CRM adds the people you email and meet, and keeps them up to date without manual data entry.',
     actions: [
       {
         label: 'Continue with Microsoft',

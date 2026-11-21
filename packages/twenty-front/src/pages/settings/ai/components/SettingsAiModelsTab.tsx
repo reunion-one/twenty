@@ -80,7 +80,7 @@ export const SettingsAiModelsTab = () => {
             <SettingsOptionCardContentSelect
               Icon={IconMessage}
               title={t`AI chat`}
-              description={t`Model used when you chat with Twenty`}
+              description={t`Model used when you chat with Web3 CRM`}
               divider
             >
               <Select
@@ -109,7 +109,7 @@ export const SettingsAiModelsTab = () => {
           <SettingsOptionCardContentSwitch
             Icon={IconWand}
             title={t`Choose automatically`}
-            description={t`Twenty fills each level with the best model that meets your requirements`}
+            description={t`Web3 CRM fills each level with the best model that meets your requirements`}
             checked={isAutoModelSelectionEnabled}
             onChange={handleAutoModelSelectionToggle}
           />

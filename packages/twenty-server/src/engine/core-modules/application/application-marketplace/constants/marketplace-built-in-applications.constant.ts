@@ -11,24 +11,24 @@ export const MARKETPLACE_BUILT_IN_APPLICATIONS: MarketplaceBuiltInApplication[] 
         MARKETPLACE_BUILT_IN_APPLICATION_UNIVERSAL_IDENTIFIERS.CLAUDE,
       name: 'Claude',
       description:
-        'Search, create and update your Twenty records from a Claude conversation.',
+        'Search, create and update your Web3 CRM records from a Claude conversation.',
       aboutDescription:
-        'Connect Claude to Twenty to work with your records from a conversation. Each member connects their own Claude account, and Claude acts with that member’s permissions.',
+        'Connect Claude to Web3 CRM to work with your records from a conversation. Each member connects their own Claude account, and Claude acts with that member’s permissions.',
       author: 'Anthropic',
       category: 'Productivity',
       logoPath: '/images/oauth-clients/claude.webp',
       coverImagePath: '/images/oauth-clients/covers/claude.webp',
       websiteUrl: 'https://claude.ai',
-      connectUrl: `https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=Twenty&connectorUrl=${MARKETPLACE_APP_MCP_SERVER_URL_PLACEHOLDER}`,
+      connectUrl: `https://claude.ai/customize/connectors?modal=add-custom-connector&connectorName=Web3%20CRM&connectorUrl=${MARKETPLACE_APP_MCP_SERVER_URL_PLACEHOLDER}`,
     },
     {
       universalIdentifier:
         MARKETPLACE_BUILT_IN_APPLICATION_UNIVERSAL_IDENTIFIERS.CHATGPT,
       name: 'ChatGPT',
       description:
-        'Search, create and update your Twenty records from a ChatGPT conversation.',
+        'Search, create and update your Web3 CRM records from a ChatGPT conversation.',
       aboutDescription:
-        'Connect ChatGPT to Twenty to work with your records from a conversation. Each member connects their own ChatGPT account, and ChatGPT acts with that member’s permissions.',
+        'Connect ChatGPT to Web3 CRM to work with your records from a conversation. Each member connects their own ChatGPT account, and ChatGPT acts with that member’s permissions.',
       author: 'OpenAI',
       category: 'Productivity',
       logoPath: '/images/oauth-clients/chatgpt.webp',

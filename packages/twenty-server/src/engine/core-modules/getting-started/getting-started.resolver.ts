@@ -24,13 +24,9 @@ import { AccessPolicyGuard } from 'src/engine/guards/access-policy.guard';
 @MetadataResolver()
 @UseGuards(
   AccessPolicyGuard({
+    // Getting Started is disabled in this fork.
     authPrincipals: {
-      userSession: {
-        standard: true,
-        impersonated: true,
-        playground: false,
-        workspaceAgnostic: false,
-      },
+      userSession: false,
       apiKey: false,
       oauthClient: false,
       application: false,
