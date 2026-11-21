@@ -1,3 +1,4 @@
+import { type ApolloCache } from '@apollo/client';
 import { useMutation, useQuery } from '@apollo/client/react';
 import { useMemo } from 'react';
 import { isDefined } from 'twenty-shared/utils';
@@ -7,8 +8,31 @@ import { getToastOptionsFromError } from '@/error-handler/utils/getToastOptionsF
 import {
   AiToolAvailabilitiesDocument,
   SetAiToolAvailabilityDocument,
+  SetAiToolAvailabilitiesDocument,
+  type AiToolAvailabilitiesQuery,
   type SetAiToolAvailabilityInput,
 } from '~/generated-metadata/graphql';
+
+const mergeAvailabilities = (
+  cache: ApolloCache,
+  rows: AiToolAvailabilitiesQuery['aiToolAvailabilities'],
+) => {
+  for (const row of rows) {
+    cache.updateQuery({ query: AiToolAvailabilitiesDocument }, (cached) => {
+      const otherRows = (cached?.aiToolAvailabilities ?? []).filter(
+        (availability) => availability.toolIdentifier !== row.toolIdentifier,
+      );
+
+      return {
+        ...cached,
+        aiToolAvailabilities:
+          row.isAgentEnabled && row.isMcpEnabled
+            ? otherRows
+            : [...otherRows, row],
+      };
+    });
+  }
+};
 
 export const useAiToolAvailabilities = () => {
   const { enqueueToast } = useToast();
@@ -21,6 +45,9 @@ export const useAiToolAvailabilities = () => {
     fetchPolicy: 'cache-first',
   });
   const [setAvailabilityMutation] = useMutation(SetAiToolAvailabilityDocument);
+  const [setAvailabilitiesMutation] = useMutation(
+    SetAiToolAvailabilitiesDocument,
+  );
   const { availabilityByToolIdentifier, availabilityByToolName } =
     useMemo(() => {
       const rows = error ? [] : (data?.aiToolAvailabilities ?? []);
@@ -58,27 +85,29 @@ export const useAiToolAvailabilities = () => {
             return;
           }
 
-          cache.updateQuery(
-            { query: AiToolAvailabilitiesDocument },
-            (cached) => {
-              const otherRows = (cached?.aiToolAvailabilities ?? []).filter(
-                (availability) =>
-                  availability.toolIdentifier !== row.toolIdentifier,
-              );
-
-              return {
-                ...cached,
-                aiToolAvailabilities:
-                  row.isAgentEnabled && row.isMcpEnabled
-                    ? otherRows
-                    : [...otherRows, row],
-              };
-            },
-          );
+          mergeAvailabilities(cache, [row]);
         },
       });
     } catch (error) {
       enqueueToast(getToastOptionsFromError({ error }));
+    }
+  };
+
+  const setAvailabilities = async (items: SetAiToolAvailabilityInput[]) => {
+    try {
+      const result = await setAvailabilitiesMutation({
+        variables: { input: { items } },
+        update: (cache, { data: mutationData }) => {
+          if (isDefined(mutationData?.setAiToolAvailabilities)) {
+            mergeAvailabilities(cache, mutationData.setAiToolAvailabilities);
+          }
+        },
+      });
+
+      return isDefined(result.data?.setAiToolAvailabilities);
+    } catch (error) {
+      enqueueToast(getToastOptionsFromError({ error }));
+      return false;
     }
   };
 
@@ -87,5 +116,6 @@ export const useAiToolAvailabilities = () => {
     availabilityByToolName,
     isLoading,
     setAvailability,
+    setAvailabilities,
   };
 };
