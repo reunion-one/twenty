@@ -13,6 +13,7 @@ import { SettingsAiToolAvailabilitySection } from '@/settings/ai/tool-availabili
 import { useHasPermissionFlag } from '@/settings/roles/hooks/useHasPermissionFlag';
 import {
   AiToolAvailabilitiesDocument,
+  AiToolAvailabilityLimitsDocument,
   SetAiToolAvailabilityDocument,
   type AiToolAvailabilitiesQuery,
 } from '~/generated-metadata/graphql';
@@ -27,6 +28,12 @@ beforeAll(() => {
   });
 });
 
+const limits = {
+  __typename: 'AiToolAvailabilityLimits' as const,
+  neverAvailableToAgents: ['create_file_upload'],
+  neverAvailableOverMcp: ['code_interpreter'],
+};
+
 const renderSection = (
   additionalMocks: MockedResponse[] = [],
   rows: AiToolAvailabilitiesQuery['aiToolAvailabilities'] = [],
@@ -37,6 +44,10 @@ const renderSection = (
     query: AiToolAvailabilitiesDocument,
     data: { aiToolAvailabilities: rows },
   });
+  cache.writeQuery({
+    query: AiToolAvailabilityLimitsDocument,
+    data: { aiToolAvailabilityLimits: limits },
+  });
   return render(
     <MockedProvider
       cache={cache}
@@ -44,6 +55,10 @@ const renderSection = (
         {
           request: { query: AiToolAvailabilitiesDocument },
           result: { data: { aiToolAvailabilities: rows } },
+        },
+        {
+          request: { query: AiToolAvailabilityLimitsDocument },
+          result: { data: { aiToolAvailabilityLimits: limits } },
         },
         ...additionalMocks,
       ]}
