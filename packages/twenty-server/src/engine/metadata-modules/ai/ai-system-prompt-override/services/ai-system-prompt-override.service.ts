@@ -21,6 +21,7 @@ import {
 import { applyAiSystemPromptOverrides } from 'src/engine/metadata-modules/ai/ai-system-prompt-override/utils/apply-ai-system-prompt-overrides.util';
 import { type AiSystemPromptToolNames } from 'src/engine/metadata-modules/ai/ai-system-prompt-override/utils/build-ai-system-prompt-catalog-variables.util';
 import { buildAiSystemPromptVariableContext } from 'src/engine/metadata-modules/ai/ai-system-prompt-override/utils/build-ai-system-prompt-variable-context.util';
+import { escapeTagBracketsForEditor } from 'src/engine/metadata-modules/ai/ai-system-prompt-override/utils/escape-tag-brackets-for-editor.util';
 import { extractTemplateVariableNames } from 'src/engine/metadata-modules/ai/ai-system-prompt-override/utils/extract-template-variable-names.util';
 import { getAiSystemPromptDefaultTemplates } from 'src/engine/metadata-modules/ai/ai-system-prompt-override/utils/get-ai-system-prompt-default-templates.util';
 import { unescapeMarkdownText } from 'src/engine/metadata-modules/ai/ai-system-prompt-override/utils/unescape-markdown-text.util';
@@ -74,7 +75,6 @@ export class AiSystemPromptOverrideService {
     const sections = buildSystemPromptSections(args);
     const context = buildAiSystemPromptVariableContext(
       args,
-      sections,
       workspaceName,
       toolNames,
     );
@@ -111,7 +111,7 @@ export class AiSystemPromptOverrideService {
       return {
         sectionKey,
         title: AI_SYSTEM_PROMPT_EDITABLE_SECTIONS[sectionKey],
-        defaultTemplate,
+        defaultTemplate: escapeTagBracketsForEditor(defaultTemplate),
         overrideContent: override?.content ?? null,
         isDefaultChanged:
           isDefined(override) &&

@@ -9,7 +9,6 @@ import { ToolRegistryService } from 'src/engine/core-modules/tool-provider/servi
 import { AgentActorContextService } from 'src/engine/metadata-modules/ai/ai-agent-execution/services/agent-actor-context.service';
 import { AI_CHAT_EXCLUDED_TOOL_NAMES } from 'src/engine/metadata-modules/ai/ai-chat/constants/ai-chat-excluded-tool-names.const';
 import { AI_CHAT_TOOL_NAMES_TO_PRELOAD } from 'src/engine/metadata-modules/ai/ai-chat/constants/ai-chat-tool-names-to-preload.const';
-import { type BuildSystemPromptArguments } from 'src/engine/metadata-modules/ai/ai-chat/types/build-system-prompt-arguments.type';
 import { AiSystemPromptOverrideService } from 'src/engine/metadata-modules/ai/ai-system-prompt-override/services/ai-system-prompt-override.service';
 import { resolveAiSystemPromptPreviewToolNames } from 'src/engine/metadata-modules/ai/ai-system-prompt-override/utils/resolve-ai-system-prompt-preview-tool-names.util';
 import { type SystemPromptSection } from 'src/engine/metadata-modules/ai/ai-chat/types/system-prompt-section.type';
@@ -69,33 +68,32 @@ export class SystemPromptBuilderService {
       ],
     );
 
-    const buildSectionsWithOverrides = async (
-      args: BuildSystemPromptArguments,
-    ) =>
-      this.aiSystemPromptOverrideService.buildSections(
-        args,
-        workspaceName,
-        await resolveAiSystemPromptPreviewToolNames({
-          toolRegistry: this.toolRegistry,
-          context: { workspaceId, authContext, userId, userWorkspaceId },
-          toolCatalog,
-          preloadedToolNames: AI_CHAT_TOOL_NAMES_TO_PRELOAD,
-        }),
-      );
+    const { directToolNames, availableToolNames } =
+      await resolveAiSystemPromptPreviewToolNames({
+        toolRegistry: this.toolRegistry,
+        context: { workspaceId, authContext, userId, userWorkspaceId },
+        toolCatalog,
+        preloadedToolNames: AI_CHAT_TOOL_NAMES_TO_PRELOAD,
+      });
 
-    const builtSections = await buildSectionsWithOverrides({
-      assistantDisplayName: isAiChatInboxEnabled
-        ? assistantProfile.displayName
-        : undefined,
-      toolCatalog,
-      skillCatalog,
-      preloadedTools: AI_CHAT_TOOL_NAMES_TO_PRELOAD,
-      workspaceInstructions,
-      userContext,
-      userWorkspaceId,
-      workspaceId,
-      canAttachConversationToRecords: isAiChatInboxEnabled,
-    });
+    const builtSections =
+      await this.aiSystemPromptOverrideService.buildSections(
+        {
+          assistantDisplayName: isAiChatInboxEnabled
+            ? assistantProfile.displayName
+            : undefined,
+          toolCatalog,
+          skillCatalog,
+          preloadedTools: directToolNames,
+          workspaceInstructions,
+          userContext,
+          userWorkspaceId,
+          workspaceId,
+          canAttachConversationToRecords: isAiChatInboxEnabled,
+        },
+        workspaceName,
+        { availableToolNames },
+      );
 
     const sections = builtSections.map((section) => ({
       ...section,

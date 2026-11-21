@@ -1,6 +1,7 @@
 export const AI_SYSTEM_PROMPT_EDITABLE_SECTIONS = {
   assistantIdentity: 'Assistant Identity',
   baseInstructions: 'Base Instructions',
+  browsingContext: 'Browsing Context',
   conversationAttachment: 'Conversation Attachment',
   responseFormat: 'Response Format',
   toolCatalog: 'Tool Catalog',
@@ -11,9 +12,3 @@ export const AI_SYSTEM_PROMPT_EDITABLE_SECTIONS = {
 
 export type AiSystemPromptSectionKey =
   keyof typeof AI_SYSTEM_PROMPT_EDITABLE_SECTIONS;
-
-export const AI_SYSTEM_PROMPT_BLOCK_DEFAULTS = {
-  toolCatalog: '{{toolCatalog}}',
-  skillCatalog: '{{skillCatalog}}',
-  userContext: '{{userContext}}',
-} as const;

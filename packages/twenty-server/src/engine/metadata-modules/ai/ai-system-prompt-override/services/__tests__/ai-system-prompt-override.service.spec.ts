@@ -62,6 +62,13 @@ describe('@custom AiSystemPromptOverrideService', () => {
     expect(keyValuePairService.set).not.toHaveBeenCalled();
   });
 
+  it('rejects the removed toolCatalog variable', async () => {
+    await expect(
+      service.upsert('workspace', 'toolCatalog', '{{toolCatalog}}'),
+    ).rejects.toThrow('toolCatalog');
+    expect(keyValuePairService.set).not.toHaveBeenCalled();
+  });
+
   it('ignores unprefixed rows and unknown prefixed section keys', async () => {
     const value = { content: 'custom', defaultHash: 'hash' };
 
@@ -85,7 +92,7 @@ describe('@custom AiSystemPromptOverrideService', () => {
       .update(getAiSystemPromptDefaultTemplates().baseInstructions)
       .digest('hex');
 
-    const content = 'Custom {{tools.workflow.names}}';
+    const content = 'Custom {{tools.workflow.list}}';
     await service.upsert('workspace', 'baseInstructions', content);
     expect(keyValuePairService.set).toHaveBeenCalledWith({
       workspaceId: 'workspace',
@@ -122,6 +129,26 @@ describe('@custom AiSystemPromptOverrideService', () => {
       userId: null,
       type: KeyValuePairType.AI_SYSTEM_PROMPT_OVERRIDE,
     });
+  });
+
+  it('keeps tag brackets as text in the editor default and leaves the hash on the raw default', async () => {
+    keyValuePairService.get.mockResolvedValue([]);
+    const section = (await service.listSettingsSections('workspace')).find(
+      ({ sectionKey }) => sectionKey === 'browsingContext',
+    );
+
+    expect(section?.defaultTemplate).toContain(String.raw`\<browsing_context>`);
+    await service.upsert('workspace', 'browsingContext', 'custom');
+    expect(keyValuePairService.set).toHaveBeenCalledWith(
+      expect.objectContaining({
+        value: {
+          content: 'custom',
+          defaultHash: createHash('sha256')
+            .update(getAiSystemPromptDefaultTemplates().browsingContext)
+            .digest('hex'),
+        },
+      }),
+    );
   });
 
   it('rejects deleting unknown sections before accessing storage', async () => {
@@ -166,6 +193,9 @@ describe('@custom AiSystemPromptOverrideService', () => {
       sections.find((section) => section.title === 'Base Instructions')
         ?.content,
     ).toBe('Hello Ada at Acme');
+    expect(
+      sections.find((section) => section.title === 'Skill Catalog')?.content,
+    ).toContain('No skills are available.');
     expect(keyValuePairService.get).toHaveBeenCalledWith({
       workspaceId: 'workspace',
       userId: null,

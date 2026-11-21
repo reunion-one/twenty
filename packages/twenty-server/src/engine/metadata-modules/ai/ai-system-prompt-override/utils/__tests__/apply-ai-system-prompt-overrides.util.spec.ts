@@ -38,7 +38,7 @@ describe('@custom applyAiSystemPromptOverrides', () => {
       { title: 'Tool Catalog', content: 'upstream tools' },
       { title: 'Base Instructions', content: 'base' },
     ];
-    const context = buildAiSystemPromptVariableContext(args, sections, null);
+    const context = buildAiSystemPromptVariableContext(args, null);
     const result = applyAiSystemPromptOverrides(
       sections,
       new Map([
@@ -47,7 +47,7 @@ describe('@custom applyAiSystemPromptOverrides', () => {
           'baseInstructions',
           {
             content: document(
-              '{{toolCatalog}} / {{skillCatalog}} / {{userContext}} / {{user.jobTitle}} / {{workspace.name}}',
+              '{{tools.list}} / {{skills.list}} / {{user.timezone}} / {{user.jobTitle}} / {{workspace.name}}',
             ),
             defaultHash: '',
           },
@@ -59,12 +59,16 @@ describe('@custom applyAiSystemPromptOverrides', () => {
 
     expect(result).toEqual([
       { title: 'Tool Catalog', content: 'new tools' },
-      { title: 'Base Instructions', content: 'upstream tools /  /  /  / ' },
+      {
+        title: 'Base Instructions',
+        content:
+          'No tools are available. / No skills are available. / Not set / Not set / ',
+      },
     ]);
     expect(sections[0].content).toBe('upstream tools');
   });
 
-  it('normalizes null user fields and resolves scalar and upstream block variables', () => {
+  it('normalizes null user fields and resolves scalar and catalog variables', () => {
     const sections = [
       { title: 'User Context', content: 'original user' },
       { title: 'Skill Catalog', content: 'original skills' },
@@ -73,19 +77,18 @@ describe('@custom applyAiSystemPromptOverrides', () => {
       {
         ...args,
         userContext: {
-          firstName: 'Ada',
+          firstName: 'Sam',
           lastName: '',
           jobTitle: null,
           timezone: null,
           locale: 'en',
         },
       },
-      sections,
       'Acme',
     );
 
-    expect(context.user.jobTitle).toBe('');
-    expect(context.user.timezone).toBe('');
+    expect(context.user.jobTitle).toBe('Not set');
+    expect(context.user.timezone).toBe('Not set');
     expect(
       applyAiSystemPromptOverrides(
         sections,
@@ -94,14 +97,14 @@ describe('@custom applyAiSystemPromptOverrides', () => {
             'userContext',
             {
               content:
-                '{{user.firstName}} {{workspace.name}} {{skillCatalog}} {{userContext}}',
+                '{{user.firstName}} {{workspace.name}} {{skills.count}} {{user.timezone}}',
               defaultHash: '',
             },
           ],
         ]),
         context,
       )[0].content,
-    ).toBe('Ada Acme original skills original user');
+    ).toBe('Sam Acme 0 Not set');
   });
 
   it('renders scoped registry lists, operation patterns, skills and tool loading separately', () => {
@@ -139,7 +142,6 @@ describe('@custom applyAiSystemPromptOverrides', () => {
           },
         ],
       },
-      sections,
       null,
       { availableToolNames: ['learn_tools', 'read_file'] },
     );
@@ -152,7 +154,7 @@ describe('@custom applyAiSystemPromptOverrides', () => {
             'baseInstructions',
             {
               content: document(
-                '{{objects.count}} {{objects.names}} / {{tools.count}} {{tools.names}} / {{tools.workflow.names}} / {{tools.logicFunction.names}} / {{tools.record.patterns}} / {{tools.direct.names}} / {{tools.discovery.names}} / {{skills.count}} {{skills.names}} / {{skills.summaries}}',
+                '{{objects.count}} {{objects.list}} / {{tools.count}} {{tools.list}} / {{tools.workflow.list}} / {{tools.logicFunction.list}} / {{tools.record.patterns.list}} / {{tools.preloaded.list}} / {{tools.discovery.list}} / {{skills.count}} {{skills.list}}',
               ),
               defaultHash: '',
             },
@@ -161,7 +163,7 @@ describe('@custom applyAiSystemPromptOverrides', () => {
         context,
       )[0].content,
     ).toBe(
-      '1 - `person` / 3 - `find_many_people`\n- `list_workflows`\n- `read_file` / - `list_workflows` /  / - `find_many_{object}` / - `read_file` / - `learn_tools` / 1 - `clean-data` / - `clean-data`: Clean data',
+      '1 - `person` / 3 - `list_workflows`\n- `find_many_people`\n- `read_file` ✓ / - `list_workflows` / No logic function tools are available. / - `find_many_{object}` / - `read_file` ✓ / - `learn_tools` / 1 - `clean-data`: Clean data',
     );
   });
 
