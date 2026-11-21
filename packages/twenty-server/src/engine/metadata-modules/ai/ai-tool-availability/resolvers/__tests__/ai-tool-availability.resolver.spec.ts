@@ -219,4 +219,15 @@ describe('@custom AiToolAvailabilityResolver', () => {
     expect(registry.buildToolIndex).not.toHaveBeenCalled();
     expect(service.getStableKeysByToolName).not.toHaveBeenCalled();
   });
+
+  it('reports the tools never offered to agents and over MCP', () => {
+    const limits = resolver.aiToolAvailabilityLimits();
+
+    expect(limits.neverAvailableToAgents).toEqual(
+      expect.arrayContaining(['create_file_upload', 'complete_file_upload']),
+    );
+    expect(limits.neverAvailableOverMcp).toEqual(
+      expect.arrayContaining(['code_interpreter', 'http_request', 'read_file']),
+    );
+  });
 });

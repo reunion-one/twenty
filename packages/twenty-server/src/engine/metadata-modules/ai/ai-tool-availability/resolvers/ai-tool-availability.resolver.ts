@@ -18,6 +18,11 @@ import { AuthUserWorkspaceId } from 'src/engine/decorators/auth/auth-user-worksp
 import { AuthUser } from 'src/engine/decorators/auth/auth-user.decorator';
 import { AuthWorkspace } from 'src/engine/decorators/auth/auth-workspace.decorator';
 import { AccessPolicyGuard } from 'src/engine/guards/access-policy.guard';
+import {
+  AI_CHAT_EXCLUDED_TOOL_NAMES,
+  MCP_EXCLUDED_TOOL_NAMES,
+} from 'src/engine/metadata-modules/ai/ai-tool-availability/constants/ai-tool-never-offered-tool-names.constant';
+import { AiToolAvailabilityLimitsDTO } from 'src/engine/metadata-modules/ai/ai-tool-availability/dtos/ai-tool-availability-limits.dto';
 import { AiToolAvailabilityDTO } from 'src/engine/metadata-modules/ai/ai-tool-availability/dtos/ai-tool-availability.dto';
 import { SetAiToolAvailabilityInput } from 'src/engine/metadata-modules/ai/ai-tool-availability/dtos/set-ai-tool-availability.input';
 import { AiToolAvailabilityService } from 'src/engine/metadata-modules/ai/ai-tool-availability/services/ai-tool-availability.service';
@@ -35,6 +40,30 @@ export class AiToolAvailabilityResolver {
     private readonly aiToolAvailabilityService: AiToolAvailabilityService,
     private readonly toolRegistryService: ToolRegistryService,
   ) {}
+
+  @Query(() => AiToolAvailabilityLimitsDTO)
+  @UseGuards(
+    AccessPolicyGuard({
+      authPrincipals: {
+        userSession: {
+          standard: true,
+          impersonated: true,
+          playground: true,
+          workspaceAgnostic: false,
+        },
+        apiKey: false,
+        oauthClient: false,
+        application: false,
+      },
+      requiredPermissionFlags: [PermissionFlagType.AI],
+    }),
+  )
+  aiToolAvailabilityLimits(): AiToolAvailabilityLimitsDTO {
+    return {
+      neverAvailableToAgents: [...AI_CHAT_EXCLUDED_TOOL_NAMES],
+      neverAvailableOverMcp: [...MCP_EXCLUDED_TOOL_NAMES],
+    };
+  }
 
   @Query(() => [AiToolAvailabilityDTO])
   @UseGuards(

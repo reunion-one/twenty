@@ -1,14 +1,17 @@
+import { useQuery } from '@apollo/client/react';
 import { useLingui } from '@lingui/react/macro';
 import { isDefined } from 'twenty-shared/utils';
 import { Section } from 'twenty-ui/components/layout';
 import { IconLego, IconSparkles } from 'twenty-ui/icon';
 import { Card } from 'twenty-ui/primitives/surfaces';
 
-import { AI_TOOL_NEVER_OFFERED_TOOL_NAMES } from '@/settings/ai/tool-availability/constants/AiToolNeverOfferedToolNames';
 import { useAiToolAvailabilities } from '@/settings/ai/tool-availability/hooks/useAiToolAvailabilities';
 import { SettingsOptionCardContentSwitch } from '@/settings/components/SettingsOptions/SettingsOptionCardContentSwitch';
 import { useHasPermissionFlag } from '@/settings/roles/hooks/useHasPermissionFlag';
-import { PermissionFlagType } from '~/generated-metadata/graphql';
+import {
+  AiToolAvailabilityLimitsDocument,
+  PermissionFlagType,
+} from '~/generated-metadata/graphql';
 
 type SettingsAiToolAvailabilitySectionProps = {
   toolIdentifier: string;
@@ -23,12 +26,17 @@ export const SettingsAiToolAvailabilitySection = ({
   const canEdit = useHasPermissionFlag(PermissionFlagType.AI_SETTINGS);
   const { availabilityByToolIdentifier, isLoading, setAvailability } =
     useAiToolAvailabilities();
+  const { data: limitsData } = useQuery(AiToolAvailabilityLimitsDocument, {
+    fetchPolicy: 'cache-first',
+  });
   const availability = availabilityByToolIdentifier.get(toolIdentifier);
+  const limits = limitsData?.aiToolAvailabilityLimits;
   const isNeverAvailableToAgents =
     isDefined(toolName) &&
-    AI_TOOL_NEVER_OFFERED_TOOL_NAMES.agents.has(toolName);
+    (limits?.neverAvailableToAgents.includes(toolName) ?? false);
   const isNeverAvailableOverMcp =
-    isDefined(toolName) && AI_TOOL_NEVER_OFFERED_TOOL_NAMES.mcp.has(toolName);
+    isDefined(toolName) &&
+    (limits?.neverAvailableOverMcp.includes(toolName) ?? false);
   const isAgentEnabled = availability?.isAgentEnabled ?? true;
   const isMcpEnabled = availability?.isMcpEnabled ?? true;
 

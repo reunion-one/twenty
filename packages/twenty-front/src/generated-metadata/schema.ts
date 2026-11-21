@@ -440,6 +440,12 @@ export type AiToolAvailability = {
   toolName?: Maybe<Scalars['String']['output']>;
 };
 
+export type AiToolAvailabilityLimits = {
+  __typename?: 'AiToolAvailabilityLimits';
+  neverAvailableOverMcp: Array<Scalars['String']['output']>;
+  neverAvailableToAgents: Array<Scalars['String']['output']>;
+};
+
 export enum AllMetadataName {
   agent = 'agent',
   agentChatChannel = 'agentChatChannel',
@@ -6239,6 +6245,7 @@ export type Query = {
   aiChatUserCreditsUsage?: Maybe<AiChatUserCreditsUsage>;
   aiSystemPromptOverrideSections: Array<AiSystemPromptOverrideSection>;
   aiToolAvailabilities: Array<AiToolAvailability>;
+  aiToolAvailabilityLimits: AiToolAvailabilityLimits;
   apiKey?: Maybe<ApiKey>;
   apiKeys: Array<ApiKey>;
   appConnection: AppConnection;
