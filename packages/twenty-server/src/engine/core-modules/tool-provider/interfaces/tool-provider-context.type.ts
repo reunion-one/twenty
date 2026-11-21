@@ -6,9 +6,12 @@ import { type WorkspaceAuthContext } from 'src/engine/core-modules/auth/types/wo
 import { type ExplicitObjectGrants } from 'src/engine/core-modules/tool-provider/interfaces/explicit-object-grants.type';
 import { type CodeExecutionStreamEmitter } from 'src/engine/core-modules/tool-provider/interfaces/code-execution-stream-emitter.type';
 
+import { type AiToolAvailabilityChannel } from 'src/engine/metadata-modules/ai/ai-tool-availability/types/ai-tool-availability-channel.type';
+
 export type ToolProviderContext = {
   resolveExecutionContext?: () => Promise<ToolProviderContext>;
   workspaceId: string;
+  toolAvailabilityChannel?: AiToolAvailabilityChannel;
   approvedToolName?: string;
   authContext?: WorkspaceAuthContext;
   application?: FlatApplication;

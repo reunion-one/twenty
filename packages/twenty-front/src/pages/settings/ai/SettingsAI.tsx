@@ -1,3 +1,4 @@
+import { SettingsAiAvailabilityTab } from '@/settings/ai/tool-availability/components/SettingsAiAvailabilityTab';
 import { NavigationButton } from '@/ui/input/components/NavigationButton';
 import { getSettingsAiTabs } from '@/settings/ai/utils/getSettingsAiTabs';
 import { SettingsAiWorkspaceAssistantSection } from '~/pages/settings/ai/components/SettingsAiWorkspaceAssistantSection';
@@ -56,6 +57,8 @@ export const SettingsAI = () => {
   const isModelsTab = activeTabId === SETTINGS_AI_TABS.TABS_IDS.MODELS;
   const isSkillsTab = activeTabId === SETTINGS_AI_TABS.TABS_IDS.SKILLS;
   const isToolsTab = activeTabId === SETTINGS_AI_TABS.TABS_IDS.TOOLS;
+  const isAvailabilityTab =
+    activeTabId === SETTINGS_AI_TABS.TABS_IDS.TOOL_AVAILABILITY;
   const isUsageTab = activeTabId === SETTINGS_AI_TABS.TABS_IDS.USAGE;
 
   const secondaryBar = (
@@ -151,6 +154,7 @@ export const SettingsAI = () => {
         {isModelsTab && <SettingsAiModelsTab />}
         {isSkillsTab && <SettingsAgentSkillsTab />}
         {isToolsTab && <SettingsAgentToolsTab />}
+        {isAvailabilityTab && <SettingsAiAvailabilityTab />}
         {isUsageTab && <SettingsAiUsageTab />}
       </SettingsPageContainer>
     </SettingsPageLayout>

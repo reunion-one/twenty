@@ -42,6 +42,7 @@ export class McpInstructionBuilderService {
         }),
         this.skillService.findAllFlatSkills(workspaceId),
         this.toolRegistry.buildToolIndex(workspaceId, {
+          toolAvailabilityChannel: 'mcp',
           authContext,
           categories: [ToolCategory.ACTION],
         }),

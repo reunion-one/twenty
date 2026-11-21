@@ -6,6 +6,7 @@ export const SETTINGS_AI_TABS = {
     MODELS: 'models',
     SKILLS: 'skills',
     TOOLS: 'tools',
+    TOOL_AVAILABILITY: 'tool-availability',
     USAGE: 'usage',
   },
 } as const;

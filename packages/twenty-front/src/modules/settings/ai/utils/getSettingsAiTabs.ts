@@ -5,6 +5,7 @@ import {
   IconChartBar,
   IconCpu,
   IconLayoutDashboard,
+  IconLock,
   IconSparkles,
   IconTool,
 } from 'twenty-ui/icon';
@@ -38,6 +39,11 @@ export const getSettingsAiTabs = (isInboxEnabled: boolean) => [
     id: SETTINGS_AI_TABS.TABS_IDS.TOOLS,
     title: t`Tools`,
     Icon: IconTool,
+  },
+  {
+    id: SETTINGS_AI_TABS.TABS_IDS.TOOL_AVAILABILITY,
+    title: t`Tool Availability`,
+    Icon: IconLock,
   },
   {
     id: SETTINGS_AI_TABS.TABS_IDS.USAGE,
