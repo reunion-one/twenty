@@ -16,6 +16,7 @@ import { isDeeplyEqual } from '~/utils/isDeeplyEqual';
 import {
   type UpsertViewWidgetInput,
   type ViewFragmentFragment,
+  ViewType,
 } from '~/generated-metadata/graphql';
 
 export const useSaveRecordTableWidgetViews = () => {
@@ -108,8 +109,14 @@ export const useSaveRecordTableWidgetViews = () => {
           widgetViewDraft.view,
         );
 
+        const shouldRestoreMissingGroups =
+          widgetViewDraft.view.type === ViewType.TABLE_WIDGET &&
+          recordTableWidgetViewPersisted[widget.id]?.viewGroups.length === 0 &&
+          widgetViewDraft.viewGroups.length > 0;
+
         const hasViewSettingsChanges =
           !isDefined(persistedView) ||
+          shouldRestoreMissingGroups ||
           !isDeeplyEqual(
             buildUpsertViewWidgetViewSettingsInput(persistedView),
             draftViewSettings,
