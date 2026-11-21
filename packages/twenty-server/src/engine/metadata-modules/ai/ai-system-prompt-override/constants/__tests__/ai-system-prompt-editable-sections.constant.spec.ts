@@ -62,6 +62,6 @@ describe('@custom editable system prompt upgrade guard', () => {
         service.upsert('workspace', key, template),
       ).resolves.toBeUndefined();
     }
-    expect(keyValuePairService.set).toHaveBeenCalledTimes(8);
+    expect(keyValuePairService.set).toHaveBeenCalledTimes(9);
   });
 });

@@ -1,20 +1,10 @@
-import { LOAD_SKILL_TOOL_NAME } from 'src/engine/core-modules/tool-provider/tools';
+import { resolveStringTemplate } from 'twenty-shared/utils';
+import { SKILL_CATALOG_TEMPLATE } from 'src/engine/metadata-modules/ai/ai-chat/constants/skill-catalog-prompt-template.constant';
+import { buildSkillCatalogVariables } from 'src/engine/metadata-modules/ai/ai-chat/utils/build-skill-catalog-variables.util';
 import { type FlatSkill } from 'src/engine/metadata-modules/flat-skill/types/flat-skill.type';
 
-export const buildSkillCatalogSection = (skillCatalog: FlatSkill[]): string => {
-  if (skillCatalog.length === 0) {
-    return '';
-  }
-
-  const skillsList = skillCatalog
-    .map((skill) => `- \`${skill.name}\`: ${skill.description ?? skill.label}`)
-    .join('\n');
-
-  return `
-## Available Skills
-
-Skills provide detailed expertise for specialized tasks. Load a skill before attempting complex operations.
-To load a skill, call \`${LOAD_SKILL_TOOL_NAME}\` with the skill name(s).
-
-${skillsList}`;
-};
+export const buildSkillCatalogSection = (skillCatalog: FlatSkill[]): string =>
+  resolveStringTemplate(
+    SKILL_CATALOG_TEMPLATE,
+    buildSkillCatalogVariables(skillCatalog),
+  );

@@ -1,4 +1,4 @@
-import { AI_SYSTEM_PROMPT_TOOL_CATEGORY_PATHS } from 'src/engine/metadata-modules/ai/ai-system-prompt-override/constants/ai-system-prompt-tool-category-paths.constant';
+import { AI_SYSTEM_PROMPT_TOOL_CATEGORY_PATHS } from 'src/engine/core-modules/tool-provider/constants/tool-catalog-prompt-template.constant';
 
 export const AI_SYSTEM_PROMPT_VARIABLE_NAMES: readonly string[] = [
   'assistant.displayName',
@@ -11,20 +11,16 @@ export const AI_SYSTEM_PROMPT_VARIABLE_NAMES: readonly string[] = [
   'workspace.name',
   'workspace.id',
   'currentDate',
-  'toolCatalog',
-  'skillCatalog',
-  'userContext',
-  'objects.names',
-  'objects.count',
-  'tools.names',
-  'tools.count',
-  'tools.direct.names',
-  'tools.discovery.names',
-  'tools.record.patterns',
-  ...Object.values(AI_SYSTEM_PROMPT_TOOL_CATEGORY_PATHS).map(
-    (category) => 'tools.' + category + '.names',
-  ),
-  'skills.names',
-  'skills.summaries',
-  'skills.count',
+  ...[
+    'tools',
+    'tools.preloaded',
+    'tools.discovery',
+    'tools.record.patterns',
+    'tools.record.other',
+    'objects',
+    'skills',
+    ...Object.values(AI_SYSTEM_PROMPT_TOOL_CATEGORY_PATHS).map(
+      (category) => `tools.${category}`,
+    ),
+  ].flatMap((group) => [`${group}.list`, `${group}.count`]),
 ];
