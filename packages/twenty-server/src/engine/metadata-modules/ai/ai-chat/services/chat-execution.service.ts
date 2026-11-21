@@ -45,6 +45,7 @@ import { type AgentChatSender } from 'src/engine/metadata-modules/ai/ai-chat/typ
 import { type AgentChatAuthorizedConversation } from 'src/engine/metadata-modules/ai/ai-chat/types/agent-chat-authorized-conversation.type';
 import { type UploadedFileReference } from 'src/engine/metadata-modules/ai/ai-chat/types/uploaded-file-reference.type';
 import { buildFullSystemPrompt } from 'src/engine/metadata-modules/ai/ai-chat/utils/build-full-system-prompt.util';
+import { AiSystemPromptOverrideService } from 'src/engine/metadata-modules/ai/ai-system-prompt-override/services/ai-system-prompt-override.service';
 import { buildWorkspaceSetupChatThreadId } from 'src/engine/metadata-modules/ai/ai-chat/utils/build-workspace-setup-chat-thread-id.util';
 import { collectReferencedSkillIds } from 'src/engine/metadata-modules/ai/ai-chat/utils/collect-referenced-skill-ids.util';
 import { collectUploadedFileReferences } from 'src/engine/metadata-modules/ai/ai-chat/utils/collect-uploaded-file-references.util';
@@ -125,6 +126,7 @@ export class ChatExecutionService {
     private readonly agentChatMessageReactionService: AgentChatMessageReactionService,
     private readonly featureFlagService: FeatureFlagService,
     private readonly agentTurnService: AgentTurnService,
+    private readonly aiSystemPromptOverrideService: AiSystemPromptOverrideService,
   ) {}
 
   async streamChat({
@@ -248,9 +250,17 @@ export class ChatExecutionService {
         }
 
         const skillContext = await executionProfile.loadSkillContext();
+        const buildSystemPrompt = (
+          args: Parameters<typeof buildFullSystemPrompt>[0],
+        ) =>
+          this.aiSystemPromptOverrideService.buildFullSystemPrompt(
+            args,
+            workspace.displayName,
+            { availableToolNames: Object.keys(toolset.tools) },
+          );
 
         return {
-          systemPrompt: buildFullSystemPrompt({
+          systemPrompt: await buildSystemPrompt({
             assistantDisplayName: executionProfile.assistantDisplayName,
             toolCatalog: toolset.toolCatalog,
             ...skillContext,

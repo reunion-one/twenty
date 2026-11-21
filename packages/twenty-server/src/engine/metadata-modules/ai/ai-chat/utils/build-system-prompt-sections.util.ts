@@ -82,7 +82,7 @@ export const buildSystemPromptSections = ({
       title: 'Component Builder',
       content: CHAT_SYSTEM_PROMPTS.COMPONENT_BUILDER,
     },
-    isNonEmptyString(skillCatalogSection) && {
+    {
       title: 'Skill Catalog',
       content: skillCatalogSection,
     },

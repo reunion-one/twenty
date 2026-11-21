@@ -306,6 +306,7 @@ export class AgentChatResolver {
   ) {
     return this.systemPromptBuilderService.buildPreview({
       workspaceId: workspace.id,
+      workspaceName: workspace.displayName,
       userWorkspaceId,
       workspaceInstructions: workspace.aiAdditionalInstructions ?? undefined,
       assistantProfile: workspace.aiChatAssistantProfile,
