@@ -1,5 +1,8 @@
 import { type FlatSkill } from 'src/engine/metadata-modules/flat-skill/types/flat-skill.type';
-import { ToolCategory } from 'twenty-shared/ai';
+import {
+  PREVIEW_FRONT_COMPONENT_TOOL_NAME,
+  ToolCategory,
+} from 'twenty-shared/ai';
 import { type BuildSystemPromptArguments } from 'src/engine/metadata-modules/ai/ai-chat/types/build-system-prompt-arguments.type';
 import { buildSystemPromptSections } from 'src/engine/metadata-modules/ai/ai-chat/utils/build-system-prompt-sections.util';
 import { KeyValuePairService } from 'src/engine/core-modules/key-value-pair/key-value-pair.service';
@@ -17,11 +20,14 @@ describe('@custom editable system prompt upgrade guard', () => {
       canAttachConversationToRecords: true,
       toolCatalog: [
         {
-          name: 'search',
-          label: 'Search',
-          description: 'Search records',
+          name: PREVIEW_FRONT_COMPONENT_TOOL_NAME,
+          label: 'Preview',
+          description: 'Preview a front component',
           category: ToolCategory.FRONT_COMPONENT,
-          executionRef: { kind: 'static', toolId: 'search' },
+          executionRef: {
+            kind: 'static',
+            toolId: PREVIEW_FRONT_COMPONENT_TOOL_NAME,
+          },
         },
       ],
       skillCatalog: [
@@ -62,6 +68,6 @@ describe('@custom editable system prompt upgrade guard', () => {
         service.upsert('workspace', key, template),
       ).resolves.toBeUndefined();
     }
-    expect(keyValuePairService.set).toHaveBeenCalledTimes(9);
+    expect(keyValuePairService.set).toHaveBeenCalledTimes(10);
   });
 });

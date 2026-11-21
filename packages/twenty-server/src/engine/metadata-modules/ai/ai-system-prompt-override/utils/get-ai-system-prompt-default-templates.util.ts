@@ -1,4 +1,5 @@
 import { TOOL_CATALOG_TEMPLATE } from 'src/engine/core-modules/tool-provider/constants/tool-catalog-prompt-template.constant';
+import { CHAT_SYSTEM_PROMPTS } from 'src/engine/metadata-modules/ai/ai-chat/constants/chat-system-prompts.const';
 import { SKILL_CATALOG_TEMPLATE } from 'src/engine/metadata-modules/ai/ai-chat/constants/skill-catalog-prompt-template.constant';
 import { USER_CONTEXT_TEMPLATE } from 'src/engine/metadata-modules/ai/ai-chat/constants/user-context-prompt-template.constant';
 import { buildSystemPromptSections } from 'src/engine/metadata-modules/ai/ai-chat/utils/build-system-prompt-sections.util';
@@ -29,6 +30,7 @@ export const getAiSystemPromptDefaultTemplates = (): Record<
       ]),
     ) as Record<AiSystemPromptSectionKey, string>),
     toolCatalog: TOOL_CATALOG_TEMPLATE,
+    componentBuilder: CHAT_SYSTEM_PROMPTS.COMPONENT_BUILDER,
     skillCatalog: SKILL_CATALOG_TEMPLATE,
     userContext: USER_CONTEXT_TEMPLATE,
   };
