@@ -1,0 +1,11 @@
+import {
+  EXECUTE_TOOL_TOOL_NAME,
+  LEARN_TOOLS_TOOL_NAME,
+  LOAD_SKILL_TOOL_NAME,
+} from 'src/engine/core-modules/tool-provider/tools';
+
+export const AI_SYSTEM_PROMPT_DISCOVERY_TOOL_NAMES = [
+  LEARN_TOOLS_TOOL_NAME,
+  EXECUTE_TOOL_TOOL_NAME,
+  LOAD_SKILL_TOOL_NAME,
+];

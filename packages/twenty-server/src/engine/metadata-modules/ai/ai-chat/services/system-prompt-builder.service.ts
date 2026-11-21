@@ -11,6 +11,7 @@ import { AI_CHAT_EXCLUDED_TOOL_NAMES } from 'src/engine/metadata-modules/ai/ai-c
 import { AI_CHAT_TOOL_NAMES_TO_PRELOAD } from 'src/engine/metadata-modules/ai/ai-chat/constants/ai-chat-tool-names-to-preload.const';
 import { type BuildSystemPromptArguments } from 'src/engine/metadata-modules/ai/ai-chat/types/build-system-prompt-arguments.type';
 import { AiSystemPromptOverrideService } from 'src/engine/metadata-modules/ai/ai-system-prompt-override/services/ai-system-prompt-override.service';
+import { resolveAiSystemPromptPreviewToolNames } from 'src/engine/metadata-modules/ai/ai-system-prompt-override/utils/resolve-ai-system-prompt-preview-tool-names.util';
 import { type SystemPromptSection } from 'src/engine/metadata-modules/ai/ai-chat/types/system-prompt-section.type';
 import { SkillService } from 'src/engine/metadata-modules/skill/skill.service';
 
@@ -51,10 +52,11 @@ export class SystemPromptBuilderService {
         workspaceId,
       );
 
+    const authContext = getWorkspaceAuthContext();
     const [toolCatalog, skillCatalog, isAiChatInboxEnabled] = await Promise.all(
       [
         this.toolRegistry.buildToolIndex(workspaceId, {
-          authContext: getWorkspaceAuthContext(),
+          authContext,
           userId,
           userWorkspaceId,
           excludeTools: AI_CHAT_EXCLUDED_TOOL_NAMES,
@@ -67,8 +69,19 @@ export class SystemPromptBuilderService {
       ],
     );
 
-    const buildSectionsWithOverrides = (args: BuildSystemPromptArguments) =>
-      this.aiSystemPromptOverrideService.buildSections(args, workspaceName);
+    const buildSectionsWithOverrides = async (
+      args: BuildSystemPromptArguments,
+    ) =>
+      this.aiSystemPromptOverrideService.buildSections(
+        args,
+        workspaceName,
+        await resolveAiSystemPromptPreviewToolNames({
+          toolRegistry: this.toolRegistry,
+          context: { workspaceId, authContext, userId, userWorkspaceId },
+          toolCatalog,
+          preloadedToolNames: AI_CHAT_TOOL_NAMES_TO_PRELOAD,
+        }),
+      );
 
     const builtSections = await buildSectionsWithOverrides({
       assistantDisplayName: isAiChatInboxEnabled

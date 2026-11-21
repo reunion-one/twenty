@@ -25,11 +25,11 @@ describe('@custom SettingsAiPromptVariablePicker', () => {
 
     await user.click(screen.getByRole('button', { name: 'Insert variable' }));
     expect(
-      screen.getByText(
-        'The first name of the user making the request. Empty when unavailable.',
-      ),
+      screen.getByText('Exact names of available workflow tools.'),
     ).toBeVisible();
-    await user.click(screen.getByRole('button', { name: /First name/ }));
-    expect(onVariableSelect).toHaveBeenCalledWith('{{user.firstName}}');
+    await user.click(
+      screen.getByRole('button', { name: /Workflow tool names/ }),
+    );
+    expect(onVariableSelect).toHaveBeenCalledWith('{{tools.workflow.names}}');
   });
 });

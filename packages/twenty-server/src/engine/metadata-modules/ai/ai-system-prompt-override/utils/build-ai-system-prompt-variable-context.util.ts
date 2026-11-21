@@ -4,11 +4,18 @@ import { DEFAULT_AI_CHAT_ASSISTANT_PROFILE } from 'twenty-shared/ai';
 import { type BuildSystemPromptArguments } from 'src/engine/metadata-modules/ai/ai-chat/types/build-system-prompt-arguments.type';
 import { type SystemPromptSection } from 'src/engine/metadata-modules/ai/ai-chat/types/system-prompt-section.type';
 
+import {
+  buildAiSystemPromptCatalogVariables,
+  type AiSystemPromptToolNames,
+} from 'src/engine/metadata-modules/ai/ai-system-prompt-override/utils/build-ai-system-prompt-catalog-variables.util';
+
 export const buildAiSystemPromptVariableContext = (
   args: BuildSystemPromptArguments,
   sections: SystemPromptSection[],
   workspaceName?: string | null,
+  toolNames?: AiSystemPromptToolNames,
 ) => ({
+  ...buildAiSystemPromptCatalogVariables(args, toolNames),
   assistant: {
     displayName:
       args.assistantDisplayName ??

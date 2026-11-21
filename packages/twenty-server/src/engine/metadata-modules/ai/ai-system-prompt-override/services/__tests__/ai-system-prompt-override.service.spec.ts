@@ -85,18 +85,19 @@ describe('@custom AiSystemPromptOverrideService', () => {
       .update(getAiSystemPromptDefaultTemplates().baseInstructions)
       .digest('hex');
 
-    await service.upsert('workspace', 'baseInstructions', 'custom');
+    const content = 'Custom {{tools.workflow.names}}';
+    await service.upsert('workspace', 'baseInstructions', content);
     expect(keyValuePairService.set).toHaveBeenCalledWith({
       workspaceId: 'workspace',
       userId: null,
       type: KeyValuePairType.AI_SYSTEM_PROMPT_OVERRIDE,
       key: 'aiSystemPromptOverride:baseInstructions',
-      value: { content: 'custom', defaultHash },
+      value: { content, defaultHash },
     });
     keyValuePairService.get.mockResolvedValue([
       {
         key: 'aiSystemPromptOverride:baseInstructions',
-        value: { content: 'custom', defaultHash },
+        value: { content, defaultHash },
       },
       { key: 'aiSystemPromptOverride:unknown', value: {} },
     ]);

@@ -19,6 +19,7 @@ import {
   type AiSystemPromptOverrideValueMap,
 } from 'src/engine/metadata-modules/ai/ai-system-prompt-override/types/ai-system-prompt-override.type';
 import { applyAiSystemPromptOverrides } from 'src/engine/metadata-modules/ai/ai-system-prompt-override/utils/apply-ai-system-prompt-overrides.util';
+import { type AiSystemPromptToolNames } from 'src/engine/metadata-modules/ai/ai-system-prompt-override/utils/build-ai-system-prompt-catalog-variables.util';
 import { buildAiSystemPromptVariableContext } from 'src/engine/metadata-modules/ai/ai-system-prompt-override/utils/build-ai-system-prompt-variable-context.util';
 import { extractTemplateVariableNames } from 'src/engine/metadata-modules/ai/ai-system-prompt-override/utils/extract-template-variable-names.util';
 import { getAiSystemPromptDefaultTemplates } from 'src/engine/metadata-modules/ai/ai-system-prompt-override/utils/get-ai-system-prompt-default-templates.util';
@@ -68,12 +69,14 @@ export class AiSystemPromptOverrideService {
   async buildSections(
     args: BuildSystemPromptArguments,
     workspaceName?: string | null,
+    toolNames?: AiSystemPromptToolNames,
   ) {
     const sections = buildSystemPromptSections(args);
     const context = buildAiSystemPromptVariableContext(
       args,
       sections,
       workspaceName,
+      toolNames,
     );
 
     return applyAiSystemPromptOverrides(
@@ -86,8 +89,9 @@ export class AiSystemPromptOverrideService {
   async buildFullSystemPrompt(
     args: BuildSystemPromptArguments,
     workspaceName?: string | null,
+    toolNames?: AiSystemPromptToolNames,
   ) {
-    return (await this.buildSections(args, workspaceName))
+    return (await this.buildSections(args, workspaceName, toolNames))
       .map((section) => section.content)
       .join('\n');
   }
