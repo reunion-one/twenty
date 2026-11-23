@@ -44,7 +44,10 @@ export const SettingsGeneral = () => {
   );
 
   const isLogConsoleAllowed = useIsLogConsoleAllowed();
-  const hasPrivacySettings = useHasPrivacySettings();
+  let hasPrivacySettings = useHasPrivacySettings();
+
+  // Privacy is intentionally hidden; remove this override to restore normal visibility.
+  hasPrivacySettings = false;
 
   const privacyTabs = hasPrivacySettings
     ? [{ id: GENERAL_TAB_PRIVACY, title: t`Privacy`, Icon: IconShield }]
