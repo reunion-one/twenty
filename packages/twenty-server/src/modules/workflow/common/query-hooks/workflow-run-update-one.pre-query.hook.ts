@@ -3,29 +3,27 @@ import { type UpdateOneResolverArgs } from 'src/engine/api/graphql/workspace-res
 
 import { WorkspaceQueryHook } from 'src/engine/api/graphql/workspace-query-runner/workspace-query-hook/decorators/workspace-query-hook.decorator';
 import { type WorkspaceAuthContext } from 'src/engine/core-modules/auth/types/workspace-auth-context.type';
-import {
-  WorkflowQueryValidationException,
-  WorkflowQueryValidationExceptionCode,
-} from 'src/modules/workflow/common/exceptions/workflow-query-validation.exception';
+import { WorkflowCustomFieldUpdateValidationService } from 'src/modules/workflow/common/query-hooks/workflow-custom-field-update-validation.service';
 import { type WorkflowRunWorkspaceEntity } from 'src/modules/workflow/common/standard-objects/workflow-run.workspace-entity';
 
 @WorkspaceQueryHook(`workflowRun.updateOne`)
 export class WorkflowRunUpdateOnePreQueryHook implements WorkspacePreQueryHookInstance {
+  constructor(
+    private readonly workflowCustomFieldUpdateValidationService: WorkflowCustomFieldUpdateValidationService,
+  ) {}
+
   async execute(
-    _authContext: WorkspaceAuthContext,
-    _objectName: string,
+    authContext: WorkspaceAuthContext,
+    objectName: string,
     payload: UpdateOneResolverArgs<WorkflowRunWorkspaceEntity>,
   ): Promise<UpdateOneResolverArgs<WorkflowRunWorkspaceEntity>> {
-    const allowedFields = ['name'];
-    const payloadKeys = Object.keys(payload.data);
+    await this.workflowCustomFieldUpdateValidationService.validate({
+      authContext,
+      objectName,
+      data: payload.data,
+      allowedFields: ['name'],
+    });
 
-    if (payloadKeys.every((key) => allowedFields.includes(key))) {
-      return payload;
-    }
-
-    throw new WorkflowQueryValidationException(
-      'Method not allowed.',
-      WorkflowQueryValidationExceptionCode.FORBIDDEN,
-    );
+    return payload;
   }
 }

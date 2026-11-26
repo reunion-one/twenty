@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 
+import { WorkspaceManyOrAllFlatEntityMapsCacheModule } from 'src/engine/metadata-modules/flat-entity/services/workspace-many-or-all-flat-entity-maps-cache.module';
+import { WorkflowCustomFieldUpdateValidationService } from 'src/modules/workflow/common/query-hooks/workflow-custom-field-update-validation.service';
 import { WorkflowCreateManyPreQueryHook } from 'src/modules/workflow/common/query-hooks/workflow-create-many.pre-query.hook';
 import { WorkflowCreateOnePreQueryHook } from 'src/modules/workflow/common/query-hooks/workflow-create-one.pre-query.hook';
 import { WorkflowDeleteManyPreQueryHook } from 'src/modules/workflow/common/query-hooks/workflow-delete-many.pre-query.hook';
@@ -30,7 +32,9 @@ import { WorkflowVersionUpdateManyPreQueryHook } from 'src/modules/workflow/comm
 import { WorkflowVersionUpdateOnePreQueryHook } from 'src/modules/workflow/common/query-hooks/workflow-version-update-one.pre-query.hook';
 
 @Module({
+  imports: [WorkspaceManyOrAllFlatEntityMapsCacheModule],
   providers: [
+    WorkflowCustomFieldUpdateValidationService,
     WorkflowCreateManyPreQueryHook,
     WorkflowCreateOnePreQueryHook,
     WorkflowDeleteManyPreQueryHook,
